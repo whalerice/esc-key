@@ -11,9 +11,9 @@ pnpm install
 pnpm dev
 ```
 
-- 허브: http://localhost:3000
-- 늘봄 목록: http://localhost:3000/neulbom
-- 스텁 테마: http://localhost:3000/neulbom/neulbom-112
+- 허브: http://localhost:4200
+- 늘봄 목록: http://localhost:4200/neulbom
+- 스텁 테마: http://localhost:4200/neulbom/neulbom-112
 
 ```bash
 pnpm typecheck

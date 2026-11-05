@@ -1,10 +1,11 @@
 import { notFound } from 'next/navigation';
 import { getTheme, listThemes } from '@/themes/registry';
-import { ThemePlay } from '@/engine/ui/ThemePlay';
+import { Neulbom112Play } from '@/themes/neulbom-112/Play';
+import { StubThemePlay } from '@/themes/StubThemePlay';
 
 type Props = { params: Promise<{ theme: string }> };
 
-/** Static paths for `output: 'export'`. */
+/** Static paths for `output: 'export'`. Hub links `/neulbom/<theme.id>`. */
 export function generateStaticParams() {
   return listThemes('neulbom').map((t) => ({ theme: t.id }));
 }
@@ -15,5 +16,9 @@ export default async function ThemePage({ params }: Props) {
   const theme = getTheme(themeId);
   if (!theme || theme.world !== 'neulbom') notFound();
 
-  return <ThemePlay theme={theme} />;
+  if (theme.id === 'neulbom-112') {
+    return <Neulbom112Play />;
+  }
+
+  return <StubThemePlay theme={theme} />;
 }

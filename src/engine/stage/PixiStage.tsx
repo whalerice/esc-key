@@ -17,11 +17,14 @@ export type PixiStageProps = {
 export function PixiStage({ background = '#0a0a0a', onReady }: PixiStageProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<Application | null>(null);
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
 
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
     let disposed = false;
+    let ro: ResizeObserver | undefined;
     const app = new Application();
 
     void (async () => {
@@ -51,21 +54,20 @@ export function PixiStage({ background = '#0a0a0a', onReady }: PixiStageProps) {
         canvas.style.height = `${layout.height}px`;
       };
       fit();
-      const ro = new ResizeObserver(fit);
+      ro = new ResizeObserver(fit);
       ro.observe(host);
-      onReady?.(app);
-
-      return () => ro.disconnect();
+      onReadyRef.current?.(app);
     })();
 
     return () => {
       disposed = true;
+      ro?.disconnect();
       if (appRef.current) {
         appRef.current.destroy(true);
         appRef.current = null;
       }
     };
-  }, [background, onReady]);
+  }, [background]);
 
   return <div ref={hostRef} className="pixi-stage" aria-hidden />;
 }

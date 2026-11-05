@@ -220,6 +220,11 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.25);
   background: rgba(0, 0, 0, 0.35);
   border-radius: 2px;
+  display: grid;
+  place-items: center;
+  font-size: 0.55rem;
+  text-align: center;
+  overflow: hidden;
 }
 
 .narration {
@@ -266,6 +271,45 @@ button {
   left: 50%;
   right: calc(8px + var(--safe-right));
   inset-inline-start: 50%;
+}
+
+.hud-slot-label {
+  padding: 2px;
+  line-height: 1.1;
+  word-break: break-all;
+}
+
+.hint-memo {
+  max-width: 28rem;
+  margin: auto;
+  inset: 18% 20%;
+  z-index: 40;
+  pointer-events: auto;
+}
+
+.hint-memo-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.hint-memo-step {
+  opacity: 0.7;
+  font-size: 0.85rem;
+  margin-right: auto;
+}
+
+.hint-memo-intro {
+  opacity: 0.7;
+  font-size: 0.9rem;
+  margin: 0 0 0.5rem;
+}
+
+.hint-memo-body {
+  margin: 0;
+  line-height: 1.55;
+  font-size: 1.05rem;
 }
 
 @keyframes blink {

@@ -9,6 +9,8 @@ import { INVENTORY_SLOTS } from '@/engine/systems/Inventory';
 export type HudProps = {
   inventoryName: string;
   itemCount?: number;
+  /** Optional short labels drawn in filled slots (item ids ok for slice). */
+  itemLabels?: string[];
   timerLabel?: string | null;
   hintBlink?: boolean;
   muted?: boolean;
@@ -24,6 +26,7 @@ export type HudProps = {
 export function Hud({
   inventoryName,
   itemCount = 0,
+  itemLabels = [],
   timerLabel = null,
   hintBlink = false,
   muted = false,
@@ -75,7 +78,11 @@ export function Hud({
         <span className="hud-inventory-label">{inventoryName}</span>
         <ul className="hud-inventory-slots">
           {Array.from({ length: slots }, (_, i) => (
-            <li key={i} className="hud-slot" data-empty={i >= itemCount} />
+            <li key={i} className="hud-slot" data-empty={i >= itemCount}>
+              {i < itemCount ? (
+                <span className="hud-slot-label">{itemLabels[i] ?? '·'}</span>
+              ) : null}
+            </li>
           ))}
         </ul>
       </aside>

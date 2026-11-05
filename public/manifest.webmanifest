@@ -1,0 +1,11 @@
+{
+  "name": "ESC KEY",
+  "short_name": "ESC KEY",
+  "description": "모바일 웹 방탈출",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "lang": "ko"
+}

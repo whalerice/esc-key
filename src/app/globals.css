@@ -1,0 +1,282 @@
+/* Spec: docs/공통엔진.md §6–§7 — landscape contain stage + non-interactive chrome. */
+
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --bg: #050505;
+  --fg: #f2efe8;
+  --accent: #c4a574;
+  --hud: rgba(0, 0, 0, 0.55);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.hub,
+.theme-list {
+  min-height: 100dvh;
+  padding: calc(24px + var(--safe-top)) 24px calc(24px + var(--safe-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.hub h1,
+.theme-list h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.hub p,
+.theme-list p {
+  margin: 0;
+  opacity: 0.75;
+  line-height: 1.5;
+}
+
+.hub-links,
+.theme-links {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.hub-links a,
+.theme-links a {
+  display: block;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(196, 165, 116, 0.35);
+  border-radius: 4px;
+}
+
+.theme-play {
+  position: fixed;
+  inset: 0;
+  touch-action: none;
+  background: #000;
+  overflow: hidden;
+}
+
+.theme-stage-wrap,
+.pixi-stage {
+  position: absolute;
+  inset: 0;
+}
+
+.pixi-stage--loading {
+  background: #0a0a0a;
+}
+
+.engine-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.92);
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+}
+
+.gate-btn {
+  min-width: 12rem;
+  min-height: 44px;
+  padding: 0.9rem 1.6rem;
+  border: 1px solid var(--accent);
+  background: transparent;
+  border-radius: 2px;
+  letter-spacing: 0.04em;
+}
+
+.gate-loading {
+  width: min(280px, 70vw);
+  text-align: center;
+}
+
+.gate-bar {
+  height: 4px;
+  background: var(--accent);
+  margin-bottom: 0.75rem;
+  transition: width 0.2s linear;
+}
+
+.hud {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  padding: calc(8px + var(--safe-top)) calc(12px + var(--safe-right))
+    calc(8px + var(--safe-bottom)) calc(12px + var(--safe-left));
+}
+
+.hud-left,
+.hud-right,
+.hud-btn,
+.hud-inventory {
+  pointer-events: auto;
+}
+
+.hud-left,
+.hud-right {
+  position: absolute;
+  top: calc(8px + var(--safe-top));
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.hud-left {
+  left: calc(12px + var(--safe-left));
+}
+
+.hud-right {
+  right: calc(12px + var(--safe-right));
+}
+
+.hud-btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 0.7rem;
+  border: 0;
+  background: var(--hud);
+  border-radius: 4px;
+}
+
+.hud-btn.blink {
+  animation: blink 1s step-end infinite;
+}
+
+.hud-timer {
+  padding: 0.4rem 0.6rem;
+  background: var(--hud);
+  border-radius: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-inventory {
+  position: absolute;
+  right: calc(8px + var(--safe-right));
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.hud-inventory-label {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+.hud-inventory-slots {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.hud-slot {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 2px;
+}
+
+.narration {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 25;
+  height: 22%;
+  border: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+  padding: 1rem calc(16px + var(--safe-right)) calc(12px + var(--safe-bottom))
+    calc(16px + var(--safe-left));
+  text-align: left;
+  display: flex;
+  align-items: flex-end;
+}
+
+.banner {
+  position: absolute;
+  top: calc(8px + var(--safe-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 35;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.5rem 0.9rem;
+  background: var(--hud);
+  border-radius: 4px;
+}
+
+.modal {
+  position: absolute;
+  z-index: 40;
+  inset: 10% 8%;
+  background: #14110e;
+  border: 1px solid rgba(196, 165, 116, 0.4);
+  padding: 1.25rem;
+  overflow: auto;
+}
+
+.notebook {
+  left: 50%;
+  right: calc(8px + var(--safe-right));
+  inset-inline-start: 50%;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (orientation: portrait) {
+  .hub,
+  .theme-list {
+    /* PC/dev ok; play shell uses RotateOverlay */
+  }
+}

@@ -7,8 +7,8 @@
 ## 로컬 실행
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 - 허브: http://localhost:3000
@@ -16,8 +16,8 @@ npm run dev
 - 스텁 테마: http://localhost:3000/neulbom/neulbom-112
 
 ```bash
-npm run typecheck
-npm run build
+pnpm typecheck
+pnpm build
 ```
 
 ## 폴더

@@ -5,25 +5,33 @@
 export function ResultCard({
   open,
   title,
-  timeLabel,
-  hints,
-  onClose,
+  endingId,
+  lines,
+  onReplay,
 }: {
   open: boolean;
   title: string;
-  timeLabel: string;
-  hints: number;
-  onClose: () => void;
+  endingId?: string;
+  lines: string[];
+  onReplay?: () => void;
 }) {
   if (!open) return null;
   return (
-    <div className="modal result-card" data-layer="modal" role="dialog">
+    <div
+      className="modal result-card"
+      data-layer="modal"
+      role="dialog"
+      data-ending={endingId ?? title}
+    >
       <h2>{title}</h2>
-      <p>시간 {timeLabel}</p>
-      <p>힌트 {hints}</p>
-      <button type="button" onClick={onClose}>
-        확인
-      </button>
+      {lines.map((text, i) => (
+        <p key={i}>{text}</p>
+      ))}
+      {onReplay && (
+        <button type="button" className="gate-btn" onClick={onReplay}>
+          처음부터
+        </button>
+      )}
     </div>
   );
 }

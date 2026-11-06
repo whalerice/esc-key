@@ -163,6 +163,21 @@ export function judgeKey(tag: string): 'ok' | 'red' | 'no' {
   return 'no';
 }
 
+export const KEYRING_ID = '열쇠 꾸러미';
+export const ROOF_LOCK_ID = 'roof-lock';
+
+/** Bag item on the roof lock. The keyring has to be in the inventory. */
+export function judgeItemUse(
+  itemId: string | null,
+  targetId: string,
+  items: readonly string[],
+): 'keys' | 'missing' | 'wrong' | 'ignore' {
+  if (targetId !== ROOF_LOCK_ID) return 'ignore';
+  if (itemId !== KEYRING_ID) return itemId ? 'wrong' : 'missing';
+  if (!items.includes(KEYRING_ID)) return 'missing';
+  return 'keys';
+}
+
 export const P8_HZ = 87.9;
 export const P8_TOL = 0.05;
 export const P8_HOLD_MS = 2000;
@@ -174,6 +189,48 @@ export function judgeFader(value: number): boolean {
 
 export function windowDigit(freq: number): string {
   return String(Math.abs(Math.round(freq * 10)) % 10);
+}
+
+const ENDING_COPY: Record<string, { blurb: string; share: string }> = {
+  A: { blurb: '15년 비워 둔 자리에, 편지가 꽂혔다.', share: '안개 낀 창밖 · 등대 불빛' },
+  B: { blurb: '마지막 방송은 안개 속으로 흩어졌다.', share: '꺼진 ON AIR 램프' },
+};
+
+function mmss(ms: number): string {
+  const total = Math.max(0, Math.ceil(ms / 1000));
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+/** Gray-box result card. Share line is a caption, not an image. */
+export function radioResultLines(input: {
+  endingId: string;
+  title: string;
+  elapsedMs: number;
+  remainingMs: number;
+  messenger: number;
+  walkie: number;
+  heard: number;
+  trapPostit: boolean;
+  trapRedKey: boolean;
+}): string[] {
+  const copy = ENDING_COPY[input.endingId] ?? { blurb: input.title, share: '' };
+  const traps = [
+    input.trapPostit ? '포스트잇' : null,
+    input.trapRedKey ? '빨간 등대 열쇠' : null,
+  ].filter((t): t is string => !!t);
+  const lines = [
+    copy.blurb,
+    `걸린 시간 ${mmss(input.elapsedMs)}`,
+    `남은 온에어 ${mmss(input.remainingMs)}`,
+    `선배에게 메시지 ${input.messenger}번 · 무전 ${input.walkie}번`,
+    `도장 「${input.title}」`,
+    `들은 옛 방송 ${input.heard}/4`,
+    `함정 발견 ${traps.length ? traps.join(' · ') : '없음'}`,
+  ];
+  if (copy.share) lines.push(copy.share);
+  return lines;
 }
 
 export function assertRadioAnswers(): void {
@@ -204,6 +261,40 @@ export function assertRadioAnswers(): void {
   if (judgeKey('큰 등대') !== 'ok' || judgeKey('빨간 등대') !== 'red' || judgeKey('배') !== 'no') {
     throw new Error('P7');
   }
+  if (judgeItemUse(KEYRING_ID, ROOF_LOCK_ID, [KEYRING_ID]) !== 'keys') throw new Error('use keys');
+  if (judgeItemUse(null, ROOF_LOCK_ID, [KEYRING_ID]) !== 'missing') throw new Error('use missing');
+  if (judgeItemUse(KEYRING_ID, ROOF_LOCK_ID, []) !== 'missing') throw new Error('use bag');
+  if (judgeItemUse('팔칠구의 편지', ROOF_LOCK_ID, ['팔칠구의 편지']) !== 'wrong') throw new Error('use wrong');
+  if (judgeItemUse(KEYRING_ID, 'desk', [KEYRING_ID]) !== 'ignore') throw new Error('use ignore');
   if (!judgeFader(1) || judgeFader(0.99) || P8_PER_TURN !== 1 / 3) throw new Error('P8');
   if (windowDigit(87.9) !== '9') throw new Error('digit');
+  const cardA = radioResultLines({
+    endingId: 'A',
+    title: '제 자리',
+    elapsedMs: 125_000,
+    remainingMs: 30 * 60_000 - 125_000,
+    messenger: 4,
+    walkie: 2,
+    heard: 3,
+    trapPostit: true,
+    trapRedKey: false,
+  });
+  if (cardA[0] !== '15년 비워 둔 자리에, 편지가 꽂혔다.') throw new Error('card A');
+  if (!cardA.includes('선배에게 메시지 4번 · 무전 2번')) throw new Error('card hints');
+  if (!cardA.includes('도장 「제 자리」') || !cardA.includes('들은 옛 방송 3/4')) throw new Error('card A stats');
+  if (!cardA.includes('함정 발견 포스트잇') || !cardA.includes('안개 낀 창밖 · 등대 불빛')) throw new Error('card A trap');
+  const cardB = radioResultLines({
+    endingId: 'B',
+    title: '송출 종료',
+    elapsedMs: 30 * 60_000,
+    remainingMs: 0,
+    messenger: 0,
+    walkie: 0,
+    heard: 0,
+    trapPostit: false,
+    trapRedKey: true,
+  });
+  if (cardB[0] !== '마지막 방송은 안개 속으로 흩어졌다.') throw new Error('card B');
+  if (!cardB.includes('도장 「송출 종료」') || !cardB.includes('꺼진 ON AIR 램프')) throw new Error('card B stamp');
+  if (!cardB.includes('함정 발견 빨간 등대 열쇠')) throw new Error('card B trap');
 }

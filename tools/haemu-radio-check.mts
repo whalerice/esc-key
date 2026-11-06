@@ -2,7 +2,13 @@
  * Answer table for 심야 라디오. No DOM.
  */
 import assert from 'node:assert/strict';
-import { channelForPuzzle } from '../src/engine/systems/Hints.ts';
+import { readFileSync } from 'node:fs';
+import {
+  channelForPuzzle,
+  hintUsesByChannel,
+  nextSmallTalkIndex,
+  smallTalkLine,
+} from '../src/engine/systems/Hints.ts';
 import { withoutEphemeralExtra } from '../src/engine/types.ts';
 import { initialExtra } from '../src/themes/haemu-radio/extra.ts';
 import { assertRadioAnswers } from '../src/themes/haemu-radio/puzzles/answers.ts';
@@ -14,6 +20,36 @@ const channels = [{ skin: 'walkie' as const, fromPuzzle: 'P7' }];
 assert.equal(channelForPuzzle('messenger', channels, 'P6', order), 'messenger');
 assert.equal(channelForPuzzle('messenger', channels, 'P7', order), 'walkie');
 assert.equal(channelForPuzzle('messenger', channels, 'P8', order), 'walkie');
+
+const themeSrc = readFileSync(new URL('../src/themes/haemu-radio/index.ts', import.meta.url), 'utf8');
+const messenger = [
+  '나 원래 아침 팀 출근이라 지금 자야 되는데, 이건 들어야지.',
+  '도윤 선배님 손편지 고집, 처음엔 진짜 이해 안 갔어요. 지금은 좀 알 것 같아요.',
+  '목요일 2번 자리, 나도 3년 동안 비웠어요. 끝내 이유는 못 들었네.',
+  '후배님 다음 주부터 심야죠? 안개 낀 날엔 옥상 문 꼭 받쳐 놔요.',
+  '듣고 있어요. 천천히 해요.',
+];
+const walkie = [
+  '옥상 문, 내가 고쳐 달라고 3년째 말했어요.',
+  '20년 했는데 마지막 날 갇힐 줄은 몰랐네.',
+  '작가님 첫날을 이렇게 만들어서 미안해요. …근데 잘하네.',
+  '마지막 곡은 작가님 손으로 올려요.',
+];
+for (const line of [...messenger, ...walkie]) assert.ok(themeSrc.includes(line), line);
+assert.equal(smallTalkLine(walkie, 0), walkie[0]);
+assert.equal(smallTalkLine(walkie, 99), walkie.at(-1));
+assert.equal(nextSmallTalkIndex(walkie.length, 99), walkie.length - 1);
+assert.equal(smallTalkLine(messenger, 3), messenger[3]);
+assert.equal(smallTalkLine(messenger, 4), messenger[4]);
+
+const uses = hintUsesByChannel(
+  { P1: 3, P6: 1, P7: 2 },
+  order,
+  'messenger',
+  channels,
+);
+assert.equal(uses.messenger, 4);
+assert.equal(uses.walkie, 2);
 
 const saved = withoutEphemeralExtra({ ...initialExtra, radioFreq: 87.9, txFreq: 88.4 });
 assert.equal('radioFreq' in saved, false);

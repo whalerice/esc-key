@@ -178,9 +178,17 @@ button {
   padding-left: 1.1rem;
 }
 
-.radio-flow:has(.radio-call),
-.radio-flow:has(.radio-ending) {
+.radio-flow:has(.radio-call) {
   z-index: 70;
+}
+
+.radio-lock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  padding: 0.5rem;
+  border: 1px dashed rgba(217, 71, 58, 0.55);
 }
 
 .radio-call,
@@ -310,6 +318,26 @@ button {
   font-size: 0.55rem;
   text-align: center;
   overflow: hidden;
+}
+
+.hud-slot[data-draggable='true'] {
+  touch-action: none;
+  cursor: grab;
+}
+
+.hud-slot[data-selected='true'] {
+  border-color: #d9473a;
+}
+
+.hud-drag-ghost {
+  position: fixed;
+  z-index: 80;
+  pointer-events: none;
+  max-width: 8rem;
+  padding: 0.35rem 0.5rem;
+  background: #1a120c;
+  border: 1px solid #d9473a;
+  font-size: 0.75rem;
 }
 
 .narration {
@@ -483,8 +511,25 @@ button {
 }
 
 .ending-lock {
-  z-index: 45;
+  z-index: 80;
   text-align: center;
+}
+
+.ending-lock .result-card {
+  position: relative;
+  inset: auto;
+  z-index: auto;
+  width: min(32rem, 92vw);
+  max-height: 90%;
+}
+
+.result-card h2 {
+  margin: 0 0 0.6rem;
+  letter-spacing: 0.08em;
+}
+
+.result-card p {
+  margin: 0.3rem 0;
 }
 
 .lab {

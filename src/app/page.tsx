@@ -22,6 +22,9 @@ export default function HubPage() {
           <Link href="/lab/lighthouse">엔진 시험 · 등대 위젯</Link>
         </li>
         <li>
+          <Link href="/lab/tailor">엔진 시험 · 한 땀 위젯</Link>
+        </li>
+        <li>
           <span aria-disabled>단독 / 잿빛 새벽 (예정)</span>
         </li>
       </ul>

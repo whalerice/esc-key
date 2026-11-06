@@ -138,8 +138,20 @@ export type ThemeDefinition<TExtra = unknown> = {
   extra?: { initial: TExtra; migrate?: (old: unknown) => TExtra };
 };
 
-/** Dropped on save. Spec §12-2. Frequencies, beam bearing, morse buffer stay out of `extra`. */
-export const EPHEMERAL_EXTRA_KEYS = ['radioFreq', 'txFreq', 'beamDeg', 'morseCode'] as const;
+/** Dropped on save. Spec §12-2. Mid-sew needle, stitch count, and tension stay out of `extra`. */
+export const EPHEMERAL_EXTRA_KEYS = [
+  'radioFreq',
+  'txFreq',
+  'beamDeg',
+  'morseCode',
+  'stitchProgress',
+  'needlePos',
+  'activeStitches',
+  'threadTension',
+  'pedalSpeed',
+  'clothX',
+  'clothAngle',
+] as const;
 
 export type AppSettings = {
   bigText: boolean;

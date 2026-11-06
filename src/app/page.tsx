@@ -16,6 +16,9 @@ export default function HubPage() {
           <Link href="/haemu">해무</Link>
         </li>
         <li>
+          <Link href="/lab/foundations">엔진 시험 · 회전 / 시계 / 라디오</Link>
+        </li>
+        <li>
           <span aria-disabled>단독 / 잿빛 새벽 (예정)</span>
         </li>
       </ul>

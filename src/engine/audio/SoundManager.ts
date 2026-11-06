@@ -3,6 +3,7 @@
  * Gate tap calls unlockAudio(); pre-unlock play() is dropped.
  */
 import { Howl, Howler } from 'howler';
+import { setHtml5Muted } from '@/engine/audio/html5Clip';
 
 let unlocked = false;
 
@@ -12,6 +13,15 @@ export function isAudioUnlocked(): boolean {
 
 export function unlockAudio(): void {
   unlocked = true;
+  if (typeof navigator !== 'undefined') {
+    const session = (navigator as Navigator & { audioSession?: { type: string } })
+      .audioSession;
+    try {
+      if (session) session.type = 'playback';
+    } catch {
+      /* ignore */
+    }
+  }
   try {
     Howler.ctx?.resume?.();
   } catch {
@@ -61,6 +71,7 @@ export class SoundManager {
 
   mute(on: boolean): void {
     Howler.mute(on);
+    setHtml5Muted(on);
   }
 
   dispose(): void {

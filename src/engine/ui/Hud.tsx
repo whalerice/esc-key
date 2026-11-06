@@ -23,6 +23,11 @@ export type HudProps = {
   onMute?: () => void;
   onMaxMode?: () => void;
   onNotebook?: () => void;
+  /**
+   * Sewing scenes. Hides hint and inventory; timer stays.
+   * Spec §19-11. Other chrome stays so back / mute / max still work.
+   */
+  collapsed?: boolean;
   /** Tap a slot to select. Drag onto `[data-use-target]`. */
   selectedItem?: string | null;
   onSelectItem?: (itemId: string) => void;
@@ -43,6 +48,7 @@ export function Hud({
   onMute,
   onMaxMode,
   onNotebook,
+  collapsed = false,
   selectedItem = null,
   onSelectItem,
   onUseItem,
@@ -51,7 +57,7 @@ export function Hud({
   const drag = onSelectItem || onUseItem;
 
   return (
-    <div className="hud" data-layer="hud">
+    <div className="hud" data-layer="hud" data-collapsed={collapsed ? 'yes' : 'no'}>
       <div className="hud-left">
         <button type="button" className="hud-btn" onClick={onBack} aria-label="뒤로">
           ←
@@ -61,14 +67,16 @@ export function Hud({
         )}
       </div>
       <div className="hud-right">
-        <button
-          type="button"
-          className={`hud-btn${hintBlink ? ' blink' : ''}`}
-          onClick={onHint}
-          aria-label="힌트"
-        >
-          힌트
-        </button>
+        {!collapsed && (
+          <button
+            type="button"
+            className={`hud-btn${hintBlink ? ' blink' : ''}`}
+            onClick={onHint}
+            aria-label="힌트"
+          >
+            힌트
+          </button>
+        )}
         {notebook && (
           <button type="button" className="hud-btn" onClick={onNotebook} aria-label="수첩">
             수첩
@@ -86,33 +94,35 @@ export function Hud({
           최대
         </button>
       </div>
-      <aside className="hud-inventory" aria-label={inventoryName}>
-        <span className="hud-inventory-label">{inventoryName}</span>
-        <ul className="hud-inventory-slots">
-          {Array.from({ length: slots }, (_, i) => {
-            const label = i < itemCount ? (itemLabels[i] ?? '') : '';
-            return (
-              <li
-                key={i}
-                className="hud-slot"
-                data-empty={i >= itemCount}
-                data-selected={!!label && selectedItem === label}
-                data-draggable={drag && !!label}
-                role={drag && label ? 'button' : undefined}
-                aria-pressed={drag && label ? selectedItem === label : undefined}
-                aria-label={drag && label ? label : undefined}
-                onPointerDown={
-                  drag && label
-                    ? (event) => beginItemGesture(event, label, onSelectItem, onUseItem)
-                    : undefined
-                }
-              >
-                {label ? <span className="hud-slot-label">{label}</span> : null}
-              </li>
-            );
-          })}
-        </ul>
-      </aside>
+      {!collapsed && (
+        <aside className="hud-inventory" aria-label={inventoryName}>
+          <span className="hud-inventory-label">{inventoryName}</span>
+          <ul className="hud-inventory-slots">
+            {Array.from({ length: slots }, (_, i) => {
+              const label = i < itemCount ? (itemLabels[i] ?? '') : '';
+              return (
+                <li
+                  key={i}
+                  className="hud-slot"
+                  data-empty={i >= itemCount}
+                  data-selected={!!label && selectedItem === label}
+                  data-draggable={drag && !!label}
+                  role={drag && label ? 'button' : undefined}
+                  aria-pressed={drag && label ? selectedItem === label : undefined}
+                  aria-label={drag && label ? label : undefined}
+                  onPointerDown={
+                    drag && label
+                      ? (event) => beginItemGesture(event, label, onSelectItem, onUseItem)
+                      : undefined
+                  }
+                >
+                  {label ? <span className="hud-slot-label">{label}</span> : null}
+                </li>
+              );
+            })}
+          </ul>
+        </aside>
+      )}
     </div>
   );
 }

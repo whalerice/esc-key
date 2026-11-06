@@ -22,6 +22,7 @@ import { isSuppressed, watchOrientation } from '@/engine/boot/orientation';
 import { requestFullscreen, onFullscreenChange, isFullscreen } from '@/engine/boot/fullscreen';
 import { applySafeAreaVars } from '@/engine/stage/safeArea';
 import { Hud } from '@/engine/ui/Hud';
+import { hudCollapsed } from '@/engine/ui/hudCollapse';
 import { Narration } from '@/engine/ui/Narration';
 import { Banner } from '@/engine/ui/Banner';
 import { RotateOverlay } from '@/engine/ui/RotateOverlay';
@@ -128,6 +129,7 @@ export function ThemePlay({
   onReplayRef.current = onReplay;
 
   const items = useStore((s) => s.items);
+  const scene = useStore((s) => s.scene);
   const hintsUsed = useStore((s) => s.hintsUsed);
   const solved = useStore((s) => s.solved);
 
@@ -317,6 +319,7 @@ export function ThemePlay({
 
       {booted && (
         <Hud
+          collapsed={hudCollapsed(scene, theme.hud.collapsibleIn)}
           inventoryName={theme.hud.inventoryName}
           itemCount={items.length}
           itemLabels={items}

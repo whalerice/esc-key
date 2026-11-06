@@ -27,7 +27,7 @@ description: Use when planning, designing, or developing ESC KEY features and ha
 
 ### Engineer
 `src/engine/*`만 공통 동작. 테마 폴더는 데이터와 정답 판정.
-PixiJS는 클라이언트 dynamic import. 게이트 탭 한 번에 전체화면, 가로 잠금 시도, Howler, wake lock, 테마가 요구한 권한.
+PixiJS는 클라이언트 dynamic import. 게이트는 입장 때 전체화면을 호출하지 않는다. 모바일은 물은 뒤 동의한 탭에서만 전체화면. PC는 HUD 최대 버튼. 이어서 가로 잠금 시도, Howler, wake lock, 테마가 요구한 권한.
 Zustand 저장 시점: 퍼즐 해결, 아이템 획득, 백그라운드. 진동 없음. 장면 나갈 때 GSAP context 정리.
 
 ## 파이프라인

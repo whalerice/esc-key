@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { listThemes } from '@/themes/registry';
 
-/** Neulbom theme list. Spec: docs/공통엔진.md §3. */
+/** Neulbom theme list. Spec: docs/개발/공통엔진_v1.md §3. */
 export default function NeulbomListPage() {
   const themes = listThemes('neulbom');
 

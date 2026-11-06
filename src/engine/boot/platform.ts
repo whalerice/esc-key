@@ -1,4 +1,4 @@
-/** Device / browser helpers. Spec: docs/공통엔진.md §5-2. */
+/** Device / browser helpers. Spec: docs/개발/공통엔진_v1.md §5-2. */
 
 export type PlatformKind =
   | 'android-chrome'

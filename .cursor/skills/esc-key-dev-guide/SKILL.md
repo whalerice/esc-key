@@ -1,11 +1,11 @@
 ---
 name: esc-key-dev-guide
-description: Use when designing, developing, or testing ESC KEY front-end architecture, PixiJS scenes, DOM HUD, touch input, landscape orientation, or fullscreen max mode. Stack is Next.js + PixiJS + Zustand + Howler + GSAP. Canonical spec is docs/공통엔진.md.
+description: Use when designing, developing, or testing ESC KEY front-end architecture, PixiJS scenes, DOM HUD, touch input, landscape orientation, or fullscreen max mode. Stack is Next.js + PixiJS + Zustand + Howler + GSAP. Canonical spec is docs/개발/공통엔진_v1.md.
 ---
 
 # ESC KEY 프론트 아키텍처
 
-기준 문서: `docs/공통엔진.md`. 스킬과 문서가 다르면 문서가 이긴다.
+기준 문서: `docs/개발/공통엔진_v1.md`. 스킬과 문서가 다르면 문서가 이긴다.
 
 모바일 웹, 터치만. PC는 개발 확인용. 가로 전용. 세로는 회전 안내 + 일시정지.
 
@@ -52,18 +52,21 @@ Phaser, DOM/SVG를 장면 그래프의 기본 렌더러로 쓰는 것, `navigato
 
 ## 시작 게이트
 
-로딩 바 → 게이트 문구. **탭 한 번의 핸들러 안에서** 동기 시작:
+로딩 바 → 게이트 문구. 입장 때 전체화면을 호출하지 않는다.
 
-전체화면 → 가로 고정 시도 → Howler 깨우기 → wake lock → 그 테마가 요구할 때만 마이크/기울기 권한.
+모바일은 「화면을 크게 볼까요?」를 먼저 보여 준다. 동의한 탭에서만 `requestFullscreen`. 거절하면 전체화면 없이 시작한다. PC 게이트는 전체화면을 호출하지 않는다. 원하는 사람은 HUD 최대 모드 버튼.
+
+시작 탭 안에서, 전체화면(동의한 경우만) 다음을 동기 시작: 가로 고정 시도 → Howler 깨우기 → wake lock → 그 테마가 요구할 때만 마이크/기울기 권한.
 
 권한 결과는 기다리지 않는다. 거부돼도 대체 경로로 끝까지 간다.
 
 | 환경 | 최대 모드 |
 |---|---|
-| Android Chrome·삼성 인터넷 | Fullscreen API. 전체화면 중 가로 잠금 시도. 뒤로가기로 풀려도 게임은 계속 |
+| Android Chrome·삼성 인터넷 | 동의한 뒤에만 Fullscreen API. 전체화면 중 가로 잠금 시도. 뒤로가기로 풀려도 게임은 계속 |
 | iPhone Safari | 요소 전체화면 없음. 홈 화면 추가 안내 1회(앱 전역, `homeScreenTipDismissed`). 안에서는 `100dvh` |
 | iPhone 홈 화면 | 주소창 없이 실행. 가로 고정 불가 → 세로 안내 |
-| iPad | 전체화면 가능. 가로 고정 불가 |
+| iPad | 동의한 뒤에만 전체화면. 가로 고정 불가 |
+| PC | 게이트에서 안 함. HUD 버튼만 |
 
 ## 입력
 

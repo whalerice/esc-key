@@ -1,4 +1,4 @@
-/** Fullscreen / max-mode entry. Spec: docs/공통엔진.md §5. */
+/** Fullscreen / max-mode entry. Spec: docs/개발/공통엔진_v1.md §5. */
 
 export async function requestFullscreen(el: HTMLElement = document.documentElement): Promise<boolean> {
   try {

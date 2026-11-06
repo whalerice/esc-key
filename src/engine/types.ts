@@ -1,4 +1,4 @@
-/** Theme / engine shared types. Spec: docs/공통엔진.md §12–§13. */
+/** Theme / engine shared types. Spec: docs/개발/공통엔진_v1.md §12–§13. */
 
 export type ThemeId = string;
 export type SceneId = string;
@@ -13,14 +13,21 @@ export type TimerSkin =
   | 'thermometer'
   | 'darkroom'
   | 'battery'
-  | 'wallclock';
+  | 'wallclock'
+  | 'onair-clock'
+  | 'watch-clock'
+  | 'thread-spool';
 
 export type HintChannelSkin =
   | 'author-notebook'
   | 'radio'
   | 'rotary-phone'
   | 'extension'
-  | 'guard-phone';
+  | 'guard-phone'
+  | 'messenger'
+  | 'walkie'
+  | 'speaking-tube'
+  | 'thimble';
 
 export type GateNeed = 'mic' | 'orientation';
 
@@ -72,26 +79,59 @@ export type AssetBundleDef = {
   urls: string[];
 };
 
+/** First matching rule wins. No `if` = default. Spec §8-6. */
+export type OnZeroRule = {
+  if?: { solved: PuzzleId };
+  ending: EndingId;
+};
+
+export type FloorNavDef = {
+  floors: { id: string; name: string }[];
+};
+
+/** Clock cues only. Clue audio is HTML5, not this queue. Spec §19-6. */
+export type RadioBedDef = {
+  cues: { at: string; soundId: string }[];
+};
+
 export type ThemeDefinition<TExtra = unknown> = {
   id: ThemeId;
   world: WorldId;
   title: string;
   lengthMin: 30 | 60;
   gate: { label: string; needs: GateNeed[] };
-  timer: { skin: TimerSkin; durationMs?: number; onZero?: EndingId };
+  timer: {
+    skin: TimerSkin;
+    durationMs?: number;
+    /** Clock face start, e.g. '02:00'. Spec §8-6. */
+    startClock?: string;
+    /** Freeze the drawn clock (ending). Spec §8-6. */
+    displayOverride?: string;
+    onZero?: EndingId | OnZeroRule[];
+  };
   hud: {
     inventoryName: string;
     hintChannel: HintChannelSkin;
     notebook: boolean;
+    floorNav?: FloorNavDef;
+    /** Scenes that collapse HUD. Spec §19-11. */
+    collapsibleIn?: SceneId[];
   };
   scenes: SceneDef[];
   puzzles: PuzzleDef[];
   hints: Record<PuzzleId, HintDef>;
+  /** New channel from this puzzle onward. Radio: walkie from P7 (switch fires when P6 solves). */
+  hintChannels?: { skin: HintChannelSkin; fromPuzzle: PuzzleId }[];
+  smallTalk?: Partial<Record<HintChannelSkin, string[]>>;
+  radioBed?: RadioBedDef;
   events: EventDef[];
   endings: EndingDef[];
   assets: AssetBundleDef[];
   extra?: { initial: TExtra; migrate?: (old: unknown) => TExtra };
 };
+
+/** Dropped on save. Spec §12-2. Frequencies stay out of `extra`. */
+export const EPHEMERAL_EXTRA_KEYS = ['radioFreq', 'txFreq'] as const;
 
 export type AppSettings = {
   bigText: boolean;
@@ -124,7 +164,7 @@ export type ThemeSave<TExtra = unknown> = {
   extra: TExtra;
 };
 
-/** Logical stage size — docs/공통엔진.md §6. */
+/** Logical stage size — docs/개발/공통엔진_v1.md §6. */
 export const LOGICAL_WIDTH = 1920;
 export const LOGICAL_HEIGHT = 1080;
 

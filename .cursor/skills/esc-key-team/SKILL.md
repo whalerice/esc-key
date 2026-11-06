@@ -1,13 +1,13 @@
 ---
 name: esc-key-team
-description: Use when planning, designing, or developing ESC KEY features and handing off across Game Designer, Scriptwriter, UI/UX, and Engineer. Mobile landscape escape-room engine is docs/공통엔진.md (Next.js, PixiJS, Zustand, Howler, GSAP).
+description: Use when planning, designing, or developing ESC KEY features and handing off across Game Designer, Scriptwriter, UI/UX, and Engineer. Mobile landscape escape-room engine is docs/개발/공통엔진_v1.md (Next.js, PixiJS, Zustand, Howler, GSAP).
 ---
 
 # ESC KEY 역할 핸드오프
 
-기준 문서: `docs/공통엔진.md`. Unity 웹 템플릿은 폐기. 구현·기획이 이 문서와 다르면 문서가 이긴다.
+기준 문서: `docs/개발/공통엔진_v1.md`. Unity 웹 템플릿은 폐기. 구현·기획이 이 문서와 다르면 문서가 이긴다.
 
-모바일 웹, 터치만. PC는 개발 확인용. 가로 전용, 시작 게이트에서 최대 모드(주소창 숨김). 테마는 장면·퍼즐·대사·연출 데이터만 만든다.
+모바일 웹, 터치만. PC는 개발 확인용. 가로 전용. 입장 때 자동 전체화면 없음. 모바일은 게이트에서 물은 뒤 동의 시에만. PC는 HUD 최대 모드 버튼. 테마는 장면·퍼즐·대사·연출 데이터만 만든다.
 
 ## 역할
 

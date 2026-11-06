@@ -1,4 +1,4 @@
-/** Version migrate helper. Spec: docs/공통엔진.md §12. */
+/** Version migrate helper. Spec: docs/개발/공통엔진_v1.md §12. */
 
 export function migrateOrReset<T>(
   raw: unknown,

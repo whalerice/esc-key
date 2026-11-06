@@ -2,7 +2,7 @@ import type { SceneDef, SceneId } from '@/engine/types';
 
 /**
  * Scene placeholder — themes register scene builders later.
- * Spec: docs/공통엔진.md §3 stage/, §8 scenes.
+ * Spec: docs/개발/공통엔진_v1.md §3 stage/, §8 scenes.
  */
 export type SceneHandle = {
   id: SceneId;

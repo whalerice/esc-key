@@ -2,7 +2,7 @@
 
 /**
  * Client-only Pixi stage shell. Import via next/dynamic with ssr:false.
- * Spec: docs/공통엔진.md §3, §6.
+ * Spec: docs/개발/공통엔진_v1.md §3, §6.
  */
 import { useEffect, useRef } from 'react';
 import { Application } from 'pixi.js';

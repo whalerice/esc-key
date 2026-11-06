@@ -1,4 +1,4 @@
-/** Landscape lock + portrait pause. Spec: docs/공통엔진.md §5-3, §9. */
+/** Landscape lock + portrait pause. Spec: docs/개발/공통엔진_v1.md §5-3, §9. */
 
 let suppressed = false;
 

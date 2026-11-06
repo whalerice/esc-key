@@ -18,6 +18,7 @@ export type GateProps = {
   needs?: GateNeed[];
   loading?: boolean;
   progress?: number;
+  note?: string;
   onStart: () => void;
 };
 
@@ -26,6 +27,7 @@ export function Gate({
   needs = [],
   loading = false,
   progress = 0,
+  note,
   onStart,
 }: GateProps) {
   const [started, setStarted] = useState(false);
@@ -91,11 +93,15 @@ export function Gate({
           <button type="button" className="gate-btn" onClick={() => begin(false)}>
             {label}
           </button>
+          {note && <p className="gate-note">{note}</p>}
         </div>
       ) : (
-        <button type="button" className="gate-btn" onClick={() => begin(false)}>
-          {label}
-        </button>
+        <div className="gate-choices">
+          <button type="button" className="gate-btn" onClick={() => begin(false)}>
+            {label}
+          </button>
+          {note && <p className="gate-note">{note}</p>}
+        </div>
       )}
     </div>
   );

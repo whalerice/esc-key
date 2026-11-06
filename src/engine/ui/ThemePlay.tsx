@@ -26,11 +26,17 @@ import { Narration } from '@/engine/ui/Narration';
 import { Banner } from '@/engine/ui/Banner';
 import { RotateOverlay } from '@/engine/ui/RotateOverlay';
 import { HintMemo } from '@/engine/ui/HintMemo';
-import { resolveOnZero, TimerController, timerFace } from '@/engine/systems/Timer';
+import { remainingMs, resolveOnZero, TimerController, timerFace } from '@/engine/systems/Timer';
 import type { TimerState } from '@/engine/systems/Timer';
 import { TimerFace } from '@/engine/ui/TimerFace';
 import { findEnding } from '@/engine/systems/Endings';
-import { channelForPuzzle, hintText, nextHintStep } from '@/engine/systems/Hints';
+import {
+  channelForPuzzle,
+  hintText,
+  nextHintStep,
+  nextSmallTalkIndex,
+  smallTalkLine,
+} from '@/engine/systems/Hints';
 import { SoundManager } from '@/engine/audio/SoundManager';
 
 const PixiStage = dynamic(() => import('@/engine/stage/PixiStage'), {
@@ -58,13 +64,25 @@ export type ThemePlayProps = {
   /** Shown under the gate button. */
   gateNote?: string;
   /** Theme overlay once the gate has opened. */
-  overlay?: ReactNode | ((api: { say: (text: string) => void }) => ReactNode);
+  overlay?:
+    | ReactNode
+    | ((api: { say: (text: string) => void; selectedItem: string | null }) => ReactNode);
   /** Fair clock. Theme syncs RadioBed here — frequencies stay out of the save. */
   onClock?: (elapsedMs: number) => void;
   /** Hold the clock (ending A). */
   pauseWhen?: boolean;
   /** Wipe the save when the clock hits zero. Pair with the 처음부터 button. */
   onReplay?: () => void;
+  /** Clear ending (P8). Timer-zero still uses `onZero`. */
+  clearedEnding?: string | null;
+  renderResult?: (result: {
+    id: string;
+    title: string;
+    elapsedMs: number;
+    remainingMs: number;
+  }) => ReactNode;
+  /** Inventory drag onto `[data-use-target]`. */
+  onUseItem?: (itemId: string, targetId: string) => void;
 };
 
 export function ThemePlay({
@@ -77,6 +95,9 @@ export function ThemePlay({
   onClock,
   pauseWhen = false,
   onReplay,
+  clearedEnding = null,
+  renderResult,
+  onUseItem,
 }: ThemePlayProps) {
   const router = useRouter();
   const [booted, setBooted] = useState(false);
@@ -91,6 +112,8 @@ export function ThemePlay({
   const [hintIntro, setHintIntro] = useState<string | undefined>();
   const [snap, setSnap] = useState<TimerState>(() => useStore.getState().timer);
   const [endingId, setEndingId] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const talkRef = useRef<Partial<Record<string, number>>>({});
   const sound = useMemo(() => new SoundManager(), []);
   const unmountRef = useRef<(() => void) | null>(null);
   const ctrlRef = useRef<TimerController | null>(null);
@@ -107,6 +130,10 @@ export function ThemePlay({
   const items = useStore((s) => s.items);
   const hintsUsed = useStore((s) => s.hintsUsed);
   const solved = useStore((s) => s.solved);
+
+  useEffect(() => {
+    if (selectedItem && !items.includes(selectedItem)) setSelectedItem(null);
+  }, [items, selectedItem]);
 
   useEffect(() => {
     applySafeAreaVars();
@@ -189,6 +216,11 @@ export function ThemePlay({
       theme.timer.startClock != null ||
       theme.timer.displayOverride != null);
   const ending = endingId ? findEnding(theme.endings, endingId) : undefined;
+  const shownId = clearedEnding ?? endingId;
+  const shown = shownId ? findEnding(theme.endings, shownId) : undefined;
+  const duration = theme.timer.durationMs;
+  const remain = duration == null ? 0 : remainingMs(duration, snap);
+  const used = duration == null ? snap.elapsedMs : Math.max(0, duration - remain);
 
   const say = useCallback((text: string) => {
     setQueue((q) => [...q, text]);
@@ -240,6 +272,17 @@ export function ThemePlay({
     }
     const current = (hintsUsed[activePuzzle] ?? 0) as 0 | 1 | 2 | 3;
     if (current >= 3) {
+      const lines = theme.smallTalk?.[hintChannel];
+      const at = talkRef.current[hintChannel] ?? 0;
+      const chat = smallTalkLine(lines, at);
+      if (chat) {
+        talkRef.current[hintChannel] = nextSmallTalkIndex(lines?.length ?? 0, at);
+        setHintBody(chat);
+        setHintStepLabel('잡담');
+        setHintIntro(undefined);
+        setHintOpen(true);
+        return;
+      }
       setHintBody(hintText(theme.hints, activePuzzle, 3) ?? '힌트가 없습니다.');
       setHintStepLabel('힌트 3/3');
     } else {
@@ -252,7 +295,7 @@ export function ThemePlay({
     }
     setHintIntro(theme.hints[activePuzzle]?.intro);
     setHintOpen(true);
-  }, [activePuzzle, hintsUsed, theme.hints, useStore]);
+  }, [activePuzzle, hintChannel, hintsUsed, theme.hints, theme.smallTalk, useStore]);
 
   return (
     <div className="theme-play" data-theme={theme.id}>
@@ -266,7 +309,7 @@ export function ThemePlay({
       </div>
 
       {booted &&
-        (typeof overlay === 'function' ? overlay({ say }) : overlay)}
+        (typeof overlay === 'function' ? overlay({ say, selectedItem }) : overlay)}
 
       {booted && (
         <Narration line={line} onAdvance={() => setQueue((q) => q.slice(1))} />
@@ -291,6 +334,11 @@ export function ThemePlay({
             )
           }
           onHint={onHint}
+          selectedItem={selectedItem}
+          onSelectItem={
+            onUseItem ? (id) => setSelectedItem((cur) => (cur === id ? null : id)) : undefined
+          }
+          onUseItem={onUseItem}
           onMute={() => {
             const next = !muted;
             setMuted(next);
@@ -316,7 +364,18 @@ export function ThemePlay({
         />
       )}
 
-      {booted && ending && (
+      {booted && shown && renderResult && (
+        <div className="engine-overlay ending-lock" role="status" data-ending={shown.id}>
+          {renderResult({
+            id: shown.id,
+            title: shown.title,
+            elapsedMs: used,
+            remainingMs: remain,
+          })}
+        </div>
+      )}
+
+      {booted && ending && !renderResult && (
         <div className="engine-overlay ending-lock" role="status" data-ending={ending.id}>
           <div className="gate-choices">
             <p>
@@ -331,7 +390,7 @@ export function ThemePlay({
         </div>
       )}
 
-      <RotateOverlay show={booted && portrait && !ending} />
+      <RotateOverlay show={booted && portrait && !shown} />
       {!booted && (
         <Gate
           label={theme.gate.label}

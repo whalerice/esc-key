@@ -30,10 +30,13 @@ import {
   P8_HZ,
   P8_PER_TURN,
   P8_TOL,
+  ROOF_LOCK_ID,
   inBand,
   isP2Tease,
   judgeFader,
+  judgeItemUse,
   judgeKey,
+  KEYRING_ID,
   judgeP1,
   judgeP3,
   judgeP4,
@@ -88,15 +91,20 @@ type Mode = 'p1' | 'p2' | 'p3' | 'p4' | 'p5' | 'lock' | 'p6' | 'keys' | 'tx' | '
 export function RadioFlow({
   say,
   clockRef,
+  selectedItem,
+  onUseRef,
 }: {
   say: (text: string) => void;
   clockRef: MutableRefObject<(ms: number) => void>;
+  selectedItem: string | null;
+  onUseRef: MutableRefObject<(itemId: string | null, targetId: string) => void>;
 }) {
   const scene = useRadioStore((s) => s.scene);
   const solved = useRadioStore((s) => s.solved);
   const extra = useRadioStore((s) => s.extra);
   const items = useRadioStore((s) => s.items);
   const [mode, setMode] = useState<Mode>(null);
+  const [armed, setArmed] = useState(false);
   const [call, setCall] = useState<readonly string[] | null>(null);
   const [scrub, setScrub] = useState<number | null>(null);
   const bedRef = useRef<RadioBed | null>(null);
@@ -168,10 +176,22 @@ export function RadioFlow({
     s.setScene(to);
   };
 
+  onUseRef.current = (itemId, targetId) => {
+    const result = judgeItemUse(itemId, targetId, useRadioStore.getState().items);
+    if (result === 'ignore') return;
+    if (result === 'keys') {
+      setArmed(true);
+      setMode('keys');
+      return;
+    }
+    setMode('keys');
+    say(line(result === 'wrong' ? 'p7.wrongItem' : 'p7.need'));
+  };
+
   const onCoffee = () => {
     const s = useRadioStore.getState();
-    if (s.extra.radioCallStep >= 3 && !s.items.includes('열쇠 꾸러미')) {
-      s.addItem('열쇠 꾸러미');
+    if (s.extra.radioCallStep >= 3 && !s.items.includes(KEYRING_ID)) {
+      s.addItem(KEYRING_ID);
       say(line('p7.keys'));
       return;
     }
@@ -197,10 +217,12 @@ export function RadioFlow({
           {!solved.P1 && <button type="button" onClick={() => setMode('p1')}>부스 문</button>}
           <button type="button" onClick={() => say(line('p1.envelope'))}>뜯긴 봉투</button>
           <button type="button" onClick={onCoffee}>커피</button>
-          {!solved.P7 && items.includes('열쇠 꾸러미') && (
-            <button type="button" onClick={() => setMode('keys')}>옥상 문</button>
+          {!solved.P7 && items.includes(KEYRING_ID) && (
+            <button type="button" data-use-target={ROOF_LOCK_ID} onClick={() => setMode('keys')}>
+              옥상 문
+            </button>
           )}
-          {!items.includes('열쇠 꾸러미') && solved.P6 && (
+          {!items.includes(KEYRING_ID) && solved.P6 && (
             <button type="button" onClick={() => say(line('p7.door'))}>옥상 문</button>
           )}
         </div>
@@ -330,7 +352,15 @@ export function RadioFlow({
           onClose={() => setMode(null)}
         />
       )}
-      {mode === 'keys' && <Keys say={say} postit={extra.trapPostit} />}
+      {mode === 'keys' && (
+        <Keys
+          say={say}
+          postit={extra.trapPostit}
+          armed={armed}
+          selectedItem={selectedItem}
+          onUse={(itemId) => onUseRef.current(itemId, ROOF_LOCK_ID)}
+        />
+      )}
       {mode === 'tx' && (
         <TunePanel
           start={88.4}
@@ -383,12 +413,6 @@ export function RadioFlow({
         </div>
       )}
 
-      {solved.P8 && (
-        <div className="radio-ending" role="status" data-ending="A">
-          <p>{line('p8.ending')}</p>
-          <p>심야 라디오 — 끝</p>
-        </div>
-      )}
     </div>
   );
 }
@@ -858,37 +882,61 @@ function Ptt({ say, step }: { say: (text: string) => void; step: number }) {
   );
 }
 
-function Keys({ say, postit }: { say: (text: string) => void; postit: boolean }) {
+function Keys({
+  say,
+  postit,
+  armed,
+  selectedItem,
+  onUse,
+}: {
+  say: (text: string) => void;
+  postit: boolean;
+  armed: boolean;
+  selectedItem: string | null;
+  onUse: (itemId: string | null) => void;
+}) {
+  const held = useRadioStore((s) => s.items.includes(KEYRING_ID));
   return (
-    <section>
-      <p>열쇠 꾸러미. 자물쇠에 끌어 쓴다.</p>
-      <div className="radio-row">
-        {P7_TAGS.map((tag) => (
-          <button
-            key={tag}
-            type="button"
-            onClick={() => {
-              const result = judgeKey(tag);
-              if (result === 'ok') {
-                const s = useRadioStore.getState();
-                s.markSolved('P7');
-                s.setScene('roof');
-                say(line('p7.solved'));
-                return;
-              }
-              if (result === 'red') {
-                useRadioStore.getState().patchExtra({ trapRedKey: true });
-                say(line('p7.red'));
-                if (postit) say(line('p7.red.note'));
-                return;
-              }
-              say(line('p7.miss'));
-            }}
-          >
-            {tag}
-          </button>
-        ))}
-      </div>
+    <section className="radio-lock" data-use-target={ROOF_LOCK_ID}>
+      <p>{line('p7.need')}</p>
+      {!armed && (
+        <button type="button" onClick={() => onUse(selectedItem)}>
+          {selectedItem ? `${selectedItem} 사용` : '가방에서 사용'}
+        </button>
+      )}
+      {armed && held && (
+        <div className="radio-row">
+          {P7_TAGS.map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => {
+                if (!useRadioStore.getState().items.includes(KEYRING_ID)) {
+                  say(line('p7.need'));
+                  return;
+                }
+                const result = judgeKey(tag);
+                if (result === 'ok') {
+                  const s = useRadioStore.getState();
+                  s.markSolved('P7');
+                  s.setScene('roof');
+                  say(line('p7.solved'));
+                  return;
+                }
+                if (result === 'red') {
+                  useRadioStore.getState().patchExtra({ trapRedKey: true });
+                  say(line('p7.red'));
+                  if (postit) say(line('p7.red.note'));
+                  return;
+                }
+                say(line('p7.miss'));
+              }}
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

@@ -85,8 +85,16 @@ export type OnZeroRule = {
   ending: EndingId;
 };
 
+export type FloorStop = {
+  id: string;
+  name: string;
+  /** Color band. Theme skin. */
+  band?: string;
+};
+
 export type FloorNavDef = {
-  floors: { id: string; name: string }[];
+  floors: FloorStop[];
+  start?: string;
 };
 
 /** Clock cues only. Clue audio is HTML5, not this queue. Spec §19-6. */
@@ -130,8 +138,8 @@ export type ThemeDefinition<TExtra = unknown> = {
   extra?: { initial: TExtra; migrate?: (old: unknown) => TExtra };
 };
 
-/** Dropped on save. Spec §12-2. Frequencies stay out of `extra`. */
-export const EPHEMERAL_EXTRA_KEYS = ['radioFreq', 'txFreq'] as const;
+/** Dropped on save. Spec §12-2. Frequencies, beam bearing, morse buffer stay out of `extra`. */
+export const EPHEMERAL_EXTRA_KEYS = ['radioFreq', 'txFreq', 'beamDeg', 'morseCode'] as const;
 
 export type AppSettings = {
   bigText: boolean;
@@ -179,7 +187,7 @@ export function saveKey(themeId: ThemeId): string {
   return `${SAVE_KEY_PREFIX}${themeId}`;
 }
 
-/** Drop radio frequencies before they hit storage or `extra`. Spec §12-2. */
+/** Drop instantaneous values before they hit storage or `extra`. Spec §12-2. */
 export function withoutEphemeralExtra<T>(extra: T): T {
   if (!extra || typeof extra !== 'object') return extra;
   const copy = { ...(extra as Record<string, unknown>) };

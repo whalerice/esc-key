@@ -9,7 +9,7 @@ description: Use when crafting, reviewing, or rewriting ESC KEY dialogue, narrat
 
 ## Overview
 
-한국어 입말과 서스펜스로 테마 대사를 쓴다. 산출은 테마 `data/script.ts`. 타입은 내레이션, 메모, 조사, 획득, 시스템. 기준 화면은 `docs/공통엔진.md` §4·§11.
+한국어 입말과 서스펜스로 테마 대사를 쓴다. 산출은 테마 `data/script.ts`. 타입은 내레이션, 메모, 조사, 획득, 시스템. 기준 화면은 `docs/개발/공통엔진_v1.md` §4·§11.
 
 - 내레이션은 화면 아래 22% 띠, **한 줄**, 탭으로 넘긴다. 한 키에 두 문장을 넣지 않는다.
 - 소리 단서(음성, 라디오, 자장가)에는 들을 수 없어도 풀 수 있는 자막·램프용 문장을 같이 쓴다.

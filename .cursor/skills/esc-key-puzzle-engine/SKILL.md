@@ -1,11 +1,11 @@
 ---
 name: esc-key-puzzle-engine
-description: Use when designing or implementing ESC KEY puzzle widgets, ThemeDefinition, inventory, hints, timer, zoom camera, drag-snap, or answer checks. Follow docs/공통엔진.md. PixiJS widgets emit values; puzzle code judges answers; Zustand stores progress.
+description: Use when designing or implementing ESC KEY puzzle widgets, ThemeDefinition, inventory, hints, timer, zoom camera, drag-snap, or answer checks. Follow docs/개발/공통엔진_v1.md. PixiJS widgets emit values; puzzle code judges answers; Zustand stores progress.
 ---
 
 # ESC KEY 퍼즐·위젯
 
-기준: `docs/공통엔진.md` §7–§8, §12–§13.
+기준: `docs/개발/공통엔진_v1.md` §7–§8, §12–§13.
 
 테마 코드는 위젯을 조립하고 정답만 판정한다. 화면 틀, 저장, 힌트, 타이머를 테마가 다시 구현하지 않는다.
 

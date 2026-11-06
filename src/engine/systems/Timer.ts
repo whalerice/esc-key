@@ -1,5 +1,5 @@
 /**
- * Fair wall-clock timer stub. Spec: docs/공통엔진.md §8-6, §9.
+ * Fair wall-clock timer stub. Spec: docs/개발/공통엔진_v1.md §8-6, §9.
  * Pause intervals (portrait, background, system overlay) excluded later.
  */
 

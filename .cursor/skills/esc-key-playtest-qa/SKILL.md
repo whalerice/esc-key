@@ -1,13 +1,13 @@
 ---
 name: esc-key-playtest-qa
-description: Use when playtesting ESC KEY, tuning difficulty, checking 3-tier hints, stagnation, timer fairness, orientation pause, fullscreen max mode, or device QA. Device checklist is docs/공통엔진.md section 18.
+description: Use when playtesting ESC KEY, tuning difficulty, checking 3-tier hints, stagnation, timer fairness, orientation pause, fullscreen max mode, or device QA. Device checklist is docs/개발/공통엔진_v1.md section 18.
 ---
 
 # ESC KEY Playtest & QA Balancing Skill
 
 ## Overview
 
-기준 문서: `docs/공통엔진.md`. 힌트·정체·일시정지·실기기 판정은 그 문서가 이긴다.
+기준 문서: `docs/개발/공통엔진_v1.md`. 힌트·정체·일시정지·실기기 판정은 그 문서가 이긴다.
 
 난이도 밸런스, 3단계 힌트, 정체 감지, 출시 전 QA.
 

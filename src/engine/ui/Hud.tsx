@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * HUD layer (layer 4). Spec: docs/공통엔진.md §4.
+ * HUD layer (layer 4). Spec: docs/개발/공통엔진_v1.md §4.
  * Slots: timer · back · hint · inventory · mute · max-mode.
  */
 import { INVENTORY_SLOTS } from '@/engine/systems/Inventory';

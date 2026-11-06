@@ -2,7 +2,7 @@
 
 /**
  * Theme play shell: gate → layers → Pixi stage + theme store.
- * Spec: docs/공통엔진.md §4–§5, §12.
+ * Spec: docs/개발/공통엔진_v1.md §4–§5, §12.
  */
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -27,7 +27,7 @@ import { Banner } from '@/engine/ui/Banner';
 import { RotateOverlay } from '@/engine/ui/RotateOverlay';
 import { HintMemo } from '@/engine/ui/HintMemo';
 import { formatMmSs, remainingMs } from '@/engine/systems/Timer';
-import { hintText, nextHintStep } from '@/engine/systems/Hints';
+import { channelForPuzzle, hintText, nextHintStep } from '@/engine/systems/Hints';
 import { SoundManager } from '@/engine/audio/SoundManager';
 
 const PixiStage = dynamic(() => import('@/engine/stage/PixiStage'), {
@@ -41,6 +41,10 @@ const CHANNEL_LABEL: Record<ThemeDefinition['hud']['hintChannel'], string> = {
   'rotary-phone': '다이얼 전화',
   extension: '내선 전화',
   'guard-phone': '경비실 전화',
+  messenger: '메신저',
+  walkie: '무전',
+  'speaking-tube': '전성관',
+  thimble: '골무',
 };
 
 export type ThemePlayProps = {
@@ -115,6 +119,13 @@ export function ThemePlay({
     return theme.puzzles[theme.puzzles.length - 1]?.id ?? null;
   }, [theme.puzzles, solved]);
 
+  const hintChannel = channelForPuzzle(
+    theme.hud.hintChannel,
+    theme.hintChannels,
+    activePuzzle,
+    theme.puzzles.map((p) => p.id),
+  );
+
   const onStageReady = useCallback(
     (app: Application) => {
       unmountRef.current?.();
@@ -185,7 +196,15 @@ export function ThemePlay({
           muted={muted}
           maxModeBlink={maxBlink}
           notebook={theme.hud.notebook}
-          onBack={() => router.push('/neulbom')}
+          onBack={() =>
+            router.push(
+              theme.world === 'haemu'
+                ? '/haemu'
+                : theme.world === 'neulbom'
+                  ? '/neulbom'
+                  : '/',
+            )
+          }
           onHint={onHint}
           onMute={() => {
             const next = !muted;
@@ -204,7 +223,7 @@ export function ThemePlay({
       {booted && (
         <HintMemo
           open={hintOpen}
-          channelLabel={CHANNEL_LABEL[theme.hud.hintChannel]}
+          channelLabel={CHANNEL_LABEL[hintChannel]}
           intro={hintIntro}
           stepLabel={hintStepLabel}
           body={hintBody}

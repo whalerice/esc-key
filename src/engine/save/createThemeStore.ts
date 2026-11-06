@@ -9,7 +9,7 @@ import type {
   ThemeId,
   ThemeSave,
 } from '@/engine/types';
-import { saveKey } from '@/engine/types';
+import { EPHEMERAL_EXTRA_KEYS, saveKey } from '@/engine/types';
 import { migrateOrReset } from './migrate';
 
 export type ThemeStoreApi<TExtra> = ThemeSave<TExtra> & {
@@ -60,6 +60,21 @@ export function createThemeStore<TExtra>(
       {
         name: key,
         version: initial.version,
+        partialize: (state) => {
+          const {
+            setScene: _setScene,
+            markSolved: _markSolved,
+            addItem: _addItem,
+            setHintStep: _setHintStep,
+            setFlag: _setFlag,
+            patchTimer: _patchTimer,
+            patchExtra: _patchExtra,
+            reset: _reset,
+            extra,
+            ...data
+          } = state;
+          return { ...data, extra: stripEphemeral(extra) };
+        },
         migrate: (persisted, _from) => {
           const next = migrateOrReset<ThemeSave<TExtra>>(
             persisted,
@@ -71,6 +86,13 @@ export function createThemeStore<TExtra>(
       },
     ),
   );
+}
+
+function stripEphemeral<T>(extra: T): T {
+  if (!extra || typeof extra !== 'object') return extra;
+  const copy = { ...(extra as Record<string, unknown>) };
+  for (const key of EPHEMERAL_EXTRA_KEYS) delete copy[key];
+  return copy as T;
 }
 
 /** Read saved progress outside the theme page (hub “이어 하기”). */

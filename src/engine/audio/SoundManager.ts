@@ -1,5 +1,5 @@
 /**
- * Howler shell. Spec: docs/공통엔진.md §11.
+ * Howler shell. Spec: docs/개발/공통엔진_v1.md §11.
  * Gate tap calls unlockAudio(); pre-unlock play() is dropped.
  */
 import { Howl, Howler } from 'howler';

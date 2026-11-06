@@ -1,6 +1,6 @@
 import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from '@/engine/types';
 
-/** Contain 1920×1080 into a CSS box. Spec: docs/공통엔진.md §6. */
+/** Contain 1920×1080 into a CSS box. Spec: docs/개발/공통엔진_v1.md §6. */
 export type ViewportLayout = {
   scale: number;
   width: number;

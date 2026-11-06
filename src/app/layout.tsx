@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'ESC KEY',
-  description: '모바일 웹 방탈출 — docs/공통엔진.md',
+  description: '모바일 웹 방탈출 — docs/개발/공통엔진_v1.md',
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,

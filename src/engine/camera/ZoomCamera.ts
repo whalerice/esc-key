@@ -1,4 +1,4 @@
-/** Zoom camera — pinch / pan / double-tap. Spec: docs/공통엔진.md §8-1. */
+/** Zoom camera — pinch / pan / double-tap. Spec: docs/개발/공통엔진_v1.md §8-1. */
 import { Container, FederatedPointerEvent, Rectangle } from 'pixi.js';
 import { GESTURE } from '@/engine/input/gestures';
 import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from '@/engine/types';

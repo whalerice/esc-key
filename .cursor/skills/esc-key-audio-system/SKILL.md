@@ -1,11 +1,11 @@
 ---
 name: esc-key-audio-system
-description: Use when designing or debugging ESC KEY audio, BGM, SFX sprites, voice clues, Howler unlock, ducking, hearing-assist captions, or mic lifecycle. Spec is docs/공통엔진.md. Do not build a separate Web Audio game bus.
+description: Use when designing or debugging ESC KEY audio, BGM, SFX sprites, voice clues, Howler unlock, ducking, hearing-assist captions, or mic lifecycle. Spec is docs/개발/공통엔진_v1.md. Do not build a separate Web Audio game bus.
 ---
 
 # ESC KEY 사운드 (Howler)
 
-기준: `docs/공통엔진.md` §5, §9–§11. 구현은 `engine/audio/SoundManager.ts`.
+기준: `docs/개발/공통엔진_v1.md` §5, §9–§11. 구현은 `engine/audio/SoundManager.ts`.
 
 Web Audio `AudioContext`를 게임 버스·절차적 비프 신스로 만들지 않는다. Howler가 재생을 맡는다.
 

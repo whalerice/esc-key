@@ -1,4 +1,4 @@
-/** Safe-area CSS vars for HUD inset. Spec: docs/공통엔진.md §6. */
+/** Safe-area CSS vars for HUD inset. Spec: docs/개발/공통엔진_v1.md §6. */
 
 export function applySafeAreaVars(root: HTMLElement = document.documentElement): void {
   root.style.setProperty('--safe-top', 'env(safe-area-inset-top, 0px)');

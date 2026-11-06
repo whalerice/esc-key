@@ -1,4 +1,4 @@
-/** Screen wake lock. Spec: docs/공통엔진.md §5-1. */
+/** Screen wake lock. Spec: docs/개발/공통엔진_v1.md §5-1. */
 
 let sentinel: WakeLockSentinel | null = null;
 

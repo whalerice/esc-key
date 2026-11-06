@@ -11,7 +11,7 @@ export default function HaemuListPage() {
         <Link href="/">← 허브</Link>
       </p>
       <h1>해무</h1>
-      <p>추천 순서 · 잠금 없음 · 장면은 아직 스텁</p>
+      <p>추천 순서 · 잠금 없음 · 심야 라디오는 회색 상자</p>
       <ul className="theme-links">
         {themes.map((t, i) => (
           <li key={t.id}>

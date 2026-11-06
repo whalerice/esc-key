@@ -5,7 +5,7 @@
  * Spec: docs/개발/공통엔진_v1.md §4–§5, §12.
  */
 import dynamic from 'next/dynamic';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Application } from 'pixi.js';
 import type { PuzzleId, ThemeDefinition } from '@/engine/types';
@@ -55,6 +55,16 @@ export type ThemePlayProps = {
   useStore: ThemePlayStore;
   mountScene: SceneMount;
   openingLines?: string[];
+  /** Shown under the gate button. */
+  gateNote?: string;
+  /** Theme overlay once the gate has opened. */
+  overlay?: ReactNode | ((api: { say: (text: string) => void }) => ReactNode);
+  /** Fair clock. Theme syncs RadioBed here — frequencies stay out of the save. */
+  onClock?: (elapsedMs: number) => void;
+  /** Hold the clock (ending A). */
+  pauseWhen?: boolean;
+  /** Wipe the save when the clock hits zero. Pair with the 처음부터 button. */
+  onReplay?: () => void;
 };
 
 export function ThemePlay({
@@ -62,6 +72,11 @@ export function ThemePlay({
   useStore,
   mountScene,
   openingLines = [],
+  gateNote,
+  overlay,
+  onClock,
+  pauseWhen = false,
+  onReplay,
 }: ThemePlayProps) {
   const router = useRouter();
   const [booted, setBooted] = useState(false);
@@ -80,7 +95,14 @@ export function ThemePlay({
   const unmountRef = useRef<(() => void) | null>(null);
   const ctrlRef = useRef<TimerController | null>(null);
   const portraitRef = useRef(portrait);
+  const pauseRef = useRef(pauseWhen);
+  const onClockRef = useRef(onClock);
+  const onReplayRef = useRef(onReplay);
+  const endedRef = useRef(false);
   portraitRef.current = portrait;
+  pauseRef.current = pauseWhen;
+  onClockRef.current = onClock;
+  onReplayRef.current = onReplay;
 
   const items = useStore((s) => s.items);
   const hintsUsed = useStore((s) => s.hintsUsed);
@@ -112,20 +134,27 @@ export function ThemePlay({
     setSnap(ctrl.snapshot());
     let firedZero = false;
     const id = window.setInterval(() => {
+      if (pauseRef.current) ctrl.pause();
       const next = ctrl.snapshot();
       setSnap(next);
-      if (!firedZero && ctrl.remaining() === 0) {
+      onClockRef.current?.(next.elapsedMs);
+      if (!firedZero && !pauseRef.current && ctrl.remaining() === 0) {
         firedZero = true;
         ctrl.pause();
-        useStore.getState().patchTimer({ elapsedMs: next.elapsedMs });
         setEndingId(resolveOnZero(theme.timer.onZero, useStore.getState().solved));
+        if (onReplayRef.current) {
+          endedRef.current = true;
+          onReplayRef.current();
+        } else {
+          useStore.getState().patchTimer({ elapsedMs: next.elapsedMs });
+        }
       }
     }, 250);
     const onVis = () => {
       if (document.hidden) {
         ctrl.pause();
-        useStore.getState().patchTimer({ elapsedMs: ctrl.elapsed() });
-      } else if (!portraitRef.current && ctrl.remaining() !== 0) {
+        if (!endedRef.current) useStore.getState().patchTimer({ elapsedMs: ctrl.elapsed() });
+      } else if (!portraitRef.current && !pauseRef.current && ctrl.remaining() !== 0) {
         ctrl.resume();
       }
     };
@@ -133,7 +162,7 @@ export function ThemePlay({
     return () => {
       window.clearInterval(id);
       document.removeEventListener('visibilitychange', onVis);
-      useStore.getState().patchTimer({ elapsedMs: ctrl.elapsed() });
+      if (!endedRef.current) useStore.getState().patchTimer({ elapsedMs: ctrl.elapsed() });
       ctrlRef.current = null;
     };
   }, [booted, theme, useStore]);
@@ -141,9 +170,9 @@ export function ThemePlay({
   useEffect(() => {
     const ctrl = ctrlRef.current;
     if (!ctrl || !booted) return;
-    if (portrait || document.hidden || ctrl.remaining() === 0) ctrl.pause();
+    if (portrait || document.hidden || ctrl.remaining() === 0 || pauseWhen) ctrl.pause();
     else ctrl.resume();
-  }, [portrait, booted]);
+  }, [portrait, booted, pauseWhen]);
 
   const face = timerFace({
     skin: theme.timer.skin,
@@ -236,6 +265,9 @@ export function ThemePlay({
         )}
       </div>
 
+      {booted &&
+        (typeof overlay === 'function' ? overlay({ say }) : overlay)}
+
       {booted && (
         <Narration line={line} onAdvance={() => setQueue((q) => q.slice(1))} />
       )}
@@ -286,9 +318,16 @@ export function ThemePlay({
 
       {booted && ending && (
         <div className="engine-overlay ending-lock" role="status" data-ending={ending.id}>
-          <p>
-            시간 종료 · {ending.title} ({ending.id})
-          </p>
+          <div className="gate-choices">
+            <p>
+              시간 종료 · {ending.title} ({ending.id})
+            </p>
+            {onReplay && (
+              <button type="button" className="gate-btn" onClick={() => window.location.reload()}>
+                처음부터
+              </button>
+            )}
+          </div>
         </div>
       )}
 
@@ -297,6 +336,7 @@ export function ThemePlay({
         <Gate
           label={theme.gate.label}
           needs={theme.gate.needs}
+          note={gateNote}
           onStart={onStart}
         />
       )}

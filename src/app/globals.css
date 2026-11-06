@@ -119,8 +119,82 @@ button {
   gap: 0.75rem;
 }
 
-.gate-ask {
+.gate-ask,
+.gate-note {
   margin: 0;
+}
+
+.gate-note {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.radio-flow {
+  position: absolute;
+  z-index: 20;
+  left: 64px;
+  right: 108px;
+  top: 64px;
+  bottom: 26%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  pointer-events: auto;
+  color: #f2efe8;
+  text-shadow: 0 1px 2px #000;
+}
+
+.radio-flow button,
+.radio-flow input[type='range'] {
+  min-height: 44px;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid rgba(217, 71, 58, 0.7);
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 2px;
+}
+
+.radio-flow .keypad-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  max-width: 16rem;
+}
+
+.radio-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.radio-room,
+.radio-flow p {
+  margin: 0;
+}
+
+.radio-notes {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.radio-flow:has(.radio-call),
+.radio-flow:has(.radio-ending) {
+  z-index: 70;
+}
+
+.radio-call,
+.radio-ending {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.88);
+  text-align: center;
 }
 
 .gate-btn {

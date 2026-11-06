@@ -329,6 +329,196 @@ button {
   }
 }
 
+.timer-face {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 44px;
+}
+
+.timer-digits {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+.timer-mark {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+}
+
+.timer-face.warn .timer-digits {
+  color: #e2c15a;
+}
+
+.lamp {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #3a3a3a;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
+.timer-face--onair-clock .lamp--on,
+.timer-face--onair-clock .lamp--blink {
+  background: #d01a1a;
+}
+
+.timer-face--watch-clock {
+  padding: 0.15rem 0.45rem;
+  border: 2px solid #8a7348;
+  border-radius: 999px;
+  background: #1a140c;
+}
+
+.timer-face--watch-clock .lamp--on.lamp--standby,
+.timer-face--watch-clock .lamp--blink.lamp--standby {
+  background: #e28a2a;
+}
+
+.timer-face--watch-clock .lamp--on.lamp--main,
+.timer-face--watch-clock .lamp--blink.lamp--main {
+  background: #f4f1e8;
+}
+
+.timer-face.blink .lamp--blink {
+  animation: blink 0.6s step-end infinite;
+}
+
+.spool {
+  width: 22px;
+  height: 36px;
+  border-radius: 11px;
+  border: 2px solid #c4a574;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  background: #1a120c;
+}
+
+.spool-thread {
+  width: 100%;
+  background: #efe6d4;
+}
+
+.timer-face--thread-spool.red-core .spool-thread {
+  background: linear-gradient(#9c1c1c, #efe6d4 45%);
+}
+
+.timer-face--thread-spool.flutter .spool-thread {
+  animation: blink 0.4s step-end infinite;
+}
+
+.ending-lock {
+  z-index: 45;
+  text-align: center;
+}
+
+.lab {
+  min-height: 100dvh;
+  padding: calc(24px + var(--safe-top)) 24px calc(32px + var(--safe-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 52rem;
+  margin: 0 auto;
+}
+
+.lab h1,
+.lab h2 {
+  margin: 0;
+}
+
+.lab h2 {
+  font-size: 1rem;
+}
+
+.lab-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.lab-card {
+  border: 1px solid rgba(196, 165, 116, 0.35);
+  border-radius: 6px;
+  padding: 0.75rem;
+  min-width: 12rem;
+}
+
+.lab button {
+  min-height: 44px;
+  padding: 0 0.8rem;
+  border: 1px solid rgba(196, 165, 116, 0.5);
+  background: transparent;
+  border-radius: 4px;
+}
+
+.knob {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  touch-action: none;
+  position: relative;
+  background: radial-gradient(circle at 40% 40%, #3a342c, #120e0c 70%);
+}
+
+.knob-mark {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  width: 4px;
+  height: 36px;
+  margin-left: -2px;
+  background: #f2efe8;
+  border-radius: 2px;
+  transform-origin: center 58px;
+}
+
+.meter {
+  width: 18px;
+  height: 88px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: flex-end;
+}
+
+.meter > span {
+  width: 100%;
+  background: #7dcea0;
+}
+
+.role-pad {
+  position: relative;
+  height: 220px;
+  touch-action: none;
+  background: #101014;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.role-pedal,
+.role-cloth {
+  position: absolute;
+  border: 1px dashed rgba(196, 165, 116, 0.45);
+  font-size: 0.75rem;
+  padding: 0.25rem;
+}
+
+.role-pedal {
+  left: 0;
+  bottom: 0;
+  width: 33.33%;
+  height: 33.33%;
+}
+
+.role-cloth {
+  left: 33.33%;
+  top: 0;
+  width: 66.67%;
+  height: 100%;
+}
+
 @media (orientation: portrait) {
   .hub,
   .theme-list {

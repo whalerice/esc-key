@@ -4,6 +4,7 @@
  * HUD layer (layer 4). Spec: docs/개발/공통엔진_v1.md §4.
  * Slots: timer · back · hint · inventory · mute · max-mode.
  */
+import type { ReactNode } from 'react';
 import { INVENTORY_SLOTS } from '@/engine/systems/Inventory';
 
 export type HudProps = {
@@ -11,7 +12,7 @@ export type HudProps = {
   itemCount?: number;
   /** Optional short labels drawn in filled slots (item ids ok for slice). */
   itemLabels?: string[];
-  timerLabel?: string | null;
+  timerLabel?: ReactNode;
   hintBlink?: boolean;
   muted?: boolean;
   maxModeBlink?: boolean;
@@ -46,7 +47,9 @@ export function Hud({
         <button type="button" className="hud-btn" onClick={onBack} aria-label="뒤로">
           ←
         </button>
-        {timerLabel != null && <span className="hud-timer">{timerLabel}</span>}
+        {timerLabel != null && timerLabel !== '' && (
+          <div className="hud-timer">{timerLabel}</div>
+        )}
       </div>
       <div className="hud-right">
         <button

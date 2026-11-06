@@ -26,7 +26,10 @@ import { Narration } from '@/engine/ui/Narration';
 import { Banner } from '@/engine/ui/Banner';
 import { RotateOverlay } from '@/engine/ui/RotateOverlay';
 import { HintMemo } from '@/engine/ui/HintMemo';
-import { formatMmSs, remainingMs } from '@/engine/systems/Timer';
+import { resolveOnZero, TimerController, timerFace } from '@/engine/systems/Timer';
+import type { TimerState } from '@/engine/systems/Timer';
+import { TimerFace } from '@/engine/ui/TimerFace';
+import { findEnding } from '@/engine/systems/Endings';
 import { channelForPuzzle, hintText, nextHintStep } from '@/engine/systems/Hints';
 import { SoundManager } from '@/engine/audio/SoundManager';
 
@@ -71,8 +74,13 @@ export function ThemePlay({
   const [hintBody, setHintBody] = useState<string | null>(null);
   const [hintStepLabel, setHintStepLabel] = useState<string | undefined>();
   const [hintIntro, setHintIntro] = useState<string | undefined>();
+  const [snap, setSnap] = useState<TimerState>(() => useStore.getState().timer);
+  const [endingId, setEndingId] = useState<string | null>(null);
   const sound = useMemo(() => new SoundManager(), []);
   const unmountRef = useRef<(() => void) | null>(null);
+  const ctrlRef = useRef<TimerController | null>(null);
+  const portraitRef = useRef(portrait);
+  portraitRef.current = portrait;
 
   const items = useStore((s) => s.items);
   const hintsUsed = useStore((s) => s.hintsUsed);
@@ -96,17 +104,62 @@ export function ThemePlay({
     };
   }, [sound]);
 
-  const timerLabel = useMemo(() => {
-    if (theme.timer.skin === 'none' || theme.timer.durationMs == null) {
-      return null;
-    }
-    const left = remainingMs(theme.timer.durationMs, {
-      elapsedMs: 0,
-      bonusPausedMs: 0,
-      penaltyMs: 0,
-    });
-    return formatMmSs(left);
-  }, [theme]);
+  useEffect(() => {
+    if (!booted) return;
+    const ctrl = new TimerController(theme.timer.durationMs, useStore.getState().timer);
+    ctrlRef.current = ctrl;
+    ctrl.start();
+    setSnap(ctrl.snapshot());
+    let firedZero = false;
+    const id = window.setInterval(() => {
+      const next = ctrl.snapshot();
+      setSnap(next);
+      if (!firedZero && ctrl.remaining() === 0) {
+        firedZero = true;
+        ctrl.pause();
+        useStore.getState().patchTimer({ elapsedMs: next.elapsedMs });
+        setEndingId(resolveOnZero(theme.timer.onZero, useStore.getState().solved));
+      }
+    }, 250);
+    const onVis = () => {
+      if (document.hidden) {
+        ctrl.pause();
+        useStore.getState().patchTimer({ elapsedMs: ctrl.elapsed() });
+      } else if (!portraitRef.current && ctrl.remaining() !== 0) {
+        ctrl.resume();
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener('visibilitychange', onVis);
+      useStore.getState().patchTimer({ elapsedMs: ctrl.elapsed() });
+      ctrlRef.current = null;
+    };
+  }, [booted, theme, useStore]);
+
+  useEffect(() => {
+    const ctrl = ctrlRef.current;
+    if (!ctrl || !booted) return;
+    if (portrait || document.hidden || ctrl.remaining() === 0) ctrl.pause();
+    else ctrl.resume();
+  }, [portrait, booted]);
+
+  const face = timerFace({
+    skin: theme.timer.skin,
+    durationMs: theme.timer.durationMs,
+    elapsedMs: snap.elapsedMs,
+    bonusPausedMs: snap.bonusPausedMs,
+    penaltyMs: snap.penaltyMs,
+    startClock: theme.timer.startClock,
+    displayOverride: theme.timer.displayOverride,
+  });
+  const showTimer =
+    theme.timer.skin !== 'none' &&
+    (theme.timer.durationMs != null ||
+      theme.timer.startClock != null ||
+      theme.timer.displayOverride != null);
+  const ending = endingId ? findEnding(theme.endings, endingId) : undefined;
 
   const say = useCallback((text: string) => {
     setQueue((q) => [...q, text]);
@@ -192,7 +245,7 @@ export function ThemePlay({
           inventoryName={theme.hud.inventoryName}
           itemCount={items.length}
           itemLabels={items}
-          timerLabel={timerLabel}
+          timerLabel={showTimer ? <TimerFace model={face} /> : null}
           muted={muted}
           maxModeBlink={maxBlink}
           notebook={theme.hud.notebook}
@@ -231,7 +284,15 @@ export function ThemePlay({
         />
       )}
 
-      <RotateOverlay show={booted && portrait} />
+      {booted && ending && (
+        <div className="engine-overlay ending-lock" role="status" data-ending={ending.id}>
+          <p>
+            시간 종료 · {ending.title} ({ending.id})
+          </p>
+        </div>
+      )}
+
+      <RotateOverlay show={booted && portrait && !ending} />
       {!booted && (
         <Gate
           label={theme.gate.label}

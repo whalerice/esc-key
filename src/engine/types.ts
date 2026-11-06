@@ -178,3 +178,11 @@ export const SAVE_KEY_PREFIX = 'escape:';
 export function saveKey(themeId: ThemeId): string {
   return `${SAVE_KEY_PREFIX}${themeId}`;
 }
+
+/** Drop radio frequencies before they hit storage or `extra`. Spec §12-2. */
+export function withoutEphemeralExtra<T>(extra: T): T {
+  if (!extra || typeof extra !== 'object') return extra;
+  const copy = { ...(extra as Record<string, unknown>) };
+  for (const key of EPHEMERAL_EXTRA_KEYS) delete copy[key];
+  return copy as T;
+}

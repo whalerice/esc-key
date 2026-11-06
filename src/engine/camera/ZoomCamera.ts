@@ -1,6 +1,6 @@
 /** Zoom camera — pinch / pan / double-tap. Spec: docs/개발/공통엔진_v1.md §8-1. */
 import { Container, FederatedPointerEvent, Rectangle } from 'pixi.js';
-import { GESTURE } from '@/engine/input/gestures';
+import { claimTwoFinger, GESTURE, releaseTwoFinger } from '@/engine/input/gestures';
 import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from '@/engine/types';
 
 export type ZoomCameraOpts = {
@@ -9,6 +9,11 @@ export type ZoomCameraOpts = {
   thresholds?: number[];
   /** Fired when scale crosses a threshold upward. */
   onThreshold?: (scale: number) => void;
+  /**
+   * Pinch zoom. Turn off on a screen that uses two-finger rotate.
+   * Spec §7-2: the two gestures do not share a surface.
+   */
+  pinch?: boolean;
 };
 
 type Ptr = { id: number; x: number; y: number };
@@ -27,6 +32,7 @@ export class ZoomCamera {
   private lastTapAt = 0;
   private crossed = new Set<number>();
   private unbound: Array<() => void> = [];
+  private surface: object | null = null;
 
   constructor(opts: ZoomCameraOpts = { min: 1, max: 12 }) {
     this.opts = opts;
@@ -35,6 +41,10 @@ export class ZoomCamera {
   /** Attach world container; listen on `stage` for gestures. */
   attach(target: Container, stage: Container): void {
     this.detach();
+    if (this.opts.pinch !== false) {
+      claimTwoFinger(stage, 'pinch');
+      this.surface = stage;
+    }
     this.target = target;
     target.eventMode = 'passive';
     stage.eventMode = 'static';
@@ -64,6 +74,7 @@ export class ZoomCamera {
       if (!this.pointers.has(e.pointerId)) return;
       this.pointers.set(e.pointerId, { id: e.pointerId, x: e.globalX, y: e.globalY });
       if (this.pointers.size >= 2) {
+        if (this.opts.pinch === false) return;
         const [a, b] = [...this.pointers.values()];
         const d = dist(a!, b!);
         if (this.pinchStartDist > 0) {
@@ -108,6 +119,8 @@ export class ZoomCamera {
     this.unbound = [];
     this.pointers.clear();
     this.target = null;
+    if (this.surface) releaseTwoFinger(this.surface);
+    this.surface = null;
   }
 
   clampScale(s: number): number {

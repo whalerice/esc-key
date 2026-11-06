@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getTheme, listThemes } from '@/themes/registry';
+import { HaemuLighthousePlay } from '@/themes/haemu-lighthouse/Play';
 import { HaemuRadioPlay } from '@/themes/haemu-radio/Play';
 import { StubThemePlay } from '@/themes/StubThemePlay';
 
@@ -9,11 +10,12 @@ export function generateStaticParams() {
   return listThemes('haemu').map((t) => ({ theme: t.id }));
 }
 
-/** Haemu runner. 심야 라디오 is the gray-box play; the other themes stay stubs. */
+/** Haemu runner. 심야 라디오 and 등대지기는 gray-box plays. */
 export default async function HaemuThemePage({ params }: Props) {
   const { theme: themeId } = await params;
   const theme = getTheme(themeId);
   if (!theme || theme.world !== 'haemu') notFound();
   if (theme.id === 'haemu-radio') return <HaemuRadioPlay />;
+  if (theme.id === 'haemu-lighthouse') return <HaemuLighthousePlay />;
   return <StubThemePlay theme={theme} />;
 }

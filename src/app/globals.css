@@ -129,7 +129,8 @@ button {
   opacity: 0.75;
 }
 
-.radio-flow {
+.radio-flow,
+.lighthouse-flow {
   position: absolute;
   z-index: 20;
   left: 64px;
@@ -146,7 +147,9 @@ button {
 }
 
 .radio-flow button,
-.radio-flow input[type='range'] {
+.radio-flow input[type='range'],
+.lighthouse-flow button,
+.lighthouse-flow input[type='range'] {
   min-height: 44px;
   padding: 0.35rem 0.6rem;
   border: 1px solid rgba(217, 71, 58, 0.7);
@@ -154,7 +157,8 @@ button {
   border-radius: 2px;
 }
 
-.radio-flow .keypad-keys {
+.radio-flow .keypad-keys,
+.lighthouse-flow .keypad-keys {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
@@ -169,7 +173,8 @@ button {
 }
 
 .radio-room,
-.radio-flow p {
+.radio-flow p,
+.lighthouse-flow p {
   margin: 0;
 }
 
@@ -822,4 +827,97 @@ button {
   .theme-list {
     /* PC/dev ok; play shell uses RotateOverlay */
   }
+}
+
+.letter-card p {
+  white-space: pre-wrap;
+}
+
+.lighthouse-flow {
+  display: block;
+}
+
+.lighthouse-flow .floor-nav {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 9.2rem;
+  overflow: auto;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.lighthouse-flow > :not(.floor-nav):not(.lighthouse-ending) {
+  margin-left: 9.8rem;
+}
+
+.lighthouse-flow .letter-card {
+  position: fixed;
+  z-index: 45;
+}
+
+.lighthouse-ending {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.88);
+  text-align: center;
+}
+
+.lighthouse-flow .beam-mark[data-lit='no'] {
+  opacity: 0;
+}
+
+.lighthouse-flow .beam-mark[data-lit='yes'] {
+  opacity: 1;
+  background: #eee;
+}
+
+.lighthouse-focus {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  border: 1px solid #777;
+  background: #1a1a1a;
+}
+
+.lighthouse-cross,
+.lighthouse-shadow {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+}
+
+.lighthouse-cross {
+  left: 50%;
+  top: 50%;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+}
+
+.lighthouse-shadow {
+  background: #e8e8e8;
+  border-radius: 50%;
+}
+
+.lighthouse-board {
+  position: relative;
+  width: 320px;
+  height: 80px;
+}
+
+.lighthouse-blank {
+  position: absolute;
+  width: 72px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgba(242, 239, 232, 0.6);
+  font-size: 0.75rem;
 }

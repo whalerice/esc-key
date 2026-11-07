@@ -1,7 +1,7 @@
 import type { ThemeDefinition } from '@/engine/types';
 import { initialExtra, type LighthouseExtra } from './extra';
 
-/** Gray-box play. Answers live in puzzles/answers.ts. Beam and morse are not in extra. */
+/** Illustrated play. Answers live in puzzles/answers.ts. Beam and morse are not in extra. */
 export const themeHaemuLighthouse: ThemeDefinition<LighthouseExtra> = {
   id: 'haemu-lighthouse',
   world: 'haemu',
@@ -52,14 +52,14 @@ export const themeHaemuLighthouse: ThemeDefinition<LighthouseExtra> = {
     ],
   },
   scenes: [
-    { id: 'f1', background: '#12100c' },
+    { id: 'f1', background: '#16140f' },
     { id: 'panel', background: '#14110e' },
     { id: 'f2', background: '#10140f' },
     { id: 'f3', background: '#141414' },
     { id: 'f4', background: '#16140f' },
     { id: 'f5', background: '#14120e' },
     { id: 'f6', background: '#121418' },
-    { id: 'rail', background: '#0e1418' },
+    { id: 'rail', background: '#1E2A33' },
   ],
   puzzles: [
     { id: 'P1', scene: 'f1', widget: 'Keypad' },

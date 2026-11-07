@@ -1,7 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState, type MutableRefObject } from 'react';
+import { useEffect, useRef, useState, type ComponentProps, type MutableRefObject, type ReactNode } from 'react';
+import { Howl } from 'howler';
 import { DISTANCE, RadioBed } from '@/engine/audio/RadioBed';
+import { playHtml5Clip } from '@/engine/audio/html5Clip';
+import { isAudioUnlocked } from '@/engine/audio/SoundManager';
 import { BeamMask } from '@/engine/fx/BeamMask';
 import { useAppStore } from '@/engine/save/appStore';
 import { LetterCard } from '@/engine/ui/LetterCard';
@@ -13,8 +16,8 @@ import { longPressMs } from '@/engine/widgets/LongPress';
 import { MorseInput } from '@/engine/widgets/MorseInput';
 import { RhythmPress, type RhythmSpan } from '@/engine/widgets/RhythmPress';
 import { SequenceTap } from '@/engine/widgets/SequenceTap';
-import { toneWav } from '../haemu-radio/tone';
 import { endingBeats, line, type ScriptKey } from './data/script';
+import { BED_SRC, CLUE_SRC, ROOM_SRC, SFX_SRC } from './art';
 import { themeHaemuLighthouse } from './index';
 import {
   BEAM_HOLD_MS,
@@ -116,16 +119,37 @@ const LOOK: Record<string, ScriptKey> = {
 
 let fairMs = 0;
 
-const BED_HZ: Record<string, number> = {
-  opening: 220,
-  'fog-stop': 247,
-  '3am-coffee': 196,
-  'far-sea': 174,
-  wind: 233,
-  breakwater: 165,
-  'last-corner': 262,
-  signal: 294,
-};
+const sfxHowls = new Map<string, Howl>();
+
+function lhSfx(url: string) {
+  if (!isAudioUnlocked()) return;
+  let howl = sfxHowls.get(url);
+  if (!howl) {
+    howl = new Howl({ src: [url], volume: 0.35 });
+    sfxHowls.set(url, howl);
+  }
+  howl.play();
+}
+
+function hear(kind: keyof typeof CLUE_SRC) {
+  playHtml5Clip(CLUE_SRC[kind]);
+}
+
+function Prop({
+  icon,
+  nav,
+  className,
+  children,
+  ...rest
+}: ComponentProps<'button'> & { icon?: string; nav?: boolean; children?: ReactNode }) {
+  const cls = [nav ? 'lh-nav' : 'lh-prop', className].filter(Boolean).join(' ');
+  return (
+    <button type="button" {...rest} className={cls}>
+      {icon ? <img src={`/themes/haemu-lighthouse/props/${icon}.svg`} alt="" /> : null}
+      {children}
+    </button>
+  );
+}
 
 type Stamp = (id: 'P3' | 'P6' | 'P7') => void;
 
@@ -176,20 +200,27 @@ export function LighthouseFlow({
     }
     if (scene === 'f4' && !useLighthouseStore.getState().flags.p5hello) {
       useLighthouseStore.getState().setFlag('p5hello');
+      hear('tube');
       sayRef.current(line('p5.tube'));
     }
     if (scene === 'f4' && s.solved.P7 && !s.solved.P8 && !useLighthouseStore.getState().flags.p8ask) {
       useLighthouseStore.getState().setFlag('p8ask');
+      hear('tube');
       sayRef.current(line('p8.go1'));
       sayRef.current(line('p8.go2'));
     }
   }, [scene]);
 
   useEffect(() => {
-    const sounds: Record<string, string> = {};
-    for (const [id, hz] of Object.entries(BED_HZ)) sounds[id] = toneWav(hz, 1.2);
+    const sounds = { ...BED_SRC };
     const bed = new RadioBed(themeHaemuLighthouse.radioBed, { sounds, startClock: '02:00' });
     let prev = '';
+    let horn: Howl | null = null;
+    const tellCaptain = (text: string | null) => {
+      if (!text) return;
+      hear('captain');
+      sayRef.current(text);
+    };
     clockRef.current = (ms) => {
       elapsedRef.current = ms;
       fairMs = ms;
@@ -202,38 +233,43 @@ export function LighthouseFlow({
         bed.setDistance(distance);
       }
       bed.setSignal(ms >= 20 * 60_000 ? 0.62 : 1);
-      const tell = sayRef.current;
+      if (s.solved.P6 && !horn && isAudioUnlocked()) {
+        horn = new Howl({ src: [SFX_SRC.horn], loop: true, volume: 0.16 });
+        horn.play();
+      }
+      if (horn) horn.volume(s.scene === 'rail' ? 0.42 : 0.16);
       once('c10', ms >= 10 * 60_000, () => {
-        const text = captainAt10(useLighthouseStore.getState().solved);
-        if (text) tell(text);
+        tellCaptain(captainAt10(useLighthouseStore.getState().solved));
       });
       once('c20', ms >= 20 * 60_000, () => {
         const live = useLighthouseStore.getState();
-        const text = captainAt20(live.solved);
-        if (text) tell(text);
-        tell(TUBE_DOYUN);
+        tellCaptain(captainAt20(live.solved));
+        hear('doyun');
+        sayRef.current(TUBE_DOYUN);
       });
       once('c25', ms >= 25 * 60_000, () => {
-        const text = captainAt25(useLighthouseStore.getState().solved);
-        if (text) tell(text);
+        tellCaptain(captainAt25(useLighthouseStore.getState().solved));
       });
       once('c29', ms >= 29 * 60_000, () => {
-        const text = captainAt29(useLighthouseStore.getState().solved);
-        if (text) tell(text);
+        tellCaptain(captainAt29(useLighthouseStore.getState().solved));
       });
       const live = useLighthouseStore.getState();
       if (live.solved.P6 && ms >= live.extra.solvedAt.P6 + 10_000) {
         once('redLight', true, () => {
-          tell(line('p7.warn'));
-          tell(line('p7.tube1'));
-          tell(line('p7.tube2'));
+          hear('captain');
+          sayRef.current(line('p7.warn'));
+          hear('tube');
+          sayRef.current(line('p7.tube1'));
+          sayRef.current(line('p7.tube2'));
         });
       }
     };
     return () => {
       clockRef.current = () => undefined;
       bed.dispose();
-      for (const url of Object.values(sounds)) URL.revokeObjectURL(url);
+      horn?.unload();
+      for (const howl of sfxHowls.values()) howl.unload();
+      sfxHowls.clear();
     };
   }, [clockRef]);
 
@@ -245,7 +281,9 @@ export function LighthouseFlow({
       if (s.solved.P6) return;
       stamp('P6');
       useLighthouseStore.getState().markSolved('P6');
+      hear('captain');
       say(line('p6.solved'));
+      hear('tube');
       say(line('p6.tube'));
       say(line('horn.loop'));
       return;
@@ -272,9 +310,12 @@ export function LighthouseFlow({
   const visited = ['1', '2', '3', '4', '5', '6'].filter((id) => flags[`v${id}`]);
   const floors = themeHaemuLighthouse.hud.floorNav?.floors ?? [];
   const next = ORDER.find((id) => !solved[id]) ?? '끝';
+  const roomSrc = scene === 'f6' && solved.P3 ? ROOM_SRC.f6main : (ROOM_SRC[scene] ?? ROOM_SRC.f1);
 
   return (
-    <div className="lighthouse-flow" data-scene={scene} data-next={next}>
+    <div className="lighthouse-flow" data-scene={scene} data-next={next} data-lamp={solved.P3 ? 'main' : 'spare'}>
+      <img className="lighthouse-scene" src={roomSrc} alt="" />
+      {solved.P3 && (scene === 'f6' || scene === 'rail') ? <div className="lighthouse-main-glow" aria-hidden /> : null}
       <p className="radio-room">
         {ROOM[scene] ?? scene} · {next} · {solved.P3 ? '주등' : '예비등'}
         {solved.P6 ? ` · ${line('horn.loop')}` : ''}
@@ -291,14 +332,14 @@ export function LighthouseFlow({
       />
       <div className="radio-row">
         {CLIMB.indexOf(scene) > 0 && (
-          <button type="button" onClick={() => go(-1)}>
+          <Prop nav icon="stair" onClick={() => go(-1)}>
             아래로
-          </button>
+          </Prop>
         )}
         {CLIMB.indexOf(scene) < CLIMB.length - 1 && (
-          <button type="button" onClick={() => go(1)}>
+          <Prop nav icon="stair" onClick={() => go(1)}>
             위로
-          </button>
+          </Prop>
         )}
       </div>
 
@@ -360,14 +401,14 @@ function Duty({ say }: { say: (text: string) => void }) {
   return (
     <section>
       <div className="radio-row">
-        <button type="button" onClick={() => clue('p1.door')}>철문</button>
-        <button type="button" onClick={() => clue('p1.lid', 'lid')}>열쇠함 뚜껑</button>
-        <button type="button" onClick={() => clue('p1.plate', 'plate')}>계단 명판</button>
-        <button type="button" onClick={() => clue('p1.window', 'window')}>창문</button>
-        <button type="button" onClick={() => clue('p1.chart')}>옛 해도</button>
-        <button type="button" onClick={() => clue('p1.plan')}>계획서</button>
-        <button type="button" onClick={() => clue('p1.receipt')}>영수증</button>
-        <button type="button" onClick={() => clue('p1.radio')}>라디오</button>
+        <Prop icon="door" onClick={() => clue('p1.door')}>철문</Prop>
+        <Prop icon="lid" onClick={() => clue('p1.lid', 'lid')}>열쇠함 뚜껑</Prop>
+        <Prop icon="plate" className="lh-wide" onClick={() => clue('p1.plate', 'plate')}>계단 명판</Prop>
+        <Prop icon="window" className="lh-wide" onClick={() => clue('p1.window', 'window')}>창문</Prop>
+        <Prop icon="chart" className="lh-wide" onClick={() => clue('p1.chart')}>옛 해도</Prop>
+        <Prop icon="plan" onClick={() => clue('p1.plan')}>계획서</Prop>
+        <Prop icon="receipt" onClick={() => clue('p1.receipt')}>영수증</Prop>
+        <Prop icon="radio" onClick={() => clue('p1.radio')}>라디오</Prop>
       </div>
       {!solved && (
         <Keypad
@@ -377,6 +418,7 @@ function Duty({ say }: { say: (text: string) => void }) {
           onSubmit={() => {
             const result = judgeP1(code);
             if (result === 'ok') {
+              lhSfx(SFX_SRC.door);
               useLighthouseStore.getState().markSolved('P1');
               say(line('p1.solved'));
               return;
@@ -403,6 +445,7 @@ function Panel({ say }: { say: (text: string) => void }) {
     if (!lever?.down) return say(line('p2.up'));
     const s = useLighthouseStore.getState();
     if (s.extra.breakerUp.includes(id) || s.solved.P2) return;
+    lhSfx(SFX_SRC.lever);
     const next = [...s.extra.breakerUp, id];
     const verdict = judgeLevers(next);
     if (verdict === 'ok' && !new SequenceTap([...P2_ORDER]).check(next)) return;
@@ -420,9 +463,14 @@ function Panel({ say }: { say: (text: string) => void }) {
   };
   return (
     <section>
+      <img
+        className="lh-figure"
+        src="/themes/haemu-lighthouse/props/floors.svg"
+        alt="1 파랑 당직실, 2 초록 무적실, 3 흰색 창고, 4 검정 위 당직실, 5 노랑 기계실, 6 빨강 등실"
+      />
       <div className="radio-row">
-        <button
-          type="button"
+        <Prop
+          icon="tube"
           onPointerDown={() => {
             downAt.current = performance.now();
           }}
@@ -432,30 +480,31 @@ function Panel({ say }: { say: (text: string) => void }) {
               return;
             }
             useLighthouseStore.getState().setFlag('tube');
+            hear('tube');
             say(line('p2.tube'));
           }}
         >
           전성관 구멍
-        </button>
-        <button type="button" onClick={() => say(line('p2.note'))}>쪽지</button>
-        <button
-          type="button"
+        </Prop>
+        <Prop icon="note" onClick={() => say(line('p2.note'))}>쪽지</Prop>
+        <Prop
+          icon="floors"
           onClick={() => {
             addNote('floors', line('p2.floors'));
             say(line('p2.floors'));
           }}
         >
           층 안내판
-        </button>
+        </Prop>
       </div>
       <p>{line('p2.levers')}</p>
       <div className="radio-row">
         {LEVERS.map((lever) => {
           const raised = !lever.down || order.includes(lever.id) || solved;
           return (
-            <button key={lever.id} type="button" data-lever={lever.id} onClick={() => pull(lever.id)}>
+            <Prop key={lever.id} icon="lever" data-lever={lever.id} onClick={() => pull(lever.id)}>
               {lever.label} {raised ? '올림' : '내림'}
-            </button>
+            </Prop>
           );
         })}
       </div>
@@ -482,8 +531,10 @@ function Lamp({ say, stamp }: { say: (text: string) => void; stamp: Stamp }) {
       stampRef.current('P3');
       useLighthouseStore.getState().markSolved('P3');
       say(line('p3.solved'));
+      hear('captain');
       say(line('p3.cap1'));
       say(line('p3.cap2'));
+      hear('tube');
       say(line('p3.tube'));
     }, FOCUS_HOLD_MS);
     return () => window.clearTimeout(timer);
@@ -502,8 +553,8 @@ function Lamp({ say, stamp }: { say: (text: string) => void; stamp: Stamp }) {
     <section>
       <p>{line('p3.room')}</p>
       <div className="radio-row">
-        <button type="button" onClick={() => say(line('p3.note'))}>교환기 쪽지</button>
-        <button type="button" onClick={() => say(line('p3.plate'))}>확인창 명판</button>
+        <Prop icon="note" onClick={() => say(line('p3.note'))}>교환기 쪽지</Prop>
+        <Prop icon="plaque" onClick={() => say(line('p3.plate'))}>확인창 명판</Prop>
       </div>
       {!solved && (
         <>
@@ -523,10 +574,10 @@ function Lamp({ say, stamp }: { say: (text: string) => void; stamp: Stamp }) {
             />
           </label>
           <div className="radio-row">
-            {[1, 2, 3, 4].map((n) => (
-              <button
+            {([1, 2, 3, 4] as const).map((n) => (
+              <Prop
                 key={n}
-                type="button"
+                icon={(['bulb-dead', 'bulb-soot', 'bulb-ok', 'bulb-loose'] as const)[n - 1]}
                 onClick={() => {
                   if (n === 4 && tapped4) say(line('p3.b4b'));
                   else say(line(`p3.b${n}` as ScriptKey));
@@ -534,13 +585,14 @@ function Lamp({ say, stamp }: { say: (text: string) => void; stamp: Stamp }) {
                 }}
               >
                 {n}번 보기
-              </button>
+              </Prop>
             ))}
-            <button
-              type="button"
+            <Prop
+              icon="bulb-ok"
               onClick={() => {
                 const result = judgeLight(slot);
                 if (result === 'ok') {
+                  lhSfx(SFX_SRC.lamp);
                   setLit(true);
                   say(line('p3.spread'));
                   return;
@@ -550,7 +602,7 @@ function Lamp({ say, stamp }: { say: (text: string) => void; stamp: Stamp }) {
               }}
             >
               점등
-            </button>
+            </Prop>
           </div>
           {lit && (
             <>
@@ -615,6 +667,7 @@ function BeamPlay({
   const [inside, setInside] = useState<string[]>([]);
   const [shipDeg, setShipDeg] = useState(135);
   const [code, setCode] = useState('');
+  const [cardOpen, setCardOpen] = useState(false);
   const insideRef = useRef<string[]>([]);
 
   useEffect(() => {
@@ -625,10 +678,12 @@ function BeamPlay({
     }
     if (!s.flags.p4brief) {
       s.setFlag('p4brief');
+      hear('captain');
       say(line('p4.cap'));
     }
     if (mode === 'p7' && !useLighthouseStore.getState().flags.p7moved) {
       useLighthouseStore.getState().setFlag('p7moved');
+      hear('captain');
       say(line('p7.moved'));
     }
   }, [mode, say]);
@@ -657,12 +712,15 @@ function BeamPlay({
         if (verdict === 'ok' && !s.solved.P4) {
           s.markSolved('P4');
           addNote('ship', line('p4.solved'));
+          hear('captain');
           sayRef.current(line('p4.solved'));
           sayRef.current(line('p4.fog'));
+          hear('tube');
           sayRef.current(line('p4.tube'));
         }
         if (verdict === 'trap') {
           s.patchExtra({ trapBoat8: true });
+          hear('captain');
           sayRef.current(line('p4.trap'));
         }
       },
@@ -699,16 +757,20 @@ function BeamPlay({
           if (s.solved.P7) return;
           stampRef.current('P7');
           useLighthouseStore.getState().markSolved('P7');
+          hear('captain');
           sayRef.current(line('p7.solved'));
           sayRef.current(line('p7.chart'));
+          hear('tube');
           sayRef.current(line('p7.tube'));
           return;
         }
         if (verdict === 'red') {
           useLighthouseStore.getState().patchExtra({ trapRedSignal: true });
+          hear('tube');
           sayRef.current(line('p7.red'));
           return;
         }
+        if (verdict === 'no') hear('captain');
         sayRef.current(line(verdict === 'miss' ? 'p7.miss' : 'p7.no'));
       },
     });
@@ -743,13 +805,23 @@ function BeamPlay({
       <p data-deg={deg.toFixed(0)}>방위 {deg.toFixed(0)}°</p>
       {mode === 'p7' && (
         <>
-          <button type="button" onClick={() => say(line('p7.card'))}>
+          <Prop
+            icon="card"
+            onClick={() => {
+              setCardOpen(true);
+              say(line('p7.card'));
+            }}
+          >
             덮개 카드
-          </button>
+          </Prop>
+          {cardOpen ? (
+            <img className="lh-figure" src="/themes/haemu-lighthouse/props/card.svg" alt="국제신호 U. 짧게, 짧게, 길게." />
+          ) : null}
           <p className="morse-read" data-code={code}>
             {code || '대기'} {code === MORSE_U ? '' : ''}
           </p>
-          <button ref={shutterRef} type="button">
+          <button ref={shutterRef} type="button" className="lh-prop">
+            <img src="/themes/haemu-lighthouse/props/shutter.svg" alt="" />
             셔터
           </button>
         </>
@@ -775,6 +847,7 @@ function Logs({ say, onSign }: { say: (text: string) => void; onSign: () => void
       .filter((item) => item.found)
       .map((item) => item.id);
     s.patchExtra({ tabsOpened: opened });
+    lhSfx(SFX_SRC.page);
     setPage(tab);
     const verdict = judgeTab(tab);
     if (verdict === 'ok') {
@@ -784,6 +857,7 @@ function Logs({ say, onSign }: { say: (text: string) => void; onSign: () => void
         addNote('blues', '파란 띠지 287장');
         say(line('p5.solved'));
         say(line('p5.flip'));
+        hear('tube');
         say(line('p5.reason'));
       }
       return;
@@ -801,34 +875,40 @@ function Logs({ say, onSign }: { say: (text: string) => void; onSign: () => void
     <section>
       <p>{line('p5.room')}</p>
       <div className="radio-row">
-        <button type="button" onClick={() => say(line('p5.manual'))}>매뉴얼</button>
-        <button
-          type="button"
+        <Prop icon="manual" onClick={() => say(line('p5.manual'))}>매뉴얼</Prop>
+        <Prop
+          icon="plaque"
           onClick={() => {
             addNote('plate', line('p5.plate'));
             say(line('p5.plate'));
           }}
         >
           준공 명판
-        </button>
+        </Prop>
         {solved.P5 && !items.includes(WEDGE_ID) && (
-          <button
-            type="button"
+          <Prop
+            icon="drawer"
             onClick={() => {
+              lhSfx(SFX_SRC.wedge);
               useLighthouseStore.getState().addItem(WEDGE_ID);
               say(line('p5.wedge'));
             }}
           >
             선반 서랍
-          </button>
+          </Prop>
         )}
       </div>
       <div className="radio-row">
         {TABS.map((tab) => (
-          <button key={tab.id} type="button" data-tab={tab.id} onClick={() => open(tab)}>
+          <Prop
+            key={tab.id}
+            icon={tab.color === 'red' ? 'ribbon-red' : tab.color === 'blue' ? 'ribbon-blue' : 'ribbon-yellow'}
+            data-tab={tab.id}
+            onClick={() => open(tab)}
+          >
             {tab.color === 'red' ? '빨강' : tab.color === 'blue' ? '파랑' : '노랑'} {tab.shape} {tab.date}
             {tab.old ? ' 낮은 칸' : ''}
-          </button>
+          </Prop>
         ))}
       </div>
       <LetterCard
@@ -899,16 +979,17 @@ function LogBoard({ say, onSign }: { say: (text: string) => void; onSign: () => 
         </ul>
       )}
       {logComplete(blanks) && (
-        <button
-          type="button"
+        <Prop
+          icon="sign"
           onClick={() => {
+            hear('tube');
             say(line('p8.sign'));
             say(line('p8.tube'));
             onSign();
           }}
         >
           인수 · 주무관
-        </button>
+        </Prop>
       )}
     </section>
   );
@@ -922,8 +1003,8 @@ function Card({
   onDrop: (label: string, x: number, y: number) => void;
 }) {
   return (
-    <button
-      type="button"
+    <Prop
+      icon="slip"
       data-card={label}
       onPointerDown={(event) => {
         if (event.button !== 0) return;
@@ -937,7 +1018,7 @@ function Card({
       }}
     >
       {label}
-    </button>
+    </Prop>
   );
 }
 
@@ -981,9 +1062,9 @@ function Horn({
     return (
       <section>
         <p>{line('p6.room')}</p>
-        <button type="button" onClick={() => say(line('p6.unknown'))}>
+        <Prop icon="horn" onClick={() => say(line('p6.unknown'))}>
           무적 손잡이
-        </button>
+        </Prop>
       </section>
     );
   }
@@ -1011,9 +1092,15 @@ function Horn({
       <p>{line('p6.known')}</p>
       <p data-needle={needle.toFixed(1)}>압력 {needle.toFixed(1)}</p>
       {step === 0 && (
-        <button type="button" onClick={() => act('compressor')}>
+        <Prop
+          icon="compressor"
+          onClick={() => {
+            lhSfx(SFX_SRC.machine);
+            act('compressor');
+          }}
+        >
           압축기
-        </button>
+        </Prop>
       )}
       <label>
         배수 밸브
@@ -1046,9 +1133,9 @@ function Horn({
         />
       </label>
       {step < 4 && (
-        <button type="button" onClick={() => act('sound')}>
+        <Prop icon="horn" onClick={() => act('sound')}>
           무적 손잡이
-        </button>
+        </Prop>
       )}
       {step === 4 && (
         <RhythmPad
@@ -1056,30 +1143,34 @@ function Horn({
             const s = useLighthouseStore.getState();
             if (s.extra.hornStep === 4) s.patchExtra({ hornStep: 5 });
           }}
-          onBad={() => say(line('p6.miss'))}
+          onBad={() => {
+            hear('tube');
+            say(line('p6.miss'));
+          }}
         />
       )}
       {step === 5 && (
         <div className="radio-row">
-          <button
-            type="button"
+          <Prop
+            icon="wedge"
             data-use-target={HORN_TARGET}
             onClick={() => {
+              lhSfx(SFX_SRC.wedge);
               const owned = useLighthouseStore.getState().items;
               onWedge(selectedItem ?? (owned.includes(WEDGE_ID) ? WEDGE_ID : null));
             }}
           >
             손잡이에 쐐기
-          </button>
-          <button
-            type="button"
+          </Prop>
+          <Prop
+            icon="horn"
             onClick={() => {
               useLighthouseStore.getState().patchExtra({ hornStep: 4 });
               say(line('p6.letgo'));
             }}
           >
             손 뗌
-          </button>
+          </Prop>
         </div>
       )}
     </section>
@@ -1104,6 +1195,7 @@ function RhythmPad({ onDone, onBad }: { onDone: () => void; onBad: () => void })
         if (next.length === 0) return;
         if (next.filter((span) => span.kind === 'press').length < 2) return;
         if (judgeRhythm(next) === 'ok') {
+          lhSfx(SFX_SRC.horn);
           doneRef.current();
           rhythm.clear();
           return;
@@ -1134,7 +1226,8 @@ function RhythmPad({ onDone, onBad }: { onDone: () => void; onBad: () => void })
         {live != null && <i className="press live" style={{ width: `${Math.max(4, Math.round(live / 40))}px` }} />}
       </div>
       <p>━━ · ━━</p>
-      <button ref={ref} type="button">
+      <button ref={ref} type="button" className="lh-prop">
+        <img src="/themes/haemu-lighthouse/props/horn.svg" alt="" />
         무적 손잡이
       </button>
     </div>

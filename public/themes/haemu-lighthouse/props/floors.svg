@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 300">
+<rect width="220" height="300" fill="#E9E2D2"/>
+<rect x="78" y="16" width="64" height="268" fill="#5D6668" stroke="#12191F"/>
+<rect x="86" y="28" width="48" height="34" fill="#C8463B" stroke="#12191F"/>
+<text x="110" y="50" text-anchor="middle" fill="#12191F" font-size="16" font-family="sans-serif">6</text>
+<text x="156" y="50" fill="#3B3A36" font-size="12" font-family="sans-serif">등실</text><rect x="86" y="70" width="48" height="34" fill="#E2B84A" stroke="#12191F"/>
+<text x="110" y="92" text-anchor="middle" fill="#12191F" font-size="16" font-family="sans-serif">5</text>
+<text x="156" y="92" fill="#3B3A36" font-size="12" font-family="sans-serif">기계실</text><rect x="86" y="112" width="48" height="34" fill="#1c1c1c" stroke="#12191F"/>
+<text x="110" y="134" text-anchor="middle" fill="#E9E2D2" font-size="16" font-family="sans-serif">4</text>
+<text x="156" y="134" fill="#3B3A36" font-size="12" font-family="sans-serif">위 당직</text><rect x="86" y="154" width="48" height="34" fill="#d8d4cc" stroke="#12191F"/>
+<text x="110" y="176" text-anchor="middle" fill="#12191F" font-size="16" font-family="sans-serif">3</text>
+<text x="156" y="176" fill="#3B3A36" font-size="12" font-family="sans-serif">창고</text><rect x="86" y="196" width="48" height="34" fill="#3d7a4a" stroke="#12191F"/>
+<text x="110" y="218" text-anchor="middle" fill="#12191F" font-size="16" font-family="sans-serif">2</text>
+<text x="156" y="218" fill="#3B3A36" font-size="12" font-family="sans-serif">무적실</text><rect x="86" y="238" width="48" height="34" fill="#3a6ea5" stroke="#12191F"/>
+<text x="110" y="260" text-anchor="middle" fill="#12191F" font-size="16" font-family="sans-serif">1</text>
+<text x="156" y="260" fill="#3B3A36" font-size="12" font-family="sans-serif">당직실</text>
+</svg>

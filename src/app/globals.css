@@ -130,7 +130,8 @@ button {
 }
 
 .radio-flow,
-.lighthouse-flow {
+.lighthouse-flow,
+.tailor-flow {
   position: absolute;
   z-index: 20;
   left: 64px;
@@ -149,7 +150,9 @@ button {
 .radio-flow button,
 .radio-flow input[type='range'],
 .lighthouse-flow button,
-.lighthouse-flow input[type='range'] {
+.lighthouse-flow input[type='range'],
+.tailor-flow button,
+.tailor-flow input[type='range'] {
   min-height: 44px;
   padding: 0.35rem 0.6rem;
   border: 1px solid rgba(217, 71, 58, 0.7);
@@ -158,7 +161,8 @@ button {
 }
 
 .radio-flow .keypad-keys,
-.lighthouse-flow .keypad-keys {
+.lighthouse-flow .keypad-keys,
+.tailor-flow .keypad-keys {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
@@ -174,7 +178,8 @@ button {
 
 .radio-room,
 .radio-flow p,
-.lighthouse-flow p {
+.lighthouse-flow p,
+.tailor-flow p {
   margin: 0;
 }
 
@@ -856,7 +861,8 @@ button {
   z-index: 45;
 }
 
-.lighthouse-ending {
+.lighthouse-ending,
+.tailor-ending {
   position: fixed;
   inset: 0;
   z-index: 60;
@@ -867,6 +873,33 @@ button {
   padding: 2rem;
   background: rgba(0, 0, 0, 0.88);
   text-align: center;
+}
+
+.tailor-flow .letter-card {
+  position: fixed;
+  z-index: 45;
+}
+
+.tailor-flow .scene-thimble {
+  position: static;
+}
+
+@keyframes tailor-flicker {
+  0%,
+  100% {
+    filter: none;
+  }
+  50% {
+    filter: brightness(0.55);
+  }
+}
+
+.tailor-flow[data-flicker='hard'] {
+  animation: tailor-flicker 0.4s steps(2, end) infinite;
+}
+
+.tailor-flow[data-flicker='soft'] {
+  filter: brightness(0.9);
 }
 
 .lighthouse-flow .beam-mark[data-lit='no'] {

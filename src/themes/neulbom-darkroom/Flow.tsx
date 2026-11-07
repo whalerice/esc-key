@@ -15,7 +15,9 @@ import { NumberDial } from '@/engine/widgets/NumberDial';
 import { PathFollow, reelTolerance, spiralPath } from '@/engine/widgets/PathFollow';
 import { TuningKnob } from '@/engine/widgets/TuningKnob';
 import type { ThemeTimerApi } from '@/engine/ui/ThemePlay';
-import { playSeat } from './art';
+import styles from './art.module.css';
+import { roomArt } from './art';
+import { playClue, playSeat, stopBeds, syncBed, syncSteps } from './audio';
 import { line, NOTEBOOK_PAGES } from './data/script';
 import {
   BANDS,
@@ -73,6 +75,7 @@ export function DarkroomFlow({
 }) {
   const scene = useDarkroomStore((s) => s.scene);
   const solved = useDarkroomStore((s) => s.solved);
+  const endingA = useDarkroomStore((s) => !!s.flags.endingA);
   const extra = useDarkroomStore((s) => s.extra);
   const notebook = useDarkroomStore((s) => s.notebook);
   const [notes, setNotes] = useState(false);
@@ -103,13 +106,24 @@ export function DarkroomFlow({
     clockRef.current = (elapsed) => {
       const s = useDarkroomStore.getState();
       const rem = Math.max(0, DURATION_MS - (elapsed + s.timer.penaltyMs - s.timer.bonusPausedMs));
-      if (rem <= 10 * 60_000 && rem > 5 * 60_000) once('tick10', () => sayRef.current(line('tick.10')));
-      if (rem > 0 && rem <= 5 * 60_000) once('tick5', () => sayRef.current(line('tick.5')));
+      if (rem <= 10 * 60_000 && rem > 5 * 60_000) once('tick10', () => {
+        playSeat('tick');
+        sayRef.current(line('tick.10'));
+      });
+      if (rem > 0 && rem <= 5 * 60_000) once('tick5', () => {
+        playSeat('tick');
+        sayRef.current(line('tick.5'));
+      });
     };
     return () => {
       clockRef.current = () => undefined;
     };
   }, [clockRef]);
+
+  useEffect(() => {
+    syncBed({ tick: true, wind: true });
+    return () => stopBeds();
+  }, []);
 
   function toggleSafe() {
     const on = !useDarkroomStore.getState().extra.safelightOn;
@@ -127,17 +141,19 @@ export function DarkroomFlow({
   return (
     <>
       <div
-        className="darkroom-flow"
+        className={`darkroom-flow ${styles.flow}`}
         data-scene={scene}
         data-safe={extra.safelightOn ? 'yes' : 'no'}
         data-filter={filter.current.kind}
         data-puzzle={puzzleId(solved)}
       >
+        <img className={styles.scene} src={roomArt(scene, extra.safelightOn, endingA)} alt="" />
         <p>
           {ROOM[scene] ?? scene}
           {extra.safelightOn ? ' · 안전등' : ' · 암'}
         </p>
         <button type="button" className="darkroom-switch" data-on={extra.safelightOn ? 'yes' : 'no'} onClick={toggleSafe}>
+          <Mark name="safelight" />
           안전등 {extra.safelightOn ? '켬' : '끔'}
         </button>
         {scene === 'darkroom' && !solved.P1 && <P1 safelight={extra.safelightOn} say={say} />}
@@ -156,7 +172,7 @@ export function DarkroomFlow({
           <P8 fallback={extra.faceDownFallback} say={say} />
         )}
         <p className="radio-row">
-          <button type="button" onClick={() => setNotes((open) => !open)}>수첩</button>
+          <button type="button" onClick={() => setNotes((open) => !open)}><Mark name="note" />수첩</button>
           <button type="button" onClick={() => useFallback(!extra.faceDownFallback)}>
             엎어두기 {extra.faceDownFallback ? '버튼' : '센서'}
           </button>
@@ -166,7 +182,7 @@ export function DarkroomFlow({
         </p>
       </div>
       {notes && (
-        <aside className="darkroom-sheet">
+        <aside className={`darkroom-sheet ${styles.sheet}`}>
           <h2>수첩 · 작업 노트</h2>
           <pre>{NOTEBOOK_PAGES}</pre>
           {solved.P4 && <p>시험 띠부터. 회색이 끊기지 않는 첫 칸. 컬러 인화지는 안전등도 싫어한다.</p>}
@@ -201,8 +217,9 @@ function P1({ safelight, say }: { safelight: boolean; say: (text: string) => voi
   }
 
   return (
-    <section className="gray-box">
+    <section className={styles.panel}>
       <h2>P1 암실 수칙</h2>
+      <Clue name={safelight ? 'rules-safe' : 'rules'} />
       <p>{safelight ? line('p1.rules') : line('p1.scribble')}</p>
       <div className="radio-row">
         {vals.map((n, i) => (
@@ -227,11 +244,11 @@ function P1({ safelight, say }: { safelight: boolean; say: (text: string) => voi
             say(line('p1.solved'));
           }}
         >
-          약품장
+          <Mark name="cabinet" />약품장
         </button>
       </div>
-      <button type="button" onClick={() => say(line('open.ledger'))}>접수 장부</button>
-      <button type="button" onClick={() => say(line('open.note'))}>수리 카메라</button>
+      <button type="button" onClick={() => say(line('open.ledger'))}><Mark name="ledger" />접수 장부</button>
+      <button type="button" onClick={() => say(line('open.note'))}><Mark name="camera" />수리 카메라</button>
     </section>
   );
 }
@@ -313,7 +330,7 @@ function P2({
   }, [phase, points, say]);
 
   return (
-    <section className="gray-box" data-dark={dark.current.enabled ? 'yes' : 'no'}>
+    <section className={styles.panel} data-dark={dark.current.enabled ? 'yes' : 'no'}>
       <h2>P2 필름 감기</h2>
       {phase === 'crank' && (
         <>
@@ -332,7 +349,7 @@ function P2({
               }
             }}
           >
-            크랭크 {turns.toFixed(2)}
+            <Mark name="crank" />크랭크 {turns.toFixed(2)}
           </button>
         </>
       )}
@@ -349,11 +366,11 @@ function P2({
                 return;
               }
               setPhase('spiral');
-              playSeat('wind');
+              playSeat('drag');
               say(line('p2.dark'));
             }}
           >
-            뒷덮개
+            <Mark name="lid" />뒷덮개
           </button>
         </>
       )}
@@ -449,17 +466,17 @@ function P3({
   }
 
   return (
-    <section className="gray-box">
+    <section className={styles.panel}>
       <h2>P3 현상 약품</h2>
       <p>{line('p3.label')}</p>
       <p>{line('p3.note')}</p>
       <div className="radio-row">
-        <button type="button" onClick={() => { setKit('bw'); say(line('p3.bw')); }}>흑백 키트</button>
-        <button type="button" onClick={() => setKit('color')}>컬러 키트</button>
+        <button type="button" onClick={() => { setKit('bw'); say(line('p3.bw')); }}><Mark name="kit-bw" />흑백 키트</button>
+        <button type="button" onClick={() => setKit('color')}><Mark name="kit-color" />컬러 키트</button>
         <button type="button" onClick={() => nudge(-0.5)}>온도 −</button>
         <button type="button" onClick={() => nudge(0.5)}>온도 +</button>
       </div>
-      <p>{kit || '키트 없음'} · {temp.toFixed(1)}°C {busy ? `· ${Math.ceil(left / 1000)}초` : ''}</p>
+      <p><Mark name="thermo" />{kit || '키트 없음'} · {temp.toFixed(1)}°C {busy ? `· ${Math.ceil(left / 1000)}초` : ''}</p>
       <div className="radio-row">
         <button
           type="button"
@@ -470,7 +487,7 @@ function P3({
             setBusy(true);
           }}
         >
-          탱크 타이머
+          <Mark name="tank" />탱크 타이머
         </button>
         <button
           type="button"
@@ -484,7 +501,7 @@ function P3({
             }
           }}
         >
-          흔들기
+          <Mark name="shake" />흔들기
         </button>
       </div>
     </section>
@@ -525,8 +542,9 @@ function P4({ say }: { say: (text: string) => void }) {
   }
 
   return (
-    <section className="gray-box">
+    <section className={styles.panel}>
       <h2>P4 네거티브</h2>
+      <Clue name="sleeve" />
       <p>{line('p4.look')}</p>
       <div className="darkroom-sleeve" style={{ width: SLEEVE_W, height: SLEEVE_H }}>
         {place && (
@@ -553,6 +571,8 @@ function P4({ say }: { say: (text: string) => void }) {
               onClick={() => pick(cell.id)}
             >
               {cell.id}
+              {kind === 'woman' && <Pip name="scarf" />}
+              {kind === 'trap' && <Pip name={trapIcon(cell.id)} />}
               {kind === 'woman' ? ' 청록' : kind === 'trap' || kind === 'no' ? ' ·' : ''}
             </button>
           );
@@ -584,7 +604,7 @@ function P5({
   }
 
   return (
-    <section className="gray-box">
+    <section className={styles.panel}>
       <h2>P5 첫 인화</h2>
       <p>{line('p5.strip')}</p>
       {phase === 'paper' && (
@@ -604,7 +624,7 @@ function P5({
               say(line('p5.dunk'));
             }}
           >
-            확대기 {sec}초
+            <Mark name="enlarger" />확대기 {sec}초
           </button>
         </div>
       )}
@@ -666,23 +686,26 @@ function P6({ say }: { say: (text: string) => void }) {
   }
 
   return (
-    <section className="gray-box">
+    <section className={styles.panel}>
       <h2>P6 빨랫줄</h2>
       <p>{line('p6.look')}</p>
       <div className="radio-row">
         {PHOTOS.map((photo) => (
           <button key={photo.id} type="button" onClick={() => { setPicked(photo.id); setZoom(photo.id); }}>
-            {photo.name}{slots.includes(photo.id) ? ' ·걸림' : ''}
+            <Mark name={`photo-${photo.id}`} />{photo.name}{slots.includes(photo.id) ? ' ·걸림' : ''}
           </button>
         ))}
       </div>
       {zoomed && (
-        <p>{zoomed.clue} 여자: {zoomed.woman}</p>
+        <>
+          <Clue name={`photo-${zoomed.id}`} />
+          <p>{zoomed.clue} 여자: {zoomed.woman}</p>
+        </>
       )}
       <div className="radio-row">
         {clips.map((clip, index) => (
           <button key={clip.id} type="button" onClick={() => drop(index)}>
-            집게 {index + 1} {nameOf(slots[index] ?? '')}
+            <Mark name="clip" />집게 {index + 1} {nameOf(slots[index] ?? '')}
           </button>
         ))}
       </div>
@@ -693,12 +716,13 @@ function P6({ say }: { say: (text: string) => void }) {
 function AfterLine({ safelight, say }: { safelight: boolean; say: (text: string) => void }) {
   const solved = useDarkroomStore((s) => s.solved);
   return (
-    <section className="gray-box">
+    <section className={styles.panel}>
       <p>{line('p6.solved')}</p>
       <Receipt safelight={safelight} say={say} />
       {!solved.P7 && (
         <LongHold
           label="암실 문"
+          mark="door"
           onHold={() => {
             playSeat('door');
             say(line('p7.door'));
@@ -726,8 +750,9 @@ function Receipt({ safelight, say }: { safelight: boolean; say: (text: string) =
           }
         }}
       >
-        증명사진 확대
+        <Mark name="photo" />증명사진 확대
       </button>
+      {open && <Clue name={safelight ? 'slip-safe' : 'slip'} />}
       {open && <p>{safelight ? String(ENVELOPE).padStart(4, '0') : '빨간 볼펜'}</p>}
     </>
   );
@@ -737,7 +762,7 @@ function P7({ safelight, say }: { safelight: boolean; say: (text: string) => voi
   const [band, setBand] = useState<number | null>(null);
   const packs = band == null ? [] : envelopesIn(band);
   return (
-    <section className="gray-box">
+    <section className={styles.panel}>
       <h2>P7 찾아가지 않은 사진</h2>
       <Receipt safelight={safelight} say={say} />
       <div className="radio-row">
@@ -761,13 +786,13 @@ function P7({ safelight, say }: { safelight: boolean; say: (text: string) => voi
               s.markSolved('P7');
               s.addItem('봉투');
               addNote('jeonghee', line('p7.solved'));
-              playSeat('phone');
+              playClue('phone');
               say(line('p7.solved'));
               say(line('p7.call'));
               say(line('p7.wait'));
             }}
           >
-            {String(n).padStart(4, '0')}
+            <Mark name="envelope" />{String(n).padStart(4, '0')}
           </button>
         ))}
       </div>
@@ -781,8 +806,9 @@ function P8({ fallback, say }: { fallback: boolean; say: (text: string) => void 
   const [step, setStep] = useState<'dodge' | 'develop' | 'choice' | 'fog'>(ready ? 'develop' : 'dodge');
 
   return (
-    <section className="gray-box">
+    <section className={styles.panel}>
       <h2>P8 마지막 컷</h2>
+      <Clue name="faces" />
       <p>{line('p8.note')}</p>
       {step === 'dodge' && (
         <Dodge
@@ -882,8 +908,8 @@ function Dodge({
     <>
       <p>왼쪽 {Math.round(ratios.left * 100)}% · 오른쪽 {Math.round(ratios.right * 100)}% {run ? `· ${Math.ceil(leftMs / 1000)}초` : ''}</p>
       <div className="radio-row">
-        <button type="button" disabled={!run} onClick={() => paint('left')}>왼쪽 얼굴</button>
-        <button type="button" disabled={!run} onClick={() => paint('right')}>오른쪽 얼굴</button>
+        <button type="button" disabled={!run} onClick={() => paint('left')}><Mark name="photo" />왼쪽 얼굴</button>
+        <button type="button" disabled={!run} onClick={() => paint('right')}><Pip name="scarf" />오른쪽 얼굴</button>
         <button type="button" disabled={run} onClick={() => setRun(true)}>노출</button>
       </div>
     </>
@@ -917,7 +943,11 @@ function DevelopHold({
   useEffect(() => {
     if (!black) return;
     suppress(true);
-    return () => suppress(false);
+    syncSteps(true);
+    return () => {
+      suppress(false);
+      syncSteps(false);
+    };
   }, [black]);
 
   useEffect(() => {
@@ -968,7 +998,7 @@ function DevelopHold({
           setBlack(true);
         }}
       >
-        엎어두기
+        <Mark name="tray" />엎어두기
       </button>
     );
   }
@@ -1011,9 +1041,10 @@ function Fog({ onEnd }: { onEnd: () => void }) {
             playSeat('shutter');
           }}
         >
-          셔터
+          <Mark name="camera" />셔터
         </button>
       )}
+      {shot && <Clue name="alley" />}
       {shot && <p>{line('end.b4')}</p>}
       {shot && <p>{line('end.b5')}</p>}
     </>
@@ -1025,9 +1056,10 @@ function Choice({ say, onFog }: { say: (text: string) => void; onFog: () => void
   return (
     <div className="radio-row">
       <button type="button" onClick={() => { setHeld(true); say(line('p8.hand')); }}>
-        젖은 사진
+        <Mark name="photo" />젖은 사진
       </button>
       <LongHold
+        mark="tray"
         label="정착액 대야"
         onHold={() => {
           if (!held) {
@@ -1040,9 +1072,11 @@ function Choice({ say, onFog }: { say: (text: string) => void; onFog: () => void
           if (s.flags.endingA || s.flags.endingB) return;
           s.setFlag('endingA');
           playSeat('splash');
+          playClue('ending');
         }}
       />
       <LongHold
+        mark="bulb"
         label="백열등"
         onHold={() => {
           const s = useDarkroomStore.getState();
@@ -1058,7 +1092,7 @@ function Choice({ say, onFog }: { say: (text: string) => void; onFog: () => void
   );
 }
 
-function LongHold({ label, onHold }: { label: string; onHold: () => void }) {
+function LongHold({ label, mark, onHold }: { label: string; mark?: string; onHold: () => void }) {
   const started = useRef(0);
   return (
     <button
@@ -1070,9 +1104,28 @@ function LongHold({ label, onHold }: { label: string; onHold: () => void }) {
         if (performance.now() - started.current >= longPressMs(CONFIRM_MS)) onHold();
       }}
     >
+      {mark && <Mark name={mark} />}
       {label} 길게
     </button>
   );
+}
+
+function Mark({ name }: { name: string }) {
+  return <img className={styles.mark} src={`/themes/neulbom-darkroom/props/${name}.svg`} alt="" />;
+}
+
+function Pip({ name }: { name: string }) {
+  return <img className={styles.pip} src={`/themes/neulbom-darkroom/props/${name}.svg`} alt="" />;
+}
+
+function Clue({ name }: { name: string }) {
+  return <img className={styles.clue} src={`/themes/neulbom-darkroom/props/${name}.svg`} alt="" />;
+}
+
+function trapIcon(id: string): string {
+  if (id === 'A2') return 'mailbox';
+  if (id === 'C3') return 'hydrant';
+  return 'basin';
 }
 
 function lineOf(order: readonly string[]): string[] {

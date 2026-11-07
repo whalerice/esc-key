@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="220" viewBox="0 0 440 220">
+
+<rect width="440" height="220" fill="#F3E6C8"/>
+<text x="28" y="40" text-anchor="start" fill="#3A3028" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">명화사진관 접수</text>
+<g stroke="#E84840" stroke-width="12" fill="none" stroke-linecap="round">
+         <path d="M30 70 C140 50 220 160 410 60"/>
+         <path d="M24 110 C160 80 240 170 400 100"/>
+         <path d="M36 150 C150 130 280 190 410 140"/>
+       </g>
+       <text x="220" y="200" text-anchor="middle" fill="#3A1814" font-size="16" font-family="WenQuanYi Micro Hei,sans-serif">빨간 볼펜</text>
+
+</svg>

@@ -1,7 +1,7 @@
 import type { ThemeDefinition } from '@/engine/types';
 import { initialExtra, type AshExtra } from './extra';
 
-/** Gray box through an ending. Answers live in puzzles/answers.ts. */
+/** Desk through an ending. Answers live in puzzles/answers.ts. */
 export const themeAshDawn: ThemeDefinition<AshExtra> = {
   id: 'ashen-dawn',
   world: 'standalone',
@@ -30,11 +30,11 @@ export const themeAshDawn: ThemeDefinition<AshExtra> = {
     ],
   },
   scenes: [
-    { id: 'desk', background: '#2a2e33' },
-    { id: 'radio', background: '#1c2830' },
-    { id: 'archive', background: '#242428' },
-    { id: 'office', background: '#2c2824' },
-    { id: 'teletype', background: '#1e2420' },
+    { id: 'desk', background: '#121418' },
+    { id: 'radio', background: '#121418' },
+    { id: 'archive', background: '#121418' },
+    { id: 'office', background: '#121418' },
+    { id: 'teletype', background: '#121418' },
   ],
   puzzles: [
     { id: 'P1', scene: 'desk', widget: 'NumberDial' },

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<rect width="1920" height="1080" fill="#121418"/>
+<rect x="0" y="80" width="1920" height="420" fill="#2A3138"/>
+<rect x="700" y="36" width="500" height="10" rx="4" fill="#1E2820" stroke="#4E5963" stroke-width="2"/>
+
+<text x="960" y="160" text-anchor="middle" fill="#8E9AAB" font-size="28" font-family="WenQuanYi Micro Hei,sans-serif">빈 책상</text>
+<rect x="360" y="620" width="1200" height="28" fill="#2C241C"/>
+<rect x="400" y="648" width="1120" height="180" fill="#2A241C"/>
+<rect x="520" y="400" width="260" height="200" fill="#CDBFA6" stroke="#1C1916" stroke-width="3"/>
+<text x="650" y="500" text-anchor="middle" fill="#1C1916" font-size="28" font-family="WenQuanYi Micro Hei,sans-serif">행방 불명</text>
+<text x="960" y="900" text-anchor="middle" fill="#4E5963" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">체스판도 오르골도 없다</text>
+</svg>

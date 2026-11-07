@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<rect width="1920" height="1080" fill="#0C0E12"/>
+<text x="120" y="90" fill="#8A929C" font-size="28" font-family="WenQuanYi Micro Hei,sans-serif">보관소</text>
+<rect x="80" y="140" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="150" y="218" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="96" y="176" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-01</text>
+<rect x="80" y="270" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="150" y="348" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="96" y="306" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-02</text>
+<rect x="80" y="400" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="150" y="478" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="96" y="436" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-03</text>
+<rect x="80" y="530" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="150" y="608" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="96" y="566" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-04</text>
+<rect x="80" y="660" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="150" y="738" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="96" y="696" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-05</text>
+<rect x="80" y="790" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="150" y="868" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="96" y="826" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-06</text>
+<rect x="300" y="140" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="370" y="218" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="316" y="176" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-07</text>
+<rect x="300" y="270" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="370" y="348" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="316" y="306" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-08</text>
+<rect x="300" y="400" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="370" y="478" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="316" y="436" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-09</text>
+<rect x="300" y="530" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="370" y="608" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="316" y="566" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-10</text>
+<rect x="300" y="660" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="370" y="738" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="316" y="696" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-11</text>
+<rect x="300" y="790" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="370" y="868" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="316" y="826" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-12</text>
+<rect x="520" y="140" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="590" y="218" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="536" y="176" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-13</text>
+<rect x="520" y="270" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="590" y="348" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="536" y="306" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-14</text>
+<rect x="520" y="400" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="590" y="478" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="536" y="436" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-15</text>
+<rect x="520" y="530" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="590" y="608" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="536" y="566" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-16</text>
+<rect x="520" y="660" width="190" height="110" fill="#3A3428" stroke="#C6A15B" stroke-width="3"/>
+<rect x="590" y="738" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="536" y="696" fill="#E4D7C3" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-17</text>
+<rect x="540" y="708" width="70" height="22" fill="#E4D7C3"/><rect x="520" y="790" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="590" y="868" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="536" y="826" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-18</text>
+<rect x="740" y="140" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="810" y="218" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="756" y="176" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-19</text>
+<rect x="740" y="270" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="810" y="348" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="756" y="306" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-20</text>
+<rect x="740" y="400" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="810" y="478" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="756" y="436" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-21</text>
+<rect x="740" y="530" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="810" y="608" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="756" y="566" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-22</text>
+<rect x="740" y="660" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="810" y="738" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="756" y="696" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-23</text>
+<rect x="740" y="790" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="810" y="868" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="756" y="826" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-24</text>
+<rect x="960" y="140" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1030" y="218" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="976" y="176" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-25</text>
+<rect x="960" y="270" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1030" y="348" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="976" y="306" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-26</text>
+<rect x="960" y="400" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1030" y="478" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="976" y="436" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-27</text>
+<rect x="960" y="530" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1030" y="608" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="976" y="566" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-28</text>
+<rect x="960" y="660" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1030" y="738" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="976" y="696" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-29</text>
+<rect x="960" y="790" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1030" y="868" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="976" y="826" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-30</text>
+<rect x="1180" y="140" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1250" y="218" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1196" y="176" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-31</text>
+<rect x="1180" y="270" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1250" y="348" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1196" y="306" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-32</text>
+<rect x="1180" y="400" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1250" y="478" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1196" y="436" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-33</text>
+<rect x="1180" y="530" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1250" y="608" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1196" y="566" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-34</text>
+<rect x="1180" y="660" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1250" y="738" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1196" y="696" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-35</text>
+<rect x="1180" y="790" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1250" y="868" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1196" y="826" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-36</text>
+<rect x="1400" y="140" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1470" y="218" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1416" y="176" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-37</text>
+<rect x="1400" y="270" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1470" y="348" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1416" y="306" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-38</text>
+<rect x="1400" y="400" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1470" y="478" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1416" y="436" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-39</text>
+<rect x="1400" y="530" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1470" y="608" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1416" y="566" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-40</text>
+<rect x="1400" y="660" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1470" y="738" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1416" y="696" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-41</text>
+<rect x="1400" y="790" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1470" y="868" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1416" y="826" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-42</text>
+<rect x="1620" y="140" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1690" y="218" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1636" y="176" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-43</text>
+<rect x="1620" y="270" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1690" y="348" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1636" y="306" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-44</text>
+<rect x="1620" y="400" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1690" y="478" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1636" y="436" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-45</text>
+<rect x="1620" y="530" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1690" y="608" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1636" y="566" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-46</text>
+<rect x="1620" y="660" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1690" y="738" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1636" y="696" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-47</text>
+<rect x="1620" y="790" width="190" height="110" fill="#1A1E24" stroke="#2C333A" stroke-width="3"/>
+<rect x="1690" y="868" width="50" height="8" rx="3" fill="#C6A15B"/>
+<text x="1636" y="826" fill="#6A737C" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">V-48</text>
+
+<polygon points="900,1080 1100,200 1280,1080" fill="#E0A45A" opacity="0.05"/>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<rect width="128" height="128" fill="#121418"/>
+<rect x="20" y="28" width="88" height="72" fill="#C9D6DE" opacity="0.55" stroke="#4E5963"/>
+<circle cx="36" cy="48" r="6" fill="#121418"/><circle cx="76" cy="48" r="6" fill="#121418"/><circle cx="36" cy="76" r="6" fill="#121418"/><circle cx="76" cy="76" r="6" fill="#121418"/>
+<path d="M48 64 h32 M64 48 v32" stroke="#9B2C2C" stroke-width="2"/>
+<text x="64" y="118" text-anchor="middle" fill="#E4D7C3" font-size="13" font-family="WenQuanYi Micro Hei,sans-serif">필름</text>
+</svg>

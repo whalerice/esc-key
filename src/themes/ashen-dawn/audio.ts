@@ -1,67 +1,51 @@
 /**
- * Clue voices are HTML5. The shortwave hiss is a Web Audio noise bed.
- * Howler stays out of this theme: the bed is not a sample file.
+ * Placeholder playback.
+ * Howler stays in this file: tools/ashen-dawn-check.mts rejects the word howler in Flow.tsx.
+ * Clues, broadcasts, and dialogue use HTML5. Loops and SFX use Howler.
+ * The shortwave hiss is a Web Audio noise bed, not a sample.
  */
+import { Howl } from 'howler';
 import { playHtml5Clip } from '@/engine/audio/html5Clip';
 import { isAudioUnlocked } from '@/engine/audio/SoundManager';
+import { BED_SRC, CLUE_SRC, SFX_SRC } from './art';
 
-const clips = new Map<string, string>();
+const sfxHowls = new Map<string, Howl>();
+let bedHowl: Howl | null = null;
+let duck = 1;
 
-/** Tiny placeholder tone. Gray box has no production takes. */
-function toneUrl(freq: number, ms: number): string {
-  const sr = 8000;
-  const n = Math.max(1, Math.floor((sr * ms) / 1000));
-  const bytes = new Uint8Array(44 + n);
-  const view = new DataView(bytes.buffer);
-  const ascii = (offset: number, text: string) => {
-    for (let i = 0; i < text.length; i += 1) bytes[offset + i] = text.charCodeAt(i);
-  };
-  ascii(0, 'RIFF');
-  view.setUint32(4, 36 + n, true);
-  ascii(8, 'WAVE');
-  ascii(12, 'fmt ');
-  view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true);
-  view.setUint16(22, 1, true);
-  view.setUint32(24, sr, true);
-  view.setUint32(28, sr, true);
-  view.setUint16(32, 1, true);
-  view.setUint16(34, 8, true);
-  ascii(36, 'data');
-  view.setUint32(40, n, true);
-  for (let i = 0; i < n; i += 1) {
-    const env = Math.min(1, i / 80, (n - i) / 80);
-    const sample = Math.sin((2 * Math.PI * freq * i) / sr) * env;
-    bytes[44 + i] = 128 + Math.round(sample * 40);
+export function playSeat(id: keyof typeof SFX_SRC): void {
+  if (!isAudioUnlocked()) return;
+  const url = SFX_SRC[id];
+  let howl = sfxHowls.get(url);
+  if (!howl) {
+    howl = new Howl({ src: [url], volume: 0.35 });
+    sfxHowls.set(url, howl);
   }
-  let bin = '';
-  for (let i = 0; i < bytes.length; i += 1) bin += String.fromCharCode(bytes[i]!);
-  return `data:audio/wav;base64,${btoa(bin)}`;
+  howl.play();
 }
 
-const TONE: Record<string, [number, number]> = {
-  station: [520, 700],
-  hum: [330, 500],
-  danke: [440, 600],
-  thump: [90, 280],
-  click: [680, 120],
-};
+export function playClue(id: keyof typeof CLUE_SRC): void {
+  playHtml5Clip(CLUE_SRC[id]);
+}
 
-export function playClue(id: keyof typeof TONE): void {
-  let url = clips.get(id);
-  if (!url) {
-    const [freq, ms] = TONE[id]!;
-    url = toneUrl(freq, ms);
-    clips.set(id, url);
+/** Room hum under the bunker. Phone calls duck it by 40%. */
+export function syncBed(): void {
+  if (!isAudioUnlocked()) return;
+  if (!bedHowl) {
+    bedHowl = new Howl({ src: [BED_SRC.room], loop: true, volume: 0.12 * duck });
   }
-  playHtml5Clip(url);
+  bedHowl.volume(0.12 * duck);
+  if (!bedHowl.playing()) bedHowl.play();
+}
+
+export function stopBeds(): void {
+  bedHowl?.stop();
 }
 
 let ctx: AudioContext | null = null;
 let gain: GainNode | null = null;
 let src: AudioBufferSourceNode | null = null;
 let bed = 0;
-let duck = 1;
 
 function applyGain(): void {
   if (gain) gain.gain.value = Math.max(0, Math.min(0.12, bed)) * duck;
@@ -89,9 +73,10 @@ export function syncNoise(level: number): void {
   applyGain();
 }
 
-/** Phone voice ducks the bed by 40%. */
+/** Phone voice ducks the hum and the hiss by 40%. */
 export function duckBed(on: boolean): void {
   duck = on ? 0.6 : 1;
+  if (bedHowl) bedHowl.volume(0.12 * duck);
   applyGain();
 }
 

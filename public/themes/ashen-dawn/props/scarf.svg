@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<rect width="128" height="128" fill="#121418"/>
+<path d="M16 40 H112" stroke="#6E3040" stroke-width="16" stroke-linecap="round"/>
+<path d="M16 64 H112" stroke="#D7CBB4" stroke-width="10"/>
+<path d="M16 84 H70" stroke="#6E3040" stroke-width="16" stroke-linecap="round"/>
+<text x="64" y="116" text-anchor="middle" fill="#E4D7C3" font-size="13" font-family="WenQuanYi Micro Hei,sans-serif">목도리</text>
+</svg>

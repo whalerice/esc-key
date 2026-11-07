@@ -2,8 +2,9 @@
  * Answer table for 잿빛 새벽, gate through an ending. No DOM.
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { EPHEMERAL_EXTRA_KEYS, withoutEphemeralExtra } from '../src/engine/types.ts';
+import { BED_SRC, CLUE_SRC, PROP_SRC, ROOM_SRC, SFX_SRC } from '../src/themes/ashen-dawn/art.ts';
 import { initialExtra } from '../src/themes/ashen-dawn/extra.ts';
 import { themeAshDawn } from '../src/themes/ashen-dawn/index.ts';
 import { line } from '../src/themes/ashen-dawn/data/script.ts';
@@ -122,12 +123,39 @@ assert.equal(flow.includes('playClue'), true);
 assert.equal(flow.includes('글자 확정'), true);
 assert.equal(flow.includes('한 글자 지우기'), true);
 
+const play = readFileSync(new URL('../src/themes/ashen-dawn/Play.tsx', import.meta.url), 'utf8');
 const audio = readFileSync(new URL('../src/themes/ashen-dawn/audio.ts', import.meta.url), 'utf8');
 assert.equal(audio.includes('playHtml5Clip'), true);
 assert.equal(audio.includes('AudioContext'), true);
-assert.equal(audio.includes('howler'), false);
-
-const play = readFileSync(new URL('../src/themes/ashen-dawn/Play.tsx', import.meta.url), 'utf8');
+assert.equal(audio.includes("from 'howler'"), true);
+assert.equal(flow.includes('howler'), false);
+assert.equal(play.includes('howler'), false);
+const artSrc = readFileSync(new URL('../src/themes/ashen-dawn/art.ts', import.meta.url), 'utf8');
+assert.equal(artSrc.includes('howler'), false);
+const css = readFileSync(new URL('../src/themes/ashen-dawn/art.module.css', import.meta.url), 'utf8');
+assert.ok(css.includes('contain'));
+assert.ok(css.includes(ROOM_SRC.gate));
+for (const url of [
+  ...Object.values(ROOM_SRC),
+  ...Object.values(PROP_SRC),
+  ...Object.values(BED_SRC),
+  ...Object.values(CLUE_SRC),
+  ...Object.values(SFX_SRC),
+]) {
+  assert.ok(existsSync(new URL(`../public${url}`, import.meta.url)), url);
+}
+const credits = readFileSync(new URL('../public/themes/ashen-dawn/CREDITS.md', import.meta.url), 'utf8');
+assert.ok(credits.includes('원작'));
+assert.ok(credits.includes('number-station-7-11.wav'));
+assert.ok(credits.includes('siren-close.wav'));
+const clock = readFileSync(new URL('../public/themes/ashen-dawn/props/clock.svg', import.meta.url), 'utf8');
+assert.equal(clock.includes('9:26'), true);
+const endingArt = readFileSync(new URL('../public/themes/ashen-dawn/rooms/ending.svg', import.meta.url), 'utf8');
+assert.equal(endingArt.includes('<image'), false);
+assert.equal(endingArt.includes('#D5DDE4') || endingArt.includes('#d5dde4') || endingArt.includes('#C5CED6'), true);
+const roomsTs = readFileSync(new URL('../src/themes/ashen-dawn/scenes/rooms.ts', import.meta.url), 'utf8');
+assert.equal(roomsTs.includes('0x3a4048'), false);
+assert.equal(roomsTs.includes('howler'), false);
 assert.equal(play.includes('requestFullscreen'), false);
 assert.ok(line('endA.4').includes('D… A… N… K… E'));
 assert.ok(line('p3.empty').includes('판 위에 아무것도 없다'));

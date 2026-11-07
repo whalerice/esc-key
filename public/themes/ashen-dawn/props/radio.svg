@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<rect width="128" height="128" fill="#121418"/>
+<rect x="16" y="28" width="96" height="70" rx="4" fill="#1C262C" stroke="#4E5963" stroke-width="3"/>
+<text x="48" y="52" fill="#9BB892" font-size="12" font-family="WenQuanYi Micro Hei,sans-serif">7.11</text>
+<circle cx="96" cy="48" r="8" fill="#E0A45A"/>
+<rect x="24" y="68" width="70" height="8" fill="#9BB892"/>
+<text x="64" y="118" text-anchor="middle" fill="#E4D7C3" font-size="13" font-family="WenQuanYi Micro Hei,sans-serif">수신기</text>
+</svg>

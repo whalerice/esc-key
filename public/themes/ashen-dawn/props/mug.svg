@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<rect width="128" height="128" fill="#121418"/>
+<rect x="34" y="40" width="48" height="46" rx="4" fill="#6E3B32"/>
+<path d="M82 52 q20 10 0 28" fill="none" stroke="#6E3B32" stroke-width="6"/>
+<path d="M48 34 q6 -16 4 0 M60 30 q6 -18 4 0" fill="none" stroke="#8E9AAB" stroke-width="2"/>
+<text x="64" y="112" text-anchor="middle" fill="#E4D7C3" font-size="13" font-family="WenQuanYi Micro Hei,sans-serif">머그</text>
+</svg>

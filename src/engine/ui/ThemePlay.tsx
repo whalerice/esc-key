@@ -378,7 +378,9 @@ export function ThemePlay({
                 ? '/haemu'
                 : theme.world === 'neulbom'
                   ? '/neulbom'
-                  : '/',
+                  : theme.world === 'standalone'
+                    ? '/standalone'
+                    : '/',
             )
           }
           onHint={onHint}

@@ -1230,3 +1230,114 @@ button {
   bottom: 12px;
   z-index: 32;
 }
+
+.greenhouse-flow {
+  position: absolute;
+  z-index: 20;
+  left: 64px;
+  right: 108px;
+  top: 72px;
+  bottom: 26%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  color: #f2efe8;
+}
+
+.greenhouse-flow button,
+.greenhouse-sheet button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid #8a8a8a;
+  background: #3a3a3a;
+  border-radius: 2px;
+}
+
+.greenhouse-flow .keypad-keys,
+.lab .keypad-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  max-width: 36rem;
+}
+
+.greenhouse-flow p,
+.greenhouse-sheet p {
+  margin: 0;
+}
+
+.greenhouse-frost {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  box-shadow: inset 0 0 12vw 6vw rgba(210, 220, 230, var(--frost, 0));
+}
+
+.greenhouse-frost[data-quiet='yes'] {
+  box-shadow: inset 0 0 2vw 1vw rgba(210, 220, 230, 0.45);
+}
+
+.greenhouse-frost[data-recede='yes'] {
+  opacity: 0.45;
+}
+
+.greenhouse-dark {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 18;
+  background: #000;
+}
+
+.greenhouse-dark[data-lamp='yes'] {
+  background: radial-gradient(circle 15vh at var(--lx) var(--ly), transparent 0, #000 72%);
+}
+
+.greenhouse-sheet {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  z-index: 32;
+  overflow: auto;
+  padding: 12px;
+  background: #2a2a2a;
+  color: #f2efe8;
+}
+
+.greenhouse-pad {
+  width: min(100%, 280px);
+  height: 120px;
+  background: #2a2a2a;
+  border: 1px solid #8a8a8a;
+  touch-action: none;
+}
+
+.greenhouse-preview {
+  width: 120px;
+  height: 80px;
+  background: #222;
+  border: 1px solid #666;
+}
+
+.greenhouse-log {
+  margin: 0;
+  max-height: 9rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  font-size: 0.8rem;
+  color: #c8c8c8;
+}
+
+.greenhouse-log.bright {
+  color: #f4f4f4;
+}
+
+.greenhouse-lamp {
+  background: #eee;
+  color: #111;
+}

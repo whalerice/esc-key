@@ -138,12 +138,13 @@ export type ThemeDefinition<TExtra = unknown> = {
   extra?: { initial: TExtra; migrate?: (old: unknown) => TExtra };
 };
 
-/** Dropped on save. Spec §12-2. Mid-sew needle, stitch count, and tension stay out of `extra`. */
+/** Dropped on save. Spec §12-2. Frequency, beam, pressure, and mid-sew needle stay out of `extra`. */
 export const EPHEMERAL_EXTRA_KEYS = [
   'radioFreq',
   'txFreq',
   'beamDeg',
   'morseCode',
+  'pressure',
   'stitchProgress',
   'needlePos',
   'activeStitches',

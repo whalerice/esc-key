@@ -6,6 +6,7 @@ import type { TimerFaceModel } from '@/engine/systems/Timer';
 
 export function TimerFace({ model }: { model: TimerFaceModel }) {
   if (model.skin === 'none') return null;
+  if (model.skin === 'thermometer') return <Thermo model={model} />;
   if (model.skin === 'thread-spool') return <Spool model={model} />;
   if (model.skin === 'onair-clock' || model.skin === 'watch-clock') {
     return <Clock model={model} />;
@@ -37,6 +38,20 @@ function Clock({ model }: { model: TimerFaceModel }) {
       ) : (
         <span className="timer-mark">{model.watchLamp === 'main' ? '주' : '예비'}</span>
       )}
+      <span className="timer-digits">{model.label}</span>
+    </div>
+  );
+}
+
+function Thermo({ model }: { model: TimerFaceModel }) {
+  return (
+    <div
+      className={`timer-face timer-face--thermometer${model.warn ? ' warn' : ''}${model.blink ? ' blink' : ''}`}
+      data-timer-skin="thermometer"
+      data-timer-label={model.label}
+      aria-label={`온도 ${model.label}`}
+    >
+      {model.hold ? <span className="timer-mark">불꽃</span> : null}
       <span className="timer-digits">{model.label}</span>
     </div>
   );

@@ -103,7 +103,16 @@ export type TimerFaceModel = {
   flutter: boolean;
   lamp: 'on' | 'blink' | 'off';
   watchLamp: 'standby' | 'main';
+  /** Thermometer heater mark. True when bonus time has been granted. */
+  hold: boolean;
 };
+
+/** 14.0°C at full time → 0.0°C at zero. Linear. Greenhouse skin. */
+export function thermometerC(remainingMs: number, durationMs: number): number {
+  if (durationMs <= 0) return 0;
+  const c = Math.min(14, (14 * Math.max(0, remainingMs)) / durationMs);
+  return Math.round(c * 10) / 10;
+}
 
 const CLOCK_SKINS = new Set<TimerSkinName>(['onair-clock', 'watch-clock']);
 
@@ -131,22 +140,28 @@ export function timerFace(input: TimerFaceInput): TimerFaceModel {
   const blink = rem != null && rem > 0 && rem <= 60_000;
   const zero = rem === 0;
   const clock = clockText(input, used);
+  const temp =
+    input.skin === 'thermometer' && rem != null && input.durationMs
+      ? thermometerC(rem, input.durationMs)
+      : null;
   const label =
-    clock ??
-    (rem == null ? '' : formatMmSs(rem));
+    temp != null ? `${temp.toFixed(1)}°C` : (clock ?? (rem == null ? '' : formatMmSs(rem)));
   const step = zero ? 0 : Math.max(1, Math.min(6, Math.ceil(ratio * 6)));
   const clockSkin = CLOCK_SKINS.has(input.skin);
+  const thermoWarn = temp != null && temp <= 7 && temp > 3;
+  const thermoBlink = temp != null && temp > 0 && temp <= 3;
   return {
     skin: input.skin,
     label,
-    warn: clockSkin || input.skin === 'thread-spool' ? warn : false,
-    blink: clockSkin || input.skin === 'thread-spool' ? blink : false,
+    warn: temp != null ? thermoWarn : clockSkin || input.skin === 'thread-spool' ? warn : false,
+    blink: temp != null ? thermoBlink : clockSkin || input.skin === 'thread-spool' ? blink : false,
     ratio,
     step,
     redCore: input.skin === 'thread-spool' && warn,
     flutter: input.skin === 'thread-spool' && blink,
     lamp: !clockSkin ? 'off' : zero ? 'off' : blink ? 'blink' : 'on',
     watchLamp: input.watchLamp ?? 'standby',
+    hold: input.skin === 'thermometer' && (input.bonusPausedMs ?? 0) > 0,
   };
 }
 

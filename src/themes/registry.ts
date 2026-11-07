@@ -6,6 +6,7 @@ import { themeLasttrain } from '@/themes/neulbom-lasttrain';
 import { themeHaemuRadio } from '@/themes/haemu-radio';
 import { themeHaemuLighthouse } from '@/themes/haemu-lighthouse';
 import { themeHaemuTailor } from '@/themes/haemu-tailor';
+import { themeAshDawn } from '@/themes/ashen-dawn';
 
 const themes: ThemeDefinition[] = [
   theme112,
@@ -15,6 +16,7 @@ const themes: ThemeDefinition[] = [
   themeHaemuRadio,
   themeHaemuLighthouse,
   themeHaemuTailor,
+  themeAshDawn,
 ];
 
 export function listThemes(world?: ThemeDefinition['world']): ThemeDefinition[] {

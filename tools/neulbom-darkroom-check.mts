@@ -2,7 +2,7 @@
  * Answer table for 붉은 방. No DOM.
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { MaskAccumulator } from '../src/engine/fx/MaskAccumulator.ts';
 import { FaceDownDetector, screenUpness } from '../src/engine/sensors/FaceDownDetector.ts';
 import { hintUsesByChannel } from '../src/engine/systems/Hints.ts';
@@ -12,6 +12,7 @@ import { nearestSnap } from '../src/engine/widgets/DragSnap.ts';
 import { allFound, markFound } from '../src/engine/widgets/FindTap.ts';
 import { fingerForTarget, placeLoupe } from '../src/engine/widgets/Loupe.ts';
 import { PathFollow, reelTolerance, spiralPath } from '../src/engine/widgets/PathFollow.ts';
+import { BED_SRC, CLUE_SRC, ROOM_SRC, SFX_SRC } from '../src/themes/neulbom-darkroom/art.ts';
 import { initialExtra } from '../src/themes/neulbom-darkroom/extra.ts';
 import { themeDarkroom } from '../src/themes/neulbom-darkroom/index.ts';
 import {
@@ -173,6 +174,20 @@ for (const line of [
 const flow = readFileSync(new URL('../src/themes/neulbom-darkroom/Flow.tsx', import.meta.url), 'utf8');
 assert.equal(flow.includes('requestFullscreen'), false);
 assert.equal(flow.includes('howler'), false);
+assert.equal(flow.includes('playClue'), true);
+const audio = readFileSync(new URL('../src/themes/neulbom-darkroom/audio.ts', import.meta.url), 'utf8');
+assert.equal(audio.includes('playHtml5Clip'), true);
+assert.equal(audio.includes('howler'), true);
+for (const url of [...Object.values(ROOM_SRC), ...Object.values(BED_SRC), ...Object.values(CLUE_SRC), ...Object.values(SFX_SRC)]) {
+  assert.ok(existsSync(new URL(`../public${url}`, import.meta.url)), url);
+}
+const props = readdirSync(new URL('../public/themes/neulbom-darkroom/props', import.meta.url));
+for (const name of ['rules.svg', 'rules-safe.svg', 'slip-safe.svg', 'scarf.svg', 'mailbox.svg', 'photo-family.svg']) {
+  assert.ok(props.includes(name), name);
+}
+const rulesSafe = readFileSync(new URL('../public/themes/neulbom-darkroom/props/rules-safe.svg', import.meta.url), 'utf8');
+assert.equal(rulesSafe.includes('#2846A0'), true);
+assert.equal(rulesSafe.includes('#E8D0C4'), true);
 assert.equal(flow.includes('TANK_MS'), true);
 assert.equal(flow.includes('DEVELOP_MS'), true);
 assert.equal(flow.includes('DODGE_MS'), true);

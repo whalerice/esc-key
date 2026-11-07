@@ -8,7 +8,7 @@ const FILL: Record<string, number> = {
   shop: 0x241c18,
 };
 
-/** Flat fill. Puzzle boxes are DOM. */
+/** Flat night fill behind the DOM scene art. WebGL drops SVG textures. */
 export const mountDarkroomRooms: SceneMount = ({ app }) => {
   app.stage.removeChildren();
   const world = new Container();

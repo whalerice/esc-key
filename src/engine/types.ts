@@ -154,6 +154,12 @@ export const EPHEMERAL_EXTRA_KEYS = [
   'clothAngle',
   /** Last train. Phone open is UI. Design §9-6 does not save it. */
   'phoneOpen',
+  /** 1/12. Zoom, dials, magnet order, card order, and the tape on the frame are redone. */
+  'zoomScale',
+  'dialDigits',
+  'magnetOrder',
+  'sortOrder',
+  'tapeOnFrame',
 ] as const;
 
 export type AppSettings = {

@@ -96,7 +96,7 @@ export type ThemePlayProps = {
   }) => ReactNode;
   /** Inventory drag onto `[data-use-target]`. */
   onUseItem?: (itemId: string, targetId: string) => void;
-  /** Live clock. `pause(ms)` grants bonus time (`timer.pause`). */
+  /** Live clock. `pause(ms)` grants bonus time. `penalty(ms)` shortens it. */
   timerRef?: MutableRefObject<ThemeTimerApi | null>;
   /** HUD notebook button. Theme opens its own sheet. */
   onNotebook?: () => void;
@@ -104,6 +104,7 @@ export type ThemePlayProps = {
 
 export type ThemeTimerApi = {
   pause: (ms: number) => void;
+  penalty: (ms: number) => void;
 };
 
 export function ThemePlay({
@@ -187,15 +188,22 @@ export function ThemePlay({
       timerRef.current = {
         pause(ms: number) {
           ctrl.pause(ms);
-          const next = ctrl.snapshot();
-          setSnap(next);
-          useStore.getState().patchTimer({
-            elapsedMs: next.elapsedMs,
-            bonusPausedMs: next.bonusPausedMs,
-            penaltyMs: next.penaltyMs,
-          });
+          commit();
+        },
+        penalty(ms: number) {
+          ctrl.penalty(ms);
+          commit();
         },
       };
+      function commit() {
+        const next = ctrl.snapshot();
+        setSnap(next);
+        useStore.getState().patchTimer({
+          elapsedMs: next.elapsedMs,
+          bonusPausedMs: next.bonusPausedMs,
+          penaltyMs: next.penaltyMs,
+        });
+      }
     }
     let firedZero = false;
     const id = window.setInterval(() => {

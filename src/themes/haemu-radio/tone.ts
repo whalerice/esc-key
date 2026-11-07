@@ -1,4 +1,4 @@
-/** Blob tones. Lighthouse still uses these. Radio beds and clues are files. */
+/** Blob tones. Radio and lighthouse beds are files. Lab keeps its own copy. */
 
 export function toneWav(freq: number, seconds: number): string {
   const sr = 8000;

@@ -2,7 +2,7 @@
  * Answer table for 등대지기. No DOM.
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { nearestSnap } from '../src/engine/widgets/DragSnap.ts';
 import { SequenceTap } from '../src/engine/widgets/SequenceTap.ts';
 import { MorseInput } from '../src/engine/widgets/MorseInput.ts';
@@ -10,6 +10,7 @@ import { RhythmPress } from '../src/engine/widgets/RhythmPress.ts';
 import { resolveOnZero } from '../src/engine/systems/Timer.ts';
 import { hintUsesByChannel } from '../src/engine/systems/Hints.ts';
 import { withoutEphemeralExtra } from '../src/engine/types.ts';
+import { BED_SRC, CLUE_SRC, ROOM_SRC, SFX_SRC } from '../src/themes/haemu-lighthouse/art.ts';
 import { initialExtra } from '../src/themes/haemu-lighthouse/extra.ts';
 import { themeHaemuLighthouse } from '../src/themes/haemu-lighthouse/index.ts';
 import {
@@ -89,3 +90,8 @@ const flow = readFileSync(new URL('../src/themes/haemu-lighthouse/Flow.tsx', imp
 assert.doesNotMatch(flow, /beamDeg|morseCode|radioFreq|txFreq/);
 assert.doesNotMatch(flow, /patchExtra\(\{[^}]*pressure/);
 assert.equal(flow.includes('requestFullscreen'), false);
+assert.equal(flow.includes('toneWav'), false);
+assert.equal(flow.includes('playHtml5Clip'), true);
+for (const url of [...Object.values(ROOM_SRC), ...Object.values(BED_SRC), ...Object.values(CLUE_SRC), ...Object.values(SFX_SRC)]) {
+  assert.ok(existsSync(new URL(`../public${url}`, import.meta.url)), url);
+}

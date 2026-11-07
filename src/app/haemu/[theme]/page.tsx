@@ -11,7 +11,7 @@ export function generateStaticParams() {
   return listThemes('haemu').map((t) => ({ theme: t.id }));
 }
 
-/** Haemu runner. 심야 라디오 is illustrated. 등대지기, 한 땀 stay gray-box. */
+/** Haemu runner. 심야 라디오 and 등대지기 are illustrated. 한 땀 stays gray-box. */
 export default async function HaemuThemePage({ params }: Props) {
   const { theme: themeId } = await params;
   const theme = getTheme(themeId);

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<rect width="1920" height="1080" fill="#10140f"/>
+<rect x="120" y="140" width="520" height="360" fill="#0e161c" stroke="#5D6668" stroke-width="6"/>
+<rect x="140" y="160" width="480" height="320" fill="#A9B4B9" opacity="0.35"/>
+<text x="380" y="330" text-anchor="middle" fill="#E9E2D2" font-size="28" font-family="sans-serif">안개</text>
+<rect x="760" y="420" width="420" height="220" rx="12" fill="#7A5A44" stroke="#12191F" stroke-width="4"/>
+<circle cx="970" cy="530" r="70" fill="#5D6668" stroke="#B08D4F" stroke-width="6"/>
+<rect x="1240" y="180" width="220" height="300" fill="#1c2420" stroke="#3d7a4a" stroke-width="4"/>
+<circle cx="1350" cy="280" r="28" fill="#3d7a4a"/>
+<text x="1350" y="360" text-anchor="middle" fill="#E9E2D2" font-size="22" font-family="sans-serif">안개 없음</text>
+<circle cx="420" cy="760" r="90" fill="none" stroke="#B08D4F" stroke-width="10"/>
+<rect x="404" y="640" width="32" height="80" fill="#7A5A44"/>
+<circle cx="1500" cy="760" r="90" fill="none" stroke="#B08D4F" stroke-width="10"/>
+<rect x="1484" y="640" width="32" height="80" fill="#5D6668"/>
+<path d="M1680 820 h160 l80 -80 v180 l-80 -40 h-160 z" fill="#7A5A44"/>
+</svg>

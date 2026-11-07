@@ -951,8 +951,106 @@ button {
   background: rgba(0, 0, 0, 0.35);
 }
 
-.lighthouse-flow > :not(.floor-nav):not(.lighthouse-ending) {
+.lighthouse-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.lighthouse-main-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle at 62% 28%, rgba(255, 246, 220, 0.34), transparent 58%);
+}
+
+.lighthouse-flow > :not(.floor-nav):not(.lighthouse-ending):not(.lighthouse-scene):not(.lighthouse-main-glow) {
+  position: relative;
+  z-index: 1;
   margin-left: 9.8rem;
+}
+
+.lighthouse-flow .lh-nav,
+.lighthouse-flow .lh-prop {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-shadow: none;
+  color: #e9e2d2;
+  background: rgba(18, 25, 31, 0.84);
+  border-color: #b08d4f;
+}
+
+.lighthouse-flow .lh-nav {
+  border-color: #a9b4b9;
+}
+
+.lighthouse-flow .lh-prop img,
+.lighthouse-flow .lh-nav img {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  object-fit: contain;
+}
+
+.lighthouse-flow .lh-wide img {
+  width: 72px;
+  height: 40px;
+}
+
+.lighthouse-flow .lh-figure {
+  width: min(100%, 240px);
+  height: auto;
+  background: #e9e2d2;
+  border: 1px solid #b08d4f;
+}
+
+.lighthouse-flow .beam-pad {
+  background:
+    radial-gradient(circle at 50% 42%, rgba(224, 154, 62, 0.18), transparent 42%),
+    radial-gradient(circle at 50% 60%, #243440, #12191f 72%);
+  border: 2px solid #b08d4f;
+}
+
+.lighthouse-flow .lighthouse-focus {
+  border: 3px solid #b08d4f;
+  background: #10161b;
+}
+
+.lighthouse-flow .lighthouse-shadow {
+  background: #e09a3e;
+  box-shadow: 0 0 8px #e09a3e;
+}
+
+.lighthouse-flow .lighthouse-board {
+  background: #e9e2d2 url('/themes/haemu-lighthouse/props/log.svg') right 8px center / 36px no-repeat;
+  border: 1px solid #7a5a44;
+}
+
+.lighthouse-flow .lighthouse-blank {
+  color: #3b3a36;
+  border-color: #7a5a44;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.lighthouse-flow .rhythm-bar {
+  background: #1e2a33;
+  border-color: #b08d4f;
+}
+
+.lighthouse-flow .rhythm-bar i {
+  background: #e09a3e;
+}
+
+.lighthouse-flow .floor-nav {
+  background: rgba(18, 25, 31, 0.72);
+  border-right: 1px solid rgba(176, 141, 79, 0.45);
 }
 
 .lighthouse-flow .letter-card {

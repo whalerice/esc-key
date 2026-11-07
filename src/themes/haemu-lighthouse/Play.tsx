@@ -20,7 +20,7 @@ type FrozenStats = {
   solvedAt: { P3: number; P6: number; P7: number };
 };
 
-/** Gate → watch clock → gray-box tower. Beam angle and morse stay off the save. */
+/** Gate → watch clock → illustrated tower. Beam angle and morse stay off the save. */
 export function HaemuLighthousePlay() {
   const pause = useLighthouseStore((s) => !!s.solved.P8);
   const clockRef = useRef<(ms: number) => void>(() => undefined);

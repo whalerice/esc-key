@@ -64,10 +64,14 @@ export type ThemePlayProps = {
   openingLines?: string[];
   /** Shown under the gate button. */
   gateNote?: string;
-  /** Theme overlay once the gate has opened. */
+  /** Theme overlay once the gate has opened. `askHint` opens the HUD hint (sewing scenes hide that button). */
   overlay?:
     | ReactNode
-    | ((api: { say: (text: string) => void; selectedItem: string | null }) => ReactNode);
+    | ((api: {
+        say: (text: string) => void;
+        selectedItem: string | null;
+        askHint: () => void;
+      }) => ReactNode);
   /** Fair clock. Theme syncs RadioBed here — frequencies stay out of the save. */
   onClock?: (elapsedMs: number) => void;
   /** Hold the clock (ending A). */
@@ -311,7 +315,7 @@ export function ThemePlay({
       </div>
 
       {booted &&
-        (typeof overlay === 'function' ? overlay({ say, selectedItem }) : overlay)}
+        (typeof overlay === 'function' ? overlay({ say, selectedItem, askHint: onHint }) : overlay)}
 
       {booted && (
         <Narration line={line} onAdvance={() => setQueue((q) => q.slice(1))} />

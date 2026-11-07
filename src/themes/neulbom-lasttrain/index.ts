@@ -1,7 +1,7 @@
 import type { ThemeDefinition } from '@/engine/types';
 import { initialExtra, type LasttrainExtra } from './extra';
 
-/** Gray-box play. Answers live in puzzles/answers.ts. Drafts and the viewfinder stay off extra. */
+/** Scene art. Answers live in puzzles/answers.ts. Drafts and the viewfinder stay off extra. */
 export const themeLasttrain: ThemeDefinition<LasttrainExtra> = {
   id: 'neulbom-lasttrain',
   world: 'neulbom',
@@ -24,8 +24,8 @@ export const themeLasttrain: ThemeDefinition<LasttrainExtra> = {
     ],
   },
   scenes: [
-    { id: 'counter', background: '#1c1e22' },
-    { id: 'warehouse', background: '#2a2622' },
+    { id: 'counter', background: '#12141a' },
+    { id: 'warehouse', background: '#1a1814' },
   ],
   puzzles: [
     { id: 'P1', scene: 'counter', widget: 'DragSnap' },

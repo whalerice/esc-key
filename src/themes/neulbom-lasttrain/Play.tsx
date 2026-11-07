@@ -16,7 +16,7 @@ type FrozenStats = {
   hintsUsed: Record<string, number | undefined>;
 };
 
-/** Gate → battery → gray counter. Drafts and the viewfinder stay off the save. */
+/** Gate → battery → counter art. Drafts and the viewfinder stay off the save. */
 export function LasttrainPlay() {
   const endingA = useLasttrainStore((s) => !!s.flags.endingA);
   const clockRef = useRef<(ms: number) => void>(() => undefined);

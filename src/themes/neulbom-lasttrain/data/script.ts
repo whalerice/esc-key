@@ -1,4 +1,4 @@
-/** Lines the gray box speaks. Full VO: docs/시리즈/늘봄/09_막차이후_대본_v1.md */
+/** Spoken lines. Full VO: docs/시리즈/늘봄/09_막차이후_대본_v1.md */
 
 export const script = {
   'open.1': '2026년 12월 24일 밤 11시 30분. 늘봄시 새말역.',

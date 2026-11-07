@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getTheme, listThemes } from '@/themes/registry';
 import { Neulbom112Play } from '@/themes/neulbom-112/Play';
+import { DarkroomPlay } from '@/themes/neulbom-darkroom/Play';
 import { GreenhousePlay } from '@/themes/neulbom-greenhouse/Play';
 import { StubThemePlay } from '@/themes/StubThemePlay';
 
@@ -23,6 +24,10 @@ export default async function ThemePage({ params }: Props) {
 
   if (theme.id === 'neulbom-greenhouse') {
     return <GreenhousePlay />;
+  }
+
+  if (theme.id === 'neulbom-darkroom') {
+    return <DarkroomPlay />;
   }
 
   return <StubThemePlay theme={theme} />;

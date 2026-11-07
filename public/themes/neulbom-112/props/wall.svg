@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<rect width="128" height="128" rx="8" fill="#1A1510"/>
+<rect x="16" y="24" width="96" height="80" fill="#3A2E22"/>
+<rect x="28" y="36" width="72" height="16" fill="#F3E6C8"/>
+<rect x="28" y="58" width="72" height="16" fill="#F3E6C8"/>
+<rect x="28" y="80" width="72" height="16" fill="#E7D7B8"/>
+<circle cx="90" cy="44" r="3" fill="#8A3030"/>
+<text x="64" y="22" text-anchor="middle" fill="#C4A574" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">편지</text>
+</svg>

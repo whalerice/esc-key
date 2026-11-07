@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<rect width="128" height="128" rx="8" fill="#1A1510"/>
+<path d="M28 36 h72 l-10 60 h-52 z" fill="#E7EEF6" stroke="#8E98A4" stroke-width="2"/>
+<path d="M40 36 q24 16 48 0" fill="none" stroke="#C45B7A" stroke-width="2"/>
+<text x="64" y="112" text-anchor="middle" fill="#F3E6C8" font-size="13" font-family="WenQuanYi Micro Hei,sans-serif">손수건</text>
+</svg>

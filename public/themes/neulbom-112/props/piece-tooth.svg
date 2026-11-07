@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<rect width="128" height="128" rx="8" fill="#1A1510"/>
+<rect x="40" y="36" width="48" height="48" rx="8" fill="#F3E6C8" stroke="#C4A07A" stroke-width="3"/>
+<path d="M56 52 h6 v16 h-6 z M66 48 h6 v20 h-6 z" fill="#E7EEF6"/>
+<text x="64" y="112" text-anchor="middle" fill="#F3E6C8" font-size="13" font-family="WenQuanYi Micro Hei,sans-serif">젖니</text>
+</svg>

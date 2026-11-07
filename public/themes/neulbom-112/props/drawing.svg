@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<rect width="128" height="128" rx="8" fill="#1A1510"/>
+<rect x="16" y="20" width="96" height="88" fill="#F3E6C8"/>
+<polygon points="32,70 64,36 96,70" fill="#C23B3B"/>
+<rect x="56" y="70" width="16" height="22" fill="#E6C36A"/>
+<rect x="28" y="96" width="72" height="6" fill="#1A1814" opacity="0.35"/>
+<text x="64" y="16" text-anchor="middle" fill="#C4A574" font-size="12" font-family="WenQuanYi Micro Hei,sans-serif">그림</text>
+</svg>

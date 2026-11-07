@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<rect width="128" height="128" rx="8" fill="#1A1510"/>
+<rect x="24" y="24" width="80" height="64" fill="#C4A07A" stroke="#3A2E22" stroke-width="3"/>
+<rect x="24" y="44" width="80" height="4" fill="#3A2E22"/>
+<rect x="40" y="24" width="4" height="64" fill="#3A2E22"/>
+<rect x="64" y="24" width="4" height="64" fill="#3A2E22"/>
+<text x="64" y="20" text-anchor="middle" fill="#F3E6C8" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">벽</text><circle cx="28" cy="108" r="4" fill="#C23B3B"/><circle cx="42" cy="108" r="4" fill="#C23B3B"/><circle cx="56" cy="108" r="4" fill="#C23B3B"/>
+</svg>

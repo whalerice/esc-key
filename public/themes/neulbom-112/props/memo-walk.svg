@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<rect width="128" height="128" rx="8" fill="#1A1510"/>
+<rect x="16" y="28" width="96" height="72" rx="6" fill="#F3E6C8"/>
+<ellipse cx="46" cy="58" rx="10" ry="16" fill="#6B5344" transform="rotate(-20 46 58)"/>
+<ellipse cx="78" cy="70" rx="10" ry="16" fill="#6B5344" transform="rotate(16 78 70)"/>
+<text x="64" y="24" text-anchor="middle" fill="#F3E6C8" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">걸음</text>
+</svg>

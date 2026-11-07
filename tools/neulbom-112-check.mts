@@ -2,8 +2,9 @@
  * Answer table for 1/12, gate through the doll ending. No DOM.
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { EPHEMERAL_EXTRA_KEYS, withoutEphemeralExtra } from '../src/engine/types.ts';
+import { BED_SRC, CLUE_SRC, ROOM_SRC, SFX_SRC } from '../src/themes/neulbom-112/art.ts';
 import { initialExtra } from '../src/themes/neulbom-112/extra.ts';
 import { theme112 } from '../src/themes/neulbom-112/index.ts';
 import { line } from '../src/themes/neulbom-112/data/script.ts';
@@ -94,6 +95,29 @@ assert.equal(flow.includes('patchExtra({ pieces'), true);
 assert.equal(flow.includes('zoomScale'), false);
 assert.equal(flow.includes('setFlag(\'endingA\')') || flow.includes('setFlag("endingA")'), true);
 assert.equal(flow.includes('빈 받침대'), true);
+assert.equal(flow.includes('howler'), false);
+assert.equal(flow.includes('gray-box'), false);
+assert.equal(flow.includes('playClue'), true);
+const audio = readFileSync(new URL('../src/themes/neulbom-112/audio.ts', import.meta.url), 'utf8');
+assert.equal(audio.includes('playHtml5Clip'), true);
+assert.equal(audio.includes('howler'), true);
+for (const url of [...Object.values(ROOM_SRC), ...Object.values(BED_SRC), ...Object.values(CLUE_SRC), ...Object.values(SFX_SRC)]) {
+  assert.ok(existsSync(new URL(`../public${url}`, import.meta.url)), url);
+}
+const envelope = readFileSync(new URL('../public/themes/neulbom-112/props/envelope-near.svg', import.meta.url), 'utf8');
+assert.equal(envelope.includes('1124'), true);
+const drawing = readFileSync(new URL('../public/themes/neulbom-112/props/drawing-near.svg', import.meta.url), 'utf8');
+assert.equal(drawing.includes('우리집'), true);
+const pot = readFileSync(new URL('../public/themes/neulbom-112/props/pot.svg', import.meta.url), 'utf8');
+assert.equal(pot.includes('#3F7A4A'), true);
+assert.equal(pot.includes('#C9D5CC'), true);
+const fur = readFileSync(new URL('../public/themes/neulbom-112/props/coat-fur.svg', import.meta.url), 'utf8');
+assert.equal(fur.includes('#F4EFE4'), true);
+const route = readFileSync(new URL('../public/themes/neulbom-112/props/magnet-route.svg', import.meta.url), 'utf8');
+assert.equal(route.includes('새말선'), true);
+assert.equal(route.includes('#C23B3B'), true);
+const wall = readFileSync(new URL('../public/themes/neulbom-112/props/magnet-wall.svg', import.meta.url), 'utf8');
+assert.equal(wall.split('#C23B3B').length - 1, 3);
 assert.equal(readFileSync(new URL('../src/themes/neulbom-112/Play.tsx', import.meta.url), 'utf8').includes('requestFullscreen'), false);
 assert.ok(line('narration.x12').includes('원래 크기'));
 assert.ok(line('letter.hidden').includes('우리 애기'));

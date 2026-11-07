@@ -16,7 +16,7 @@ type Frozen = {
   pieces: number;
 };
 
-/** Gate → gray house → ending. Zoom and dials stay off the save. */
+/** Gate → dollhouse → ending. Zoom and dials stay off the save. */
 export function Neulbom112Play() {
   const endingA = use112Store((s) => !!s.flags.endingA);
   const frozen = useRef<Frozen | null>(null);

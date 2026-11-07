@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<rect width="128" height="128" rx="8" fill="#1A1510"/>
+<rect x="18" y="16" width="92" height="100" fill="#F3E6C8"/>
+<rect x="30" y="36" width="68" height="3" fill="#1A1814" opacity="0.55"/>
+<rect x="30" y="48" width="60" height="3" fill="#1A1814" opacity="0.55"/>
+<rect x="30" y="60" width="64" height="3" fill="#1A1814" opacity="0.55"/>
+<rect x="30" y="72" width="50" height="3" fill="#1A1814" opacity="0.55"/>
+<text x="64" y="100" text-anchor="middle" fill="#8A3030" font-size="16" font-family="WenQuanYi Micro Hei,sans-serif">엄마</text>
+</svg>

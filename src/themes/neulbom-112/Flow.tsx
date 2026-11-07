@@ -4,6 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { LetterDial } from '@/engine/widgets/LetterDial';
 import { NumberDial } from '@/engine/widgets/NumberDial';
 import { DragSort } from '@/engine/widgets/DragSort';
+import { coatArt, magnetArt, MEMO_SRC, PHOTO_SRC, roomArt } from './art';
+import { playClue, playSeat, stopBeds, syncBed } from './audio';
+import styles from './art.module.css';
 import { line } from './data/script';
 import {
   COATS,
@@ -54,10 +57,20 @@ export function Neulbom112Flow({ say }: { say: (text: string) => void }) {
     sayRef.current(line('narration.x12'));
   }, [zoom]);
 
+  useEffect(() => {
+    syncBed({ hush: doll || ending });
+    return () => stopBeds();
+  }, [doll, ending]);
+
   const has = (id: string) => items.includes(id);
 
   return (
-    <div className="flow112" data-zoom={zoom} data-puzzle={current ?? 'clear'}>
+    <div className={`flow112 ${styles.flow}`} data-zoom={zoom} data-puzzle={current ?? 'clear'}>
+      <img
+        className={styles.scene}
+        src={roomArt({ open: !!solved.P1, up: !!solved.P5, attic: !!solved.P7, lights: doll || ending })}
+        alt=""
+      />
       <div className="radio-row">
         <button type="button" aria-label="배율 낮추기" onClick={() => use112Ui.getState().setZoom(stepZoom(zoom, -1))}>
           −
@@ -70,11 +83,13 @@ export function Neulbom112Flow({ say }: { say: (text: string) => void }) {
 
       {!has('줄자') && (
         <button type="button" onClick={() => gain('줄자', say, ['inspect.desk', 'acquire.tape'])}>
+          <Mark name="desk" />
           작업대
         </button>
       )}
       {!has('편지①') && (
         <button type="button" onClick={() => gain('편지①', say, ['inspect.wall', 'letter.1', 'narration.letter.1'])}>
+          <Mark name="wall" />
           공방 벽
         </button>
       )}
@@ -90,21 +105,25 @@ export function Neulbom112Flow({ say }: { say: (text: string) => void }) {
 
       {solved.P1 && !solved.P5 && (
         <button type="button" onClick={() => say(zoom >= ZOOM.p5 ? line('inspect.clock.shop') : line('inspect.clock.far'))}>
+          <Mark name="clock" />
           벽시계 문자판
         </button>
       )}
       {solved.P1 && (
         <button type="button" onClick={() => say(line('inspect.pot'))}>
+          <Mark name="pot" />
           창가 화분
         </button>
       )}
       {solved.P4 && !has('사진·입학') && (
         <button type="button" onClick={() => gain('사진·입학', say, ['acquire.photo2'])}>
+          <Mark name="photo-school" />
           거실 액자
         </button>
       )}
       {solved.P5 && !has('사진·졸업') && (
         <button type="button" onClick={() => gain('사진·졸업', say, ['acquire.photo3'])}>
+          <Mark name="photo-grad" />
           책상
         </button>
       )}
@@ -112,6 +131,7 @@ export function Neulbom112Flow({ say }: { say: (text: string) => void }) {
         <button
           type="button"
           onClick={() => {
+            playClue('mom');
             if (has('편지①')) say(line('letter.1'));
             if (has('편지②')) say(line('letter.2'));
             if (has('편지③')) say(line('letter.3'));
@@ -124,6 +144,7 @@ export function Neulbom112Flow({ say }: { say: (text: string) => void }) {
       <div className="radio-row">
         {PIECES.filter((piece) => pieceOpen(piece.after, solved) && !pieces.includes(piece.id)).map((piece) => (
           <button key={piece.id} type="button" onClick={() => onPiece(piece.id, piece.zoom, piece.text, zoom, say)}>
+            <Mark name={`piece-${piece.id}`} />
             {piece.label}
           </button>
         ))}
@@ -131,11 +152,12 @@ export function Neulbom112Flow({ say }: { say: (text: string) => void }) {
 
       {solved.P8 && !ending && !letterOpen && (
         <button type="button" data-stand="doll" onClick={() => placeDoll(say, setLetterOpen)}>
+          <Mark name="stand" />
           빈 받침대
         </button>
       )}
       {letterOpen && (
-        <section className="gray-box" data-letter="hidden">
+        <section className={styles.sheet} data-letter="hidden">
           <p>{line('letter.hidden')}</p>
           <button
             type="button"
@@ -153,9 +175,18 @@ export function Neulbom112Flow({ say }: { say: (text: string) => void }) {
   );
 }
 
+function Mark({ name }: { name: string }) {
+  return <img className={styles.mark} src={`/themes/neulbom-112/props/${name}.svg`} alt="" />;
+}
+
 function gain(id: string, say: (text: string) => void, keys: Parameters<typeof line>[0][]) {
   const store = use112Store.getState();
   if (!store.items.includes(id)) store.addItem(id);
+  if (id.startsWith('편지')) {
+    playSeat('paper');
+    playClue('mom');
+  } else if (id.startsWith('사진') || id === '쪽지' || id === '그림' || id === '봉투') playSeat('paper');
+  else if (id === '줄자') playSeat('drawer');
   for (const key of keys) say(line(key));
 }
 
@@ -174,8 +205,10 @@ function Mailbox({ zoom, say }: { zoom: number; say: (text: string) => void }) {
           setOpen(true);
         }}
       >
+        <Mark name="mailbox" />
         우편함
       </button>
+      {open && <img className={styles.clue} src="/themes/neulbom-112/props/envelope-near.svg" alt="" />}
       {open && (
         <NumberPad
           digits={4}
@@ -186,6 +219,8 @@ function Mailbox({ zoom, say }: { zoom: number; say: (text: string) => void }) {
             s.addItem('봉투');
             s.setScene('dollhouse');
             s.markSolved('P1');
+            playSeat('lock');
+            playSeat('paper');
             say(line('acquire.envelope'));
             say(line('narration.p1.solved'));
           }}
@@ -227,6 +262,7 @@ function Door({ zoom, say, hasTape }: { zoom: number; say: (text: string) => voi
       </button>
       {tape && (
         <>
+          <img className={styles.clue} src="/themes/neulbom-112/props/heights.svg" alt="" />
           <p>{HEIGHTS.map((row) => `${row.age}살 ${row.cm}`).join(' · ')}</p>
           <NumberPad
             digits={4}
@@ -236,6 +272,9 @@ function Door({ zoom, say, hasTape }: { zoom: number; say: (text: string) => voi
               const s = use112Store.getState();
               s.addItem('편지②');
               s.markSolved('P2');
+              playSeat('lock');
+              playSeat('paper');
+              playClue('mom');
               say(line('letter.2'));
             }}
             onNo={() => say(line('system.wrong'))}
@@ -250,6 +289,7 @@ function Calendar({ zoom, say }: { zoom: number; say: (text: string) => void }) 
   if (judgeZoom(zoom, ZOOM.p3) === 'far') {
     return (
       <button type="button" data-puzzle="P3" onClick={() => say(line('calendar.far'))}>
+        <Mark name="calendar" />
         달력
       </button>
     );
@@ -262,6 +302,9 @@ function Calendar({ zoom, say }: { zoom: number; say: (text: string) => void }) 
           s.addItem('편지③');
           s.addItem('사진·돌');
           s.markSolved('P3');
+          playSeat('drawer');
+          playSeat('paper');
+          playClue('mom');
           say(line('narration.p3'));
           say(line('letter.3'));
         }}
@@ -277,6 +320,7 @@ function Magnets({ zoom, say }: { zoom: number; say: (text: string) => void }) {
   return (
     <section data-puzzle="P4">
       <p>{far ? line('magnet.far') : line('inspect.fridge')}</p>
+      <img className={styles.clue} data-clear={far ? 'no' : 'yes'} src="/themes/neulbom-112/props/fridge.svg" alt="" />
       <div className="radio-row">
         {MAGNETS.map((magnet) => (
           <button
@@ -295,16 +339,19 @@ function Magnets({ zoom, say }: { zoom: number; say: (text: string) => void }) {
               const verdict = judgeP4(next);
               if (verdict === 'reset') {
                 setTaps([]);
+                playSeat('magnets');
                 say(line('p4.wrong'));
                 return;
               }
               setTaps(next);
               if (verdict === 'ok') {
                 use112Store.getState().markSolved('P4');
+                playSeat('tick');
                 say(line('narration.p4'));
               }
             }}
           >
+            <img className={styles.mark} data-clear={far ? 'no' : 'yes'} src={magnetArt(magnet.id)} alt="" />
             {magnet.label}
             {!far && magnet.dot > 0 ? ` 점${magnet.dot}` : ''}
           </button>
@@ -319,10 +366,14 @@ function Clock({ zoom, say }: { zoom: number; say: (text: string) => void }) {
   return (
     <section data-puzzle="P5">
       <p>{line('inspect.clock')}</p>
+      <img className={styles.clue} data-clear={far ? 'no' : 'yes'} src="/themes/neulbom-112/props/clock.svg" alt="" />
       {far ? (
         <p>시계 바늘이 흐리다.</p>
       ) : (
         <>
+          {PHOTOS.map((photo) => (
+            <img key={photo.id} className={styles.clue} src={PHOTO_SRC[photo.id]} alt="" />
+          ))}
           {frameLines().map((text) => (
             <p key={text}>{text}</p>
           ))}
@@ -334,6 +385,8 @@ function Clock({ zoom, say }: { zoom: number; say: (text: string) => void }) {
               const s = use112Store.getState();
               if (!s.items.includes(PHOTOS[1]!.id)) s.addItem(PHOTOS[1]!.id);
               s.markSolved('P5');
+              playSeat('lock');
+              playSeat('tick');
               say(line('narration.p5'));
             }}
             onNo={() => say(line('system.wrong'))}
@@ -348,6 +401,7 @@ function Bed({ zoom, say }: { zoom: number; say: (text: string) => void }) {
   return (
     <section data-puzzle="P6">
       <p>{line('inspect.bed')}</p>
+      <img className={styles.clue} data-clear={judgeZoom(zoom, ZOOM.p6) === 'far' ? 'no' : 'yes'} src="/themes/neulbom-112/props/bed.svg" alt="" />
       <button
         type="button"
         onClick={() => {
@@ -358,10 +412,12 @@ function Bed({ zoom, say }: { zoom: number; say: (text: string) => void }) {
           const s = use112Store.getState();
           s.addItem('쪽지');
           s.markSolved('P6');
+          playSeat('paper');
           say(line('acquire.note'));
           say(line('note.back'));
         }}
       >
+        <Mark name="bed" />
         침대 밑
       </button>
     </section>
@@ -381,6 +437,7 @@ function Wardrobe({
   return (
     <section data-puzzle="P7">
       <button type="button" onClick={() => say(line('inspect.vanity'))}>
+        <Mark name="vanity" />
         화장대
       </button>
       <p>{far ? line('coat.far') : line('inspect.wardrobe')}</p>
@@ -402,10 +459,12 @@ function Wardrobe({
               const s = use112Store.getState();
               s.addItem('다락 열쇠');
               s.markSolved('P7');
+              playSeat('drawer');
               say(line('coat.ok'));
               say(line('narration.attic'));
             }}
           >
+            <img className={styles.mark} src={coatArt(coat.id, far)} alt="" />
             {far ? '코트' : coat.label}
           </button>
         ))}
@@ -419,6 +478,7 @@ function Attic({ zoom, say, read }: { zoom: number; say: (text: string) => void;
   return (
     <section data-puzzle="P8">
       <p>{line('inspect.box')}</p>
+      <img className={styles.clue} src="/themes/neulbom-112/props/box.svg" alt="" />
       <button
         type="button"
         onClick={() => {
@@ -427,19 +487,26 @@ function Attic({ zoom, say, read }: { zoom: number; say: (text: string) => void;
             return;
           }
           const s = use112Store.getState();
-          if (!s.items.includes('그림')) s.addItem('그림');
+          if (!s.items.includes('그림')) {
+            s.addItem('그림');
+            playSeat('paper');
+          }
           say(line('drawing.near'));
           say(line('drawing.back'));
         }}
       >
+        <img className={styles.mark} data-clear={far ? 'no' : 'yes'} src={far ? '/themes/neulbom-112/props/drawing.svg' : '/themes/neulbom-112/props/drawing-near.svg'} alt="" />
         벽 그림
       </button>
       {read && (
         <>
+          <img className={styles.clue} src="/themes/neulbom-112/props/drawing-near.svg" alt="" />
           <p>{line('inspect.attic.box')}</p>
           <LetterPad
             onYes={() => {
               use112Store.getState().markSolved('P8');
+              playSeat('lock');
+              playSeat('drawer');
               say(line('narration.p8.solved'));
               say(line('narration.dolls'));
               say(line('memo.author'));
@@ -457,11 +524,14 @@ function placeDoll(say: (text: string) => void, openLetter: (open: boolean) => v
   const s = use112Store.getState();
   if (!s.flags.doll) {
     s.setFlag('doll');
+    playSeat('wood');
     say(line('narration.doll'));
     say(line('narration.home'));
   }
-  if (piecesComplete(s.extra.pieces)) openLetter(true);
-  else s.setFlag('endingA');
+  if (piecesComplete(s.extra.pieces)) {
+    openLetter(true);
+    playClue('ending');
+  } else s.setFlag('endingA');
 }
 
 function onPiece(id: string, need: number, text: string, zoom: number, say: (text: string) => void) {
@@ -471,6 +541,7 @@ function onPiece(id: string, need: number, text: string, zoom: number, say: (tex
   }
   const s = use112Store.getState();
   s.patchExtra({ pieces: collectPiece(s.extra.pieces, id) });
+  playSeat('spark');
   say(text);
 }
 
@@ -498,6 +569,7 @@ function NumberPad({
           aria-label={`${aria} ${index + 1}`}
           onClick={() => {
             dial.current.setDigit(index, value + 1);
+            playSeat('dial');
             bump((n) => n + 1);
           }}
         >
@@ -523,6 +595,7 @@ function LetterPad({ onYes, onNo }: { onYes: () => void; onNo: () => void }) {
           aria-label={`글자 ${slot + 1}`}
           onClick={() => {
             dial.current.setIndex(slot, index + 1);
+            playSeat('dial');
             bump((n) => n + 1);
           }}
         >
@@ -543,6 +616,7 @@ function SortPad({ onYes, onNo }: { onYes: () => void; onNo: () => void }) {
     <div data-sort="calendar">
       {sort.current.order.map((id, index) => (
         <div key={id} className="radio-row">
+          <img className={styles.mark} src={MEMO_SRC[id] ?? MEMO_SRC.talk} alt="" />
           <p>{P3_LABEL[id as (typeof P3_ORDER)[number]]}</p>
           {index > 0 && (
             <button

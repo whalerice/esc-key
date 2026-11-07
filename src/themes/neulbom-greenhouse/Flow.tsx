@@ -16,7 +16,9 @@ import { StrokePad, type Stroke } from '@/engine/widgets/StrokePad';
 import { thermometerC } from '@/engine/systems/Timer';
 import type { ThemeTimerApi } from '@/engine/ui/ThemePlay';
 import { JOURNAL, line } from './data/script';
-import { playSeat } from './art';
+import { roomArt } from './art';
+import { playClue, playSeat, stopBeds, syncBed } from './audio';
+import styles from './art.module.css';
 import {
   BLOOM_NAME,
   P2_ORDER,
@@ -92,6 +94,8 @@ export function GreenhouseFlow({
   const mask = useRef(new DarknessMask());
   const frost = useRef(new ScreenFilter());
   const notebook = useGreenhouseStore((s) => s.notebook);
+  const finale = useGreenhouseStore((s) => !!s.flags.finale);
+  const paged = useRef(false);
 
   useEffect(() => {
     notebookRef.current = () => setNotes((open) => !open);
@@ -138,6 +142,7 @@ export function GreenhouseFlow({
     const tell = sayRef.current;
     if (scene === 'boiler' && !useGreenhouseStore.getState().flags.p2radio) {
       once('p2radio', () => tell(line('p2.radio')));
+      playClue('guard');
     }
     if (scene === 'nursery' && useGreenhouseStore.getState().solved.P4 && !useGreenhouseStore.getState().flags.p5cut) {
       once('p5cut', () => tell(line('p5.cut')));
@@ -166,6 +171,26 @@ export function GreenhouseFlow({
       clockRef.current = () => undefined;
     };
   }, [clockRef]);
+
+  useEffect(() => {
+    const hush = !!solved.P6;
+    syncBed({
+      wind: !hush,
+      boiler: !hush && scene === 'boiler',
+      heater: !hush && !!solved.P2,
+    });
+    return () => stopBeds();
+  }, [scene, solved.P2, solved.P6]);
+
+  useEffect(() => {
+    playClue('dad');
+  }, []);
+
+  useEffect(() => {
+    if (paged.current || scene !== 'nursery' || !solved.P6 || solved.P7) return;
+    paged.current = true;
+    playSeat('page');
+  }, [scene, solved.P6, solved.P7]);
 
   useEffect(() => {
     if (!solved.P8) return;
@@ -201,10 +226,11 @@ export function GreenhouseFlow({
         />
       )}
       <div
-        className="greenhouse-flow"
+        className={`greenhouse-flow ${styles.flow}`}
         data-scene={scene}
         onPointerMove={(event) => setHole({ x: event.clientX, y: event.clientY })}
       >
+        <img className={styles.scene} src={roomArt(scene, solved, finale)} alt="" />
         <p>
           {ROOM[scene] ?? scene}
           {solved.P1 ? ` · 봉오리 ${BLOOM_NAME[extra.bloomStage] ?? extra.bloomStage}` : ''}
@@ -240,7 +266,7 @@ export function GreenhouseFlow({
         {scene === 'glass' && <Glass say={say} />}
         {scene === 'nursery' && <Nursery say={say} />}
         <p className="radio-row">
-          <button type="button" onClick={() => setNotes((open) => !open)}>
+          <button type="button" onClick={() => setNotes((open) => !open)}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/note.svg" alt="" />
             수첩
           </button>
           <button
@@ -254,7 +280,7 @@ export function GreenhouseFlow({
         </p>
       </div>
       {notes && (
-        <aside className="greenhouse-sheet">
+        <aside className={`greenhouse-sheet ${styles.sheet}`}>
           <h2>수첩 · 육묘 기록</h2>
           {solved.P3 && (
             <ul>
@@ -286,18 +312,18 @@ function Nav() {
   const go = (id: string) => useGreenhouseStore.getState().setScene(id);
   return (
     <div className="radio-row">
-      <button type="button" onClick={() => go('foyer')}>전실</button>
+      <button type="button" onClick={() => go('foyer')}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/foyer.svg" alt="" />전실</button>
       {solved.P1 && (
-        <button type="button" onClick={() => go('boiler')}>보일러실</button>
+        <button type="button" onClick={() => go('boiler')}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/boiler.svg" alt="" />보일러실</button>
       )}
       {solved.P2 && (
-        <button type="button" onClick={() => go('hall')}>중앙홀</button>
+        <button type="button" onClick={() => go('hall')}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/hall.svg" alt="" />중앙홀</button>
       )}
       {solved.P3 && (
-        <button type="button" onClick={() => go('glass')}>육묘실 앞</button>
+        <button type="button" onClick={() => go('glass')}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/glass.svg" alt="" />육묘실 앞</button>
       )}
       {solved.P4 && (
-        <button type="button" onClick={() => go('nursery')}>육묘실</button>
+        <button type="button" onClick={() => go('nursery')}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/nursery.svg" alt="" />육묘실</button>
       )}
     </div>
   );
@@ -340,11 +366,11 @@ function Foyer({
 
   if (!solved.P1) {
     return (
-      <section className="gray-box">
+      <section className={styles.panel}>
         <h2>P1 하룻밤 꽃</h2>
         <p>{line('p1.pot')}</p>
         <div className="radio-row">
-          <button type="button" onClick={() => { setMat(true); say(line('p1.cold')); }}>
+          <button type="button" onClick={() => { setMat(true); say(line('p1.cold')); }}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/mat.svg" alt="" />
             매트 펼치기
           </button>
           <button
@@ -357,13 +383,13 @@ function Foyer({
               }
               setPot(true);
             }}
-          >
+          ><img className={styles.mark} src="/themes/neulbom-greenhouse/props/pot.svg" alt="" />
             화분을 매트에
           </button>
-          <button type="button" onClick={() => plug('grey', mat, pot, say)}>
+          <button type="button" onClick={() => plug('grey', mat, pot, say)}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/outlet-dead.svg" alt="" />
             회색 콘센트
           </button>
-          <button type="button" onClick={() => plug('yellow', mat, pot, say)}>
+          <button type="button" onClick={() => plug('yellow', mat, pot, say)}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/outlet-live.svg" alt="" />
             노란 콘센트
           </button>
         </div>
@@ -373,9 +399,9 @@ function Foyer({
 
   if (!solved.P7) {
     return (
-      <section className="gray-box">
+      <section className={styles.panel}>
         <p>{solved.P2 ? '중앙홀 열쇠가 있다.' : line('p1.locked')}</p>
-        <button type="button" onClick={() => say(`${BLOOM_NAME[useGreenhouseStore.getState().extra.bloomStage]} · ${BLOOM_STEP_MS / 60000}분마다`)}>
+        <button type="button" onClick={() => say(`${BLOOM_NAME[useGreenhouseStore.getState().extra.bloomStage]} · ${BLOOM_STEP_MS / 60000}분마다`)}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/bud.svg" alt="" />
           봉오리 보기
         </button>
       </section>
@@ -385,7 +411,7 @@ function Foyer({
   if (!solved.P8) {
     const matJudge = judgeMat(notches);
     return (
-      <section className="gray-box">
+      <section className={styles.panel}>
         <h2>P8 꽃이 멈췄다</h2>
         <p>반개. 순서 없음. 바람, 매트 22도, 불.</p>
         <div className="radio-row">
@@ -402,6 +428,7 @@ function Foyer({
             disabled={!gapOpen || gapPlugged || blocked}
             onClick={() => onPlug(selectedItem)}
           >
+            <img className={styles.mark} src="/themes/neulbom-greenhouse/props/newspaper.svg" alt="" />
             틈에 신문
           </button>
           <button
@@ -413,19 +440,23 @@ function Foyer({
               if (judgeMat(dial.current.position) === 'hot') say(line('p8.hot'));
             }}
           >
+            <img className={styles.mark} src="/themes/neulbom-greenhouse/props/dial.svg" alt="" />
             매트 다이얼 +1
           </button>
           <button type="button" disabled={blocked} onClick={onLight}>
+            <img className={styles.mark} src="/themes/neulbom-greenhouse/props/lamp.svg" alt="" />
             보온등 끄기
           </button>
           {lightOff && (
             <button type="button" className="greenhouse-lamp" onClick={onLamp}>
+              <img className={styles.mark} src="/themes/neulbom-greenhouse/props/phone.svg" alt="" />
               휴대폰 불빛 {lamp ? '켬' : '끔'}
             </button>
           )}
         </div>
         <p>
-          틈 {gapPlugged ? '막힘' : gapOpen ? '보임' : '안 보임'}
+          틈 {gapOpen && <img className={styles.clue} src="/themes/neulbom-greenhouse/props/gap.svg" alt="" />}
+          {gapPlugged ? '막힘' : gapOpen ? '보임' : '안 보임'}
           {' · '}
           다이얼 +{notches} {matJudge === 'ok' ? '초록 22도' : matJudge === 'hot' ? '빨강' : '차다'}
           {' · '}
@@ -437,7 +468,7 @@ function Foyer({
   }
 
   return (
-    <section className="gray-box">
+    <section className={styles.panel}>
       <h2>피날레 네 차례</h2>
       {!finaleOn ? <p>만개. {BLOOM_OPEN_MS / 1000}초.</p> : <Finale say={say} />}
     </section>
@@ -479,12 +510,12 @@ function Boiler({
   const [taps, setTaps] = useState<string[]>([]);
 
   return (
-    <section className="gray-box">
+    <section className={styles.panel}>
       <h2>P2 비상 온풍기</h2>
       {!solved.P2 && (
         <>
           <p>{line('p2.note')}</p>
-          <button type="button" onClick={() => { setOpenGauge(true); say(line('p2.floor')); }}>
+          <button type="button" onClick={() => { setOpenGauge(true); say(line('p2.floor')); }}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/gauge.svg" alt="" />
             계기판 확대
           </button>
           <div className="radio-row">
@@ -516,6 +547,7 @@ function Boiler({
                   }
                 }}
               >
+                <img className={styles.mark} src={`/themes/neulbom-greenhouse/props/valve-${valve.id}.svg`} alt="" />
                 {valve.label}
                 {openGauge ? ` ${valve.pressure}` : ''}
               </button>
@@ -532,6 +564,7 @@ function Boiler({
             say(line('p7.water'));
           }}
         >
+          <img className={styles.mark} src="/themes/neulbom-greenhouse/props/water.svg" alt="" />
           {filled ? '물주머니 채워짐' : '물주머니 채우기'}
         </button>
       )}
@@ -543,19 +576,22 @@ function Hall({ say }: { say: (text: string) => void }) {
   const solved = useGreenhouseStore((s) => s.solved);
   const [code, setCode] = useState('');
   const [flip, setFlip] = useState(false);
+  const [shot, setShot] = useState<'thesis' | 'photo' | 'poster' | null>(null);
+  const card = shot === 'thesis' ? 'thesis-page' : shot === 'poster' ? 'poster-card' : shot === 'photo' && flip ? 'photo-back' : shot === 'photo' ? 'photo-card' : null;
   return (
-    <section className="gray-box">
+    <section className={styles.panel}>
+      {card && <img className={styles.clue} src={`/themes/neulbom-greenhouse/props/${card}.svg`} alt="" />}
       <h2>P3 난초 유리장</h2>
       <p>{line('p3.look')}</p>
       <div className="radio-row">
-        <button type="button" onClick={() => say(line('p3.paper'))}>논문 확대</button>
-        <button type="button" onClick={() => say(flip ? line('p3.stamp') : line('p3.family'))}>
+        <button type="button" onClick={() => { setShot('thesis'); say(line('p3.paper')); }}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/thesis.svg" alt="" />논문 확대</button>
+        <button type="button" onClick={() => { setShot('photo'); say(flip ? line('p3.stamp') : line('p3.family')); }}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/photo.svg" alt="" />
           가족사진
         </button>
         <button type="button" onClick={() => setFlip((v) => !v)}>
           {flip ? '앞면' : '뒷면'}
         </button>
-        <button type="button" onClick={() => say(line('p3.poster'))}>나눔 포스터</button>
+        <button type="button" onClick={() => { setShot('poster'); say(line('p3.poster')); }}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/poster.svg" alt="" />나눔 포스터</button>
       </div>
       {!solved.P3 && (
         <Keypad
@@ -574,6 +610,7 @@ function Hall({ say }: { say: (text: string) => void }) {
             playSeat('lock');
             say(line('p3.solved'));
             say(line('p3.note'));
+            playClue('guard');
             say(line('p3.radio'));
           }}
         />
@@ -601,7 +638,7 @@ function Glass({ say }: { say: (text: string) => void }) {
   }
 
   return (
-    <section className="gray-box">
+    <section className={styles.panel}>
       <h2>P4 닦지 마시오</h2>
       <p>{line('p4.glass')}</p>
       {!solved.P4 && (
@@ -610,6 +647,7 @@ function Glass({ say }: { say: (text: string) => void }) {
             <BreathHold label="유리에 후—" onReveal={reveal} onFallback={() => say(line('p4.fail'))} />
             <LongHold label="유리 길게 누르기" onReveal={reveal} />
           </div>
+          {marks && <img className={styles.clue} src="/themes/neulbom-greenhouse/props/breath.svg" alt="" />}
           {marks && <p>하윤 · 112cm · 96.12.14</p>}
           <Keypad
             mode="numeric"
@@ -639,8 +677,9 @@ function Nursery({ say }: { say: (text: string) => void }) {
       {!solved.P5 && <Stickers say={say} />}
       {solved.P5 && !solved.P6 && <Shelf say={say} />}
       {solved.P6 && (
-        <section className="gray-box">
+        <section className={styles.panel}>
           <p>{line('p6.solved')}</p>
+          <img className={styles.clue} src="/themes/neulbom-greenhouse/props/crayon.svg" alt="" />
           <p>{CRAYON.join(' · ')} · 해바라기 올은 아빠 글씨</p>
           <p>{line('p6.recall')}</p>
         </section>
@@ -657,11 +696,11 @@ function Stickers({ say }: { say: (text: string) => void }) {
   const [placed, setPlaced] = useState<Record<string, string>>({});
   const slots = potSlots();
   return (
-    <section className="gray-box">
+    <section className={styles.panel}>
       <h2>P5 어린잎 도감</h2>
       <div className="radio-row">
         {PLANTS.map((plant) => (
-          <button key={plant.id} type="button" onClick={() => setPicked(plant.id)}>
+          <button key={plant.id} type="button" onClick={() => setPicked(plant.id)}><img className={styles.mark} src={`/themes/neulbom-greenhouse/props/${plant.id}.svg`} alt="" />
             스티커 {plant.name}
           </button>
         ))}
@@ -698,6 +737,7 @@ function Stickers({ say }: { say: (text: string) => void }) {
               }
             }}
           >
+            <img className={styles.mark} src={`/themes/neulbom-greenhouse/props/${plant.id}.svg`} alt="" />
             {plant.name} · {plant.pot}
             {placed[plant.id] ? ` ← ${PLANTS.find((item) => item.id === placed[plant.id])?.name}` : ''}
           </button>
@@ -712,12 +752,13 @@ function Shelf({ say }: { say: (text: string) => void }) {
   const [slots, setSlots] = useState<Record<number, string>>({});
   const targets = monthSlots();
   return (
-    <section className="gray-box">
+    <section className={styles.panel}>
       <h2>P6 개화 달력</h2>
       <p>{line('p6.look')}</p>
       <div className="radio-row">
         {PLANTS.map((plant) => (
           <button key={plant.id} type="button" onClick={() => setPot(plant.id)}>
+            <img className={styles.mark} src={`/themes/neulbom-greenhouse/props/${plant.id}.svg`} alt="" />
             {plant.name}
           </button>
         ))}
@@ -745,6 +786,7 @@ function Shelf({ say }: { say: (text: string) => void }) {
                   s.addItem('신문');
                   playSeat('crayons');
                   say(line('p6.solved'));
+                  playClue('recall');
                   say(line('p6.recall'));
                   say(line('p6.ol'));
                 }
@@ -764,22 +806,26 @@ function Wrap({ say }: { say: (text: string) => void }) {
   const [bright, setBright] = useState(false);
   const filled = useGreenhouseStore((s) => !!s.flags.waterFilled);
   return (
-    <section className="gray-box">
+    <section className={styles.panel}>
       <h2>P7 2011년의 방법</h2>
       <pre className={bright ? 'greenhouse-log bright' : 'greenhouse-log'}>{JOURNAL}</pre>
       <button
         type="button"
         onClick={() => {
           addNote('night-three', line('p7.memo'));
+          playSeat('page');
+          playClue('guard');
           say(line('p7.memo'));
           say(line('p7.radio'));
         }}
       >
+        <img className={styles.mark} src="/themes/neulbom-greenhouse/props/journal.svg" alt="" />
         마지막 장 메모
       </button>
       <ol>
         {order.map((id, index) => (
           <li key={id}>
+            <img className={styles.mark} src={`/themes/neulbom-greenhouse/props/${id === 'paper' ? 'newspaper' : id === 'sides' ? 'box' : id}.svg`} alt="" />
             {P7_LABEL[id as (typeof P7_ORDER)[number]] ?? id}
             <button type="button" onClick={() => setOrder(move(order, index, -1))}>위</button>
             <button type="button" onClick={() => setOrder(move(order, index, 1))}>아래</button>
@@ -840,11 +886,25 @@ function Finale({ say }: { say: (text: string) => void }) {
     <>
       <p>{line('end.tag')}</p>
       <p>{CRAYON.join(' · ')}</p>
-      <div ref={padRef} className="greenhouse-pad" data-strokes={strokes.length} />
+      <div ref={padRef} className="greenhouse-pad" data-strokes={strokes.length}>
+        <svg className={styles.ink} viewBox="0 0 100 100" aria-hidden>
+          {strokes.map((stroke, index) => (
+            <polyline
+              key={index}
+              fill="none"
+              stroke="#c45a4a"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              points={stroke.map((point) => `${point.x * 100},${point.y * 100}`).join(' ')}
+            />
+          ))}
+        </svg>
+      </div>
       <div className="radio-row">
-        <button type="button" onClick={() => setKeys((on) => !on)}>글자로 쓰기</button>
-        <button type="button" onClick={commit}>이름표 남기기</button>
+        <button type="button" onClick={() => setKeys((on) => !on)}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/note.svg" alt="" />글자로 쓰기</button>
+        <button type="button" onClick={commit}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/tag.svg" alt="" />이름표 남기기</button>
         <button type="button" data-use-target="door" onClick={() => leave(say)} disabled={!ready && !saved}>
+          <img className={styles.mark} src="/themes/neulbom-greenhouse/props/door.svg" alt="" />
           출입문
         </button>
       </div>
@@ -944,7 +1004,7 @@ function BreathHold({
         }
       }}
     >
-      {label} {Math.round(loud)}ms
+      <img className={styles.mark} src="/themes/neulbom-greenhouse/props/breath.svg" alt="" />{label} {Math.round(loud)}ms
     </button>
   );
 }
@@ -970,6 +1030,7 @@ function LongHold({
         if (performance.now() - started.current >= longPressMs(BREATH_HOLD_MS)) onReveal();
       }}
     >
+      <img className={styles.mark} src="/themes/neulbom-greenhouse/props/glass.svg" alt="" />
       {label}
     </button>
   );
@@ -988,6 +1049,7 @@ function leave(say: (text: string) => void) {
   if (s.flags.finale) return;
   s.setFlag('finale');
   playSeat('bloom');
+  playClue('ending');
   say(line('end.door'));
 }
 

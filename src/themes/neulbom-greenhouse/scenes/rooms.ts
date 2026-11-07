@@ -4,14 +4,14 @@ import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from '@/engine/types';
 import { useGreenhouseStore } from '../store';
 
 const FILL: Record<string, number> = {
-  foyer: 0x2a2e2c,
-  boiler: 0x323232,
-  hall: 0x2e3230,
-  glass: 0x343836,
-  nursery: 0x303430,
+  foyer: 0x163038,
+  boiler: 0x1a2428,
+  hall: 0x1c2824,
+  glass: 0x142830,
+  nursery: 0x1a2820,
 };
 
-/** Flat gray fill. Puzzle boxes are DOM. */
+/** Flat night fill behind the DOM scene art. WebGL drops SVG textures. */
 export const mountGreenhouseRooms: SceneMount = ({ app }) => {
   app.stage.removeChildren();
   const world = new Container();

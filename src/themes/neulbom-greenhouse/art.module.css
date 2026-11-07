@@ -1,0 +1,86 @@
+.flow {
+  isolation: isolate;
+  text-shadow: 0 1px 2px #000;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 28%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.flow > :not(.scene) {
+  position: relative;
+  z-index: 1;
+}
+
+.flow :global(button) {
+  border-color: #c4a46a;
+  color: #f4e7c8;
+  text-shadow: none;
+  background: rgba(22, 48, 56, 0.82);
+}
+
+.flow :global(.greenhouse-lamp) {
+  background: #f4e7c8;
+  color: #163038;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.mark {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.clue {
+  display: block;
+  width: min(100%, 440px);
+  height: auto;
+  align-self: flex-start;
+  pointer-events: none;
+  border-radius: 4px;
+}
+
+.sheet {
+  background: rgba(244, 231, 200, 0.96);
+  color: #3a342c;
+}
+
+.sheet :global(button) {
+  background: #163038;
+  color: #f4e7c8;
+  border-color: #c4a46a;
+}
+
+.flow :global(.greenhouse-pad) {
+  position: relative;
+  background: #f4e7c8;
+  border: 1px solid #8b5a3c;
+}
+
+.ink {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.flow :global(.greenhouse-log) {
+  background: rgba(244, 231, 200, 0.92);
+  color: #3a342c;
+  padding: 0.35rem;
+}

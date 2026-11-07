@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<rect width="128" height="128" rx="8" fill="#1A1510"/>
+<rect x="16" y="28" width="96" height="72" rx="4" fill="#6B5344" stroke="#C4A07A" stroke-width="3"/>
+<rect x="28" y="40" width="16" height="16" fill="#1A1510"/>
+<rect x="48" y="40" width="16" height="16" fill="#1A1510"/>
+<rect x="68" y="40" width="16" height="16" fill="#1A1510"/>
+<rect x="88" y="40" width="16" height="16" fill="#1A1510"/>
+<rect x="28" y="60" width="16" height="16" fill="#1A1510"/>
+<rect x="48" y="60" width="16" height="16" fill="#1A1510"/>
+<rect x="68" y="60" width="16" height="16" fill="#1A1510"/>
+<rect x="88" y="60" width="16" height="16" fill="#1A1510"/>
+<text x="64" y="24" text-anchor="middle" fill="#F3E6C8" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">여덟 칸</text>
+</svg>

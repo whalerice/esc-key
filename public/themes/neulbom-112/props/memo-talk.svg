@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<rect width="128" height="128" rx="8" fill="#1A1510"/>
+<rect x="16" y="28" width="96" height="64" rx="6" fill="#F3E6C8"/>
+<path d="M40 92 l10 -12 h20" fill="#F3E6C8"/>
+<circle cx="44" cy="58" r="4" fill="#1A1814"/>
+<circle cx="64" cy="58" r="4" fill="#1A1814"/>
+<circle cx="84" cy="58" r="4" fill="#1A1814"/>
+<text x="64" y="24" text-anchor="middle" fill="#F3E6C8" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">말</text>
+</svg>

@@ -1,7 +1,7 @@
 import type { ThemeDefinition } from '@/engine/types';
 import { initialExtra, type Extra112 } from './extra';
 
-/** Gray-box play through the ending. Answers live in puzzles/answers.ts. Zoom and dials are not in extra. */
+/** Play through the ending. Answers live in puzzles/answers.ts. Zoom and dials are not in extra. */
 export const theme112: ThemeDefinition<Extra112> = {
   id: 'neulbom-112',
   world: 'neulbom',

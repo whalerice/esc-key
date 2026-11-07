@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<rect width="128" height="128" rx="8" fill="#1A1510"/>
+<g transform="translate(64 48) scale(1.35)">
+<rect x="-16" y="28" width="32" height="22" rx="3" fill="#5C4636"/>
+<rect x="-12" y="24" width="24" height="8" fill="#6B5344"/>
+<path d="M0 -8 q-18 12 -8 32 q18 6 8 -10 q10 16 4 8 q-4 -22 -4 -30 z" fill="#3F7A4A"/>
+<path d="M-8 10 Q0 0 10 16" fill="none" stroke="#C9D5CC" stroke-width="2"/>
+<circle cx="6" cy="-6" r="5" fill="#C45B7A"/>
+<circle cx="-4" cy="-2" r="4" fill="#E7A0B4"/>
+</g><text x="64" y="20" text-anchor="middle" fill="#F3E6C8" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">시클라멘</text>
+</svg>

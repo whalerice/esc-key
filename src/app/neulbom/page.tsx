@@ -11,7 +11,7 @@ export default function NeulbomListPage() {
         <Link href="/">← 허브</Link>
       </p>
       <h1>늘봄시</h1>
-      <p>추천 순서 · 1/12 슬라이스 플레이 가능</p>
+      <p>추천 순서 · 1/12 슬라이스 · 겨울 온실 회색 상자 플레이 가능</p>
       <ul className="theme-links">
         {themes.map((t, i) => (
           <li key={t.id}>

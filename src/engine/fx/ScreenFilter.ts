@@ -1,5 +1,5 @@
 /** Screen color-matrix / filter stub (safelight etc.). Spec: §8-8. */
-export type FilterKind = 'safelight' | 'none';
+export type FilterKind = 'safelight' | 'frost' | 'none';
 
 export class ScreenFilter {
   kind: FilterKind = 'none';

@@ -5,7 +5,15 @@
  * Spec: docs/개발/공통엔진_v1.md §4–§5, §12.
  */
 import dynamic from 'next/dynamic';
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MutableRefObject,
+  type ReactNode,
+} from 'react';
 import { useRouter } from 'next/navigation';
 import type { Application } from 'pixi.js';
 import type { PuzzleId, ThemeDefinition } from '@/engine/types';
@@ -88,6 +96,14 @@ export type ThemePlayProps = {
   }) => ReactNode;
   /** Inventory drag onto `[data-use-target]`. */
   onUseItem?: (itemId: string, targetId: string) => void;
+  /** Live clock. `pause(ms)` grants bonus time (`timer.pause`). */
+  timerRef?: MutableRefObject<ThemeTimerApi | null>;
+  /** HUD notebook button. Theme opens its own sheet. */
+  onNotebook?: () => void;
+};
+
+export type ThemeTimerApi = {
+  pause: (ms: number) => void;
 };
 
 export function ThemePlay({
@@ -103,6 +119,8 @@ export function ThemePlay({
   clearedEnding = null,
   renderResult,
   onUseItem,
+  timerRef,
+  onNotebook,
 }: ThemePlayProps) {
   const router = useRouter();
   const [booted, setBooted] = useState(false);
@@ -165,6 +183,20 @@ export function ThemePlay({
     ctrlRef.current = ctrl;
     ctrl.start();
     setSnap(ctrl.snapshot());
+    if (timerRef) {
+      timerRef.current = {
+        pause(ms: number) {
+          ctrl.pause(ms);
+          const next = ctrl.snapshot();
+          setSnap(next);
+          useStore.getState().patchTimer({
+            elapsedMs: next.elapsedMs,
+            bonusPausedMs: next.bonusPausedMs,
+            penaltyMs: next.penaltyMs,
+          });
+        },
+      };
+    }
     let firedZero = false;
     const id = window.setInterval(() => {
       if (pauseRef.current) ctrl.pause();
@@ -197,8 +229,9 @@ export function ThemePlay({
       document.removeEventListener('visibilitychange', onVis);
       if (!endedRef.current) useStore.getState().patchTimer({ elapsedMs: ctrl.elapsed() });
       ctrlRef.current = null;
+      if (timerRef) timerRef.current = null;
     };
-  }, [booted, theme, useStore]);
+  }, [booted, theme, useStore, timerRef]);
 
   useEffect(() => {
     const ctrl = ctrlRef.current;
@@ -346,6 +379,7 @@ export function ThemePlay({
             onUseItem ? (id) => setSelectedItem((cur) => (cur === id ? null : id)) : undefined
           }
           onUseItem={onUseItem}
+          onNotebook={onNotebook}
           onMute={() => {
             const next = !muted;
             setMuted(next);

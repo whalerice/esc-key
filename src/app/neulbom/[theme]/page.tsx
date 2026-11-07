@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getTheme, listThemes } from '@/themes/registry';
 import { Neulbom112Play } from '@/themes/neulbom-112/Play';
+import { GreenhousePlay } from '@/themes/neulbom-greenhouse/Play';
 import { StubThemePlay } from '@/themes/StubThemePlay';
 
 type Props = { params: Promise<{ theme: string }> };
@@ -18,6 +19,10 @@ export default async function ThemePage({ params }: Props) {
 
   if (theme.id === 'neulbom-112') {
     return <Neulbom112Play />;
+  }
+
+  if (theme.id === 'neulbom-greenhouse') {
+    return <GreenhousePlay />;
   }
 
   return <StubThemePlay theme={theme} />;

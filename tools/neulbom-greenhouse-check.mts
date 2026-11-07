@@ -2,7 +2,7 @@
  * Answer table for 겨울 온실. No DOM.
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { BreathDetector, BREATH_NEED_MS } from '../src/engine/sensors/BreathDetector.ts';
 import { thermometerC, timerFace } from '../src/engine/systems/Timer.ts';
 import { resolveOnZero } from '../src/engine/systems/Timer.ts';
@@ -14,6 +14,7 @@ import { DragSort } from '../src/engine/widgets/DragSort.ts';
 import { SequenceTap } from '../src/engine/widgets/SequenceTap.ts';
 import { SafeDial } from '../src/engine/widgets/SafeDial.ts';
 import { StrokePad } from '../src/engine/widgets/StrokePad.ts';
+import { BED_SRC, CLUE_SRC, ROOM_SRC, SFX_SRC } from '../src/themes/neulbom-greenhouse/art.ts';
 import { initialExtra } from '../src/themes/neulbom-greenhouse/extra.ts';
 import { themeGreenhouse } from '../src/themes/neulbom-greenhouse/index.ts';
 import {
@@ -138,6 +139,17 @@ for (const line of [
 const flow = readFileSync(new URL('../src/themes/neulbom-greenhouse/Flow.tsx', import.meta.url), 'utf8');
 assert.equal(flow.includes('requestFullscreen'), false);
 assert.equal(flow.includes('howler'), false);
+assert.equal(flow.includes('playClue'), true);
+const audio = readFileSync(new URL('../src/themes/neulbom-greenhouse/audio.ts', import.meta.url), 'utf8');
+assert.equal(audio.includes('playHtml5Clip'), true);
+assert.equal(audio.includes('howler'), true);
+for (const url of [...Object.values(ROOM_SRC), ...Object.values(BED_SRC), ...Object.values(CLUE_SRC), ...Object.values(SFX_SRC)]) {
+  assert.ok(existsSync(new URL(`../public${url}`, import.meta.url)), url);
+}
+const props = readdirSync(new URL('../public/themes/neulbom-greenhouse/props', import.meta.url));
+for (const name of ['cyclamen.svg', 'outlet-live.svg', 'outlet-dead.svg', 'breath.svg', 'crayon.svg', 'thesis-page.svg']) {
+  assert.ok(props.includes(name), name);
+}
 assert.equal(flow.includes('HEATER_PAUSE_MS'), true);
 assert.equal(flow.includes('BLOOM_OPEN_MS'), true);
 assert.doesNotMatch(flow, /patchExtra\(\{[^}]*pressure/);

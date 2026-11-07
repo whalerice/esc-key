@@ -1,0 +1,85 @@
+.flow {
+  isolation: isolate;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.flow > :not(.scene):not(:global(.tailor-ending)):not(:global(.letter-card)) {
+  position: relative;
+  z-index: 1;
+}
+
+.flow :global(button) {
+  border-color: #b08d4f;
+  color: #e9e2d2;
+  text-shadow: none;
+  background: rgba(18, 25, 31, 0.78);
+}
+
+.prop {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.prop img {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  object-fit: contain;
+}
+
+.wide img {
+  width: 44px;
+  height: 66px;
+}
+
+.flow :global(.sew-pad) {
+  background: #1c1814 url('/themes/haemu-tailor/rooms/sew-straight.svg') center / cover no-repeat;
+  border-color: #b08d4f;
+}
+
+.flow[data-scene='sewing-curve'] :global(.sew-pad) {
+  background-image: url('/themes/haemu-tailor/rooms/sew-curve.svg');
+}
+
+.flow :global(.rip-pad) {
+  background: #23305a url('/themes/haemu-tailor/props/lining.svg') center / cover no-repeat;
+  border-color: #b9867e;
+}
+
+.flow :global(.rip-dot) {
+  width: 18px;
+  height: 5px;
+  margin: -2px 0 0 -9px;
+  border: none;
+  border-radius: 1px;
+  background: #c8463b;
+}
+
+.flow :global(.sew-plot) {
+  left: 36%;
+  top: 8px;
+}
+
+.flow :global(.role-pedal),
+.flow :global(.role-cloth) {
+  color: #ede6c8;
+  background: rgba(18, 25, 31, 0.28);
+  border-color: rgba(176, 141, 79, 0.65);
+}
+
+.stamp {
+  width: 140px;
+  height: auto;
+  justify-self: center;
+}

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<rect x="2" y="2" width="60" height="60" rx="6" fill="#1E2A33" stroke="#B08D4F" stroke-width="2"/>
+<rect x="16" y="12" width="32" height="40" fill="#E9E2D2" stroke="#3B3A36"/>
+<path d="M22 24 h20 M22 32 h16 M22 40 h12" stroke="#3B3A36" stroke-width="1.5"/>
+<text x="32" y="20" text-anchor="middle" fill="#C8463B" font-size="8" font-family="WenQuanYi Micro Hei,sans-serif">어머니</text>
+</svg>

@@ -1,7 +1,7 @@
 import type { ThemeDefinition } from '@/engine/types';
 import { initialExtra, type TailorExtra } from './extra';
 
-/** Gray-box play. Answers live in puzzles/answers.ts. Sew motion stays out of extra. */
+/** Illustrated play. Answers live in puzzles/answers.ts. Sew motion stays out of extra. */
 export const themeHaemuTailor: ThemeDefinition<TailorExtra> = {
   id: 'haemu-tailor',
   world: 'haemu',

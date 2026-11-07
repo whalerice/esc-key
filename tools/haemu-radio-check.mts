@@ -2,7 +2,7 @@
  * Answer table for 심야 라디오. No DOM.
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import {
   channelForPuzzle,
   hintUsesByChannel,
@@ -10,6 +10,7 @@ import {
   smallTalkLine,
 } from '../src/engine/systems/Hints.ts';
 import { withoutEphemeralExtra } from '../src/engine/types.ts';
+import { BED_SRC, CLUE_SRC, DJ_SRC, ROOM_SRC, SFX_SRC } from '../src/themes/haemu-radio/art.ts';
 import { initialExtra } from '../src/themes/haemu-radio/extra.ts';
 import { assertRadioAnswers } from '../src/themes/haemu-radio/puzzles/answers.ts';
 
@@ -55,3 +56,8 @@ const saved = withoutEphemeralExtra({ ...initialExtra, radioFreq: 87.9, txFreq: 
 assert.equal('radioFreq' in saved, false);
 assert.equal('txFreq' in saved, false);
 assert.equal(saved.heardFragments.length, 0);
+
+for (const url of [...Object.values(ROOM_SRC), DJ_SRC, ...Object.values(BED_SRC), ...Object.values(CLUE_SRC), ...Object.values(SFX_SRC)]) {
+  const file = new URL(`../public${url}`, import.meta.url);
+  assert.ok(existsSync(file), url);
+}

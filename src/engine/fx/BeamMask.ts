@@ -60,6 +60,8 @@ export class BeamMask {
   private lastAt = 0;
   private raf = 0;
   private unlisten: (() => void) | null = null;
+  /** Bearing at the previous sample. A moving beam is not a hold. */
+  private stillAt: number | null = null;
 
   constructor(opts: BeamMaskOpts = {}) {
     this.opts = opts;
@@ -110,8 +112,18 @@ export class BeamMask {
     else this.targets.push({ id, deg });
   }
 
-  /** Theme clock. Enter → `onInBeam`. Stay `holdMs` → `onHeld` once. */
+  /**
+   * Theme clock. Enter → `onInBeam`. Stay `holdMs` while the bearing is still → `onHeld` once.
+   * ponytail: 0.35° per sample. A slow sweep through the wedge is not a hold; raise if a resting finger jitters more than this.
+   */
   sample(now: number): void {
+    const moved = this.stillAt != null && Math.abs(wrapDeltaDeg(this.deg - this.stillAt)) > 0.35;
+    this.stillAt = this.deg;
+    if (moved) {
+      for (const id of this.since.keys()) {
+        if (!this.heldSent.has(id)) this.since.set(id, now);
+      }
+    }
     const lit = new Set(this.inside());
     for (const id of [...this.since.keys()]) {
       if (!lit.has(id)) {

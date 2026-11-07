@@ -152,6 +152,8 @@ export const EPHEMERAL_EXTRA_KEYS = [
   'pedalSpeed',
   'clothX',
   'clothAngle',
+  /** Last train. Phone open is UI. Design §9-6 does not save it. */
+  'phoneOpen',
 ] as const;
 
 export type AppSettings = {

@@ -111,6 +111,11 @@ function backspace(value: string): string {
   return head + parts.cho;
 }
 
+/** One syllable. Unknown jamo is concatenated, not dropped. */
+export function composeSyllable(cho: string, jung: string, jong = ''): string {
+  return syl(cho, jung, jong);
+}
+
 function syl(cho: string, jung: string, jong = ''): string {
   const ci = CHO.indexOf(cho as (typeof CHO)[number]);
   const ji = JUNG.indexOf(jung as (typeof JUNG)[number]);

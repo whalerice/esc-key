@@ -31,6 +31,9 @@ export default function HubPage() {
           <Link href="/lab/darkroom">엔진 시험 · 붉은 방 위젯</Link>
         </li>
         <li>
+          <Link href="/lab/lasttrain">엔진 시험 · 막차 이후 위젯</Link>
+        </li>
+        <li>
           <span aria-disabled>단독 / 잿빛 새벽 (예정)</span>
         </li>
       </ul>

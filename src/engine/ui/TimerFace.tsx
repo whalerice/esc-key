@@ -11,6 +11,18 @@ export function TimerFace({ model }: { model: TimerFaceModel }) {
   if (model.skin === 'onair-clock' || model.skin === 'watch-clock') {
     return <Clock model={model} />;
   }
+  if (model.skin === 'battery') {
+    return (
+      <span
+        className={`timer-face timer-face--battery${model.warn ? ' warn' : ''}${model.blink ? ' blink' : ''}`}
+        data-timer-skin="battery"
+        data-timer-label={model.label}
+        aria-label={`배터리 ${model.label}`}
+      >
+        {model.label}
+      </span>
+    );
+  }
   return (
     <span className="timer-digits" data-timer-skin={model.skin} data-timer-label={model.label}>
       {model.label}

@@ -114,6 +114,12 @@ export function thermometerC(remainingMs: number, durationMs: number): number {
   return Math.round(c * 10) / 10;
 }
 
+/** 100% at full time → 0% at zero. Linear. Last-train battery skin. */
+export function batteryPercent(remainingMs: number, durationMs: number): number {
+  if (durationMs <= 0 || remainingMs <= 0) return 0;
+  return Math.max(1, Math.min(100, Math.round((100 * remainingMs) / durationMs)));
+}
+
 const CLOCK_SKINS = new Set<TimerSkinName>(['onair-clock', 'watch-clock']);
 
 /**
@@ -144,17 +150,41 @@ export function timerFace(input: TimerFaceInput): TimerFaceModel {
     input.skin === 'thermometer' && rem != null && input.durationMs
       ? thermometerC(rem, input.durationMs)
       : null;
+  const batt =
+    input.skin === 'battery' && rem != null && input.durationMs
+      ? batteryPercent(rem, input.durationMs)
+      : null;
   const label =
-    temp != null ? `${temp.toFixed(1)}°C` : (clock ?? (rem == null ? '' : formatMmSs(rem)));
+    batt != null
+      ? `${batt}%`
+      : temp != null
+        ? `${temp.toFixed(1)}°C`
+        : (clock ?? (rem == null ? '' : formatMmSs(rem)));
   const step = zero ? 0 : Math.max(1, Math.min(6, Math.ceil(ratio * 6)));
   const clockSkin = CLOCK_SKINS.has(input.skin);
   const thermoWarn = temp != null && temp <= 7 && temp > 3;
   const thermoBlink = temp != null && temp > 0 && temp <= 3;
+  const battWarn = batt != null && batt <= 10 && batt > 5;
+  const battBlink = batt != null && batt > 0 && batt <= 5;
   return {
     skin: input.skin,
     label,
-    warn: temp != null ? thermoWarn : clockSkin || input.skin === 'thread-spool' ? warn : false,
-    blink: temp != null ? thermoBlink : clockSkin || input.skin === 'thread-spool' ? blink : false,
+    warn:
+      temp != null
+        ? thermoWarn
+        : batt != null
+          ? battWarn
+          : clockSkin || input.skin === 'thread-spool'
+            ? warn
+            : false,
+    blink:
+      temp != null
+        ? thermoBlink
+        : batt != null
+          ? battBlink
+          : clockSkin || input.skin === 'thread-spool'
+            ? blink
+            : false,
     ratio,
     step,
     redCore: input.skin === 'thread-spool' && warn,

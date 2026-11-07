@@ -1232,7 +1232,8 @@ button {
 }
 
 .greenhouse-flow,
-.darkroom-flow {
+.darkroom-flow,
+.lasttrain-flow {
   position: absolute;
   z-index: 20;
   left: 64px;
@@ -1249,7 +1250,9 @@ button {
 .greenhouse-flow button,
 .greenhouse-sheet button,
 .darkroom-flow button,
-.darkroom-sheet button {
+.darkroom-sheet button,
+.lasttrain-flow button,
+.lasttrain-sheet button {
   min-height: 44px;
   min-width: 44px;
   padding: 0.35rem 0.6rem;
@@ -1259,6 +1262,7 @@ button {
 }
 
 .greenhouse-flow .keypad-keys,
+.lasttrain-flow .keypad-keys,
 .lab .keypad-keys {
   display: flex;
   flex-wrap: wrap;
@@ -1269,7 +1273,9 @@ button {
 .greenhouse-flow p,
 .greenhouse-sheet p,
 .darkroom-flow p,
-.darkroom-sheet p {
+.darkroom-sheet p,
+.lasttrain-flow p,
+.lasttrain-sheet p {
   margin: 0;
 }
 
@@ -1439,4 +1445,93 @@ html[data-safelight='yes'] .hud {
 .darkroom-sheet pre {
   white-space: pre-wrap;
   font-size: 0.8rem;
+}
+
+.lasttrain-flow {
+  bottom: 22%;
+}
+
+.lasttrain-phone {
+  display: grid;
+  grid-template-columns: 55% 45%;
+  gap: 8px;
+}
+
+.lasttrain-pad {
+  position: relative;
+  width: min(100%, 560px);
+  height: 320px;
+  background: #2c2c2c;
+  border: 1px solid #6e6e6e;
+  touch-action: none;
+}
+
+.lasttrain-port,
+.lasttrain-charger,
+.lasttrain-box,
+.lasttrain-spot {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+}
+
+.lasttrain-spot {
+  border: 1px dashed #9a9a9a;
+  color: #ddd;
+  pointer-events: none;
+}
+
+.lasttrain-finder {
+  position: absolute;
+  border: 2px solid #e8e8e8;
+  background: rgba(170, 190, 170, 0.28);
+  color: #111;
+  font-size: 12px;
+  pointer-events: none;
+  display: grid;
+  place-items: end start;
+  padding: 4px;
+}
+
+.lasttrain-sheet {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 46%;
+  z-index: 32;
+  overflow: auto;
+  padding: 12px;
+  background: #2a2a2a;
+  color: #f2efe8;
+}
+
+.lasttrain-dim {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.lasttrain-dim.blink {
+  animation: blink 0.7s steps(2) infinite;
+}
+
+.keypad[data-mode='cheonjiin'] .keypad-keys {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(56px, 1fr));
+  max-width: 280px;
+}
+
+.keypad[data-mode='cheonjiin'] .keypad-keys button {
+  min-width: 56px;
+  min-height: 56px;
+}
+
+.keypad-value {
+  min-height: 1.4em;
+  font-size: 16px;
+  word-break: break-all;
 }

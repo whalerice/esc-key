@@ -3,6 +3,7 @@ import { getTheme, listThemes } from '@/themes/registry';
 import { Neulbom112Play } from '@/themes/neulbom-112/Play';
 import { DarkroomPlay } from '@/themes/neulbom-darkroom/Play';
 import { GreenhousePlay } from '@/themes/neulbom-greenhouse/Play';
+import { LasttrainPlay } from '@/themes/neulbom-lasttrain/Play';
 import { StubThemePlay } from '@/themes/StubThemePlay';
 
 type Props = { params: Promise<{ theme: string }> };
@@ -28,6 +29,10 @@ export default async function ThemePage({ params }: Props) {
 
   if (theme.id === 'neulbom-darkroom') {
     return <DarkroomPlay />;
+  }
+
+  if (theme.id === 'neulbom-lasttrain') {
+    return <LasttrainPlay />;
   }
 
   return <StubThemePlay theme={theme} />;

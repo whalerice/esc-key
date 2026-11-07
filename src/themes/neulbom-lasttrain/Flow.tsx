@@ -8,7 +8,9 @@ import { nearestSnap } from '@/engine/widgets/DragSnap';
 import { allFound, markFound } from '@/engine/widgets/FindTap';
 import { Keypad, type CheonjiinScript } from '@/engine/widgets/Keypad';
 import type { ThemeTimerApi } from '@/engine/ui/ThemePlay';
-import { playSeat } from './art';
+import styles from './art.module.css';
+import { boxArt, roomArt } from './art';
+import { playClue, playSeat, stopBeds, syncBed } from './audio';
 import { line } from './data/script';
 import {
   ALARM,
@@ -70,6 +72,20 @@ export function LasttrainFlow({
   const [phone, setPhone] = useState(false);
 
   const screen = screenOf(solved, flags);
+  const revealed = !!flags.revealed;
+
+  useEffect(() => {
+    syncBed({
+      fluorescent: screen !== 'end',
+      rail: screen !== 'end',
+      hush: revealed,
+    });
+    return () => stopBeds();
+  }, [screen, revealed]);
+
+  useEffect(() => {
+    playSeat('announce');
+  }, []);
 
   useEffect(() => {
     notebookRef.current = () => setNotes((open) => !open);
@@ -101,16 +117,17 @@ export function LasttrainFlow({
   const blink = low && batt <= 5 && !quiet;
 
   return (
-    <div className={`lasttrain-flow${low ? ' dim' : ''}`} data-screen={screen} data-battery={batt}>
+    <div className={`lasttrain-flow ${styles.flow}${low ? ' dim' : ''}`} data-screen={screen} data-battery={batt}>
       {low && <div className={`lasttrain-dim${blink ? ' blink' : ''}`} data-dim={blink ? 'blink' : 'steady'} />}
+      <img className={styles.scene} src={roomArt(room, screen === 'end')} alt="" />
       <div className="radio-row">
-        <button type="button" onClick={() => setRoom('counter')}>카운터</button>
-        <button type="button" onClick={() => setRoom('warehouse')} disabled={!solved.P4}>창고</button>
+        <button type="button" onClick={() => setRoom('counter')}><Mark name="counter" />카운터</button>
+        <button type="button" onClick={() => setRoom('warehouse')} disabled={!solved.P4}><Mark name="warehouse" />창고</button>
         {solved.P1 && (
-          <button type="button" onClick={() => setPhone((open) => !open)}>폰</button>
+          <button type="button" onClick={() => setPhone((open) => !open)}><Mark name="phone" />폰</button>
         )}
-        <button type="button" onClick={() => setNotes((open) => !open)}>수첩</button>
-        <span>남색 코트 소매</span>
+        <button type="button" onClick={() => setNotes((open) => !open)}><Mark name="note" />수첩</button>
+        <span><Mark name="sleeve" />남색 코트 소매</span>
       </div>
 
       {screen === 'p1' && <P1 say={say} />}
@@ -174,13 +191,13 @@ function P1({ say }: { say: (text: string) => void }) {
   }
 
   return (
-    <section className="gray-box" data-puzzle="P1">
+    <section className={styles.panel} data-puzzle="P1">
       <h2>P1 맞는 충전기</h2>
       <div className="radio-row">
-        <button type="button" onClick={() => say(line('p1.log'))}>근무일지</button>
-        <button type="button" onClick={() => say(line('p1.wall'))}>퇴역 안내</button>
-        <button type="button" onClick={() => say(line('p1.l4'))}>온실 안내</button>
-        <button type="button" onClick={() => say(line('p1.bin'))}>반납함</button>
+        <button type="button" onClick={() => say(line('p1.log'))}><Mark name="log" />근무일지</button>
+        <button type="button" onClick={() => say(line('p1.wall'))}><Mark name="wall" />퇴역 안내</button>
+        <button type="button" onClick={() => say(line('p1.l4'))}><Mark name="l4" />온실 안내</button>
+        <button type="button" onClick={() => say(line('p1.bin'))}><Mark name="bin" />반납함</button>
       </div>
       <p>{line('p1.dead')}</p>
       <div
@@ -227,11 +244,18 @@ function P2({ say }: { say: (text: string) => void }) {
   const [pin, setPin] = useState('');
 
   return (
-    <section className="gray-box" data-puzzle="P2">
+    <section className={styles.panel} data-puzzle="P2">
       <h2>P2 스티커 사진</h2>
       <p>비밀번호 4자리. {line('p2.lock')}</p>
       <div className="lasttrain-phone">
         <div>
+          <img
+            className={styles.sticker}
+            src="/themes/neulbom-lasttrain/props/sticker.svg"
+            alt=""
+            data-clear={zoom >= 2 ? 'yes' : 'no'}
+            style={{ width: `${120 + zoom * 36}px` }}
+          />
           <p>뒷면 스티커 {zoom < 2 ? '흐림' : line('p2.zoom')}</p>
           <div className="radio-row">
             <button type="button" onClick={() => setZoom((z) => Math.max(1, z - 1))}>축소</button>
@@ -272,7 +296,7 @@ function P3({ say }: { say: (text: string) => void }) {
   const called = useLasttrainStore((s) => !!s.flags.called);
 
   return (
-    <section className="gray-box" data-puzzle="P3">
+    <section className={styles.panel} data-puzzle="P3">
       <h2>P3 숫자 모드 문자</h2>
       <PhoneBook
         year="2009.12.24 23:41"
@@ -310,6 +334,7 @@ function P3({ say }: { say: (text: string) => void }) {
           onClick={() => {
             useLasttrainStore.getState().setFlag('called');
             playSeat('hangup');
+            playClue('out');
             say(line('p3.call'));
             say(line('p3.mine'));
           }}
@@ -325,11 +350,11 @@ function P3({ say }: { say: (text: string) => void }) {
 const DRAFT = '8215003255 5325812551200';
 
 function P4({ say }: { say: (text: string) => void }) {
-  const [photo, setPhoto] = useState<'ledger' | 'time' | null>(null);
+  const [photo, setPhoto] = useState<'ledger' | 'time' | 'glass' | null>(null);
   const flags = useLasttrainStore((s) => s.flags);
 
   return (
-    <section className="gray-box" data-puzzle="P4">
+    <section className={styles.panel} data-puzzle="P4">
       <h2>P4 2009년의 장부</h2>
       <p>{line('p4.odd')}</p>
       <FinderPad
@@ -353,6 +378,7 @@ function P4({ say }: { say: (text: string) => void }) {
             return;
           }
           if (ids.includes('glass')) {
+            setPhoto('glass');
             useLasttrainStore.getState().setFlag('glassShot');
             say(line('p4.glass'));
             return;
@@ -362,6 +388,7 @@ function P4({ say }: { say: (text: string) => void }) {
       />
       {photo === 'ledger' && (
         <div data-live="ledger">
+          <img className={styles.clue} src="/themes/neulbom-lasttrain/props/ledger.svg" alt="" />
           <p>습득물 대장 2009.12.24 막차. 담당 곽.</p>
           {LEDGER.map((row) => (
             <button
@@ -382,7 +409,13 @@ function P4({ say }: { say: (text: string) => void }) {
           ))}
         </div>
       )}
-      {photo === 'time' && <p>{TIMETABLE}</p>}
+      {photo === 'time' && (
+        <>
+          <img className={styles.clue} src="/themes/neulbom-lasttrain/props/timetable.svg" alt="" />
+          <p>{TIMETABLE}</p>
+        </>
+      )}
+      {photo === 'glass' && <img className={styles.clue} src="/themes/neulbom-lasttrain/props/glass.svg" alt="" />}
     </section>
   );
 }
@@ -398,10 +431,11 @@ function P5({
   const boxes = warehouseBoxes();
 
   return (
-    <section className="gray-box" data-puzzle="P5">
+    <section className={styles.panel} data-puzzle="P5">
       <h2>P5 옮겨진 상자</h2>
       <p>{line('p5.look')}</p>
       <FinderPad
+        year="warehouse"
         spots={[{ ...SPOTS.shelf, label: '셋째 줄 둘째' }]}
         caption={(ids) => (ids.includes('shelf') ? '2009 · 24 · 파란 X · 찌그러짐' : '2009 창고')}
         onShutter={(ids) => {
@@ -425,7 +459,7 @@ function P5({
               type="button"
               className="lasttrain-box"
               data-box={box.id}
-              style={{ left: frame.x, top: frame.y, width: frame.w, height: frame.h }}
+              style={{ left: frame.x, top: frame.y, width: frame.w, height: frame.h, backgroundImage: `url(${boxArt(box)})` }}
               onPointerDown={(e) => e.stopPropagation()}
               onClick={() => {
                 const marked = markFound([{ id: box.id, found: false }], box.id);
@@ -474,15 +508,17 @@ function P6({ say }: { say: (text: string) => void }) {
   }
 
   return (
-    <section className="gray-box" data-puzzle="P6">
+    <section className={styles.panel} data-puzzle="P6">
       <h2>P6 쇼핑백과 비밀 폴더</h2>
+      <img className={styles.clue} src="/themes/neulbom-lasttrain/props/bag.svg" alt="" />
       <p>{line('p6.tag')}</p>
-      <p>{line('p6.card')}</p>
-      <button type="button" onClick={() => say(line('p6.glove'))}>털장갑</button>
+      <p><Mark name="card" />{line('p6.card')}</p>
+      <button type="button" onClick={() => say(line('p6.glove'))}><Mark name="glove" />털장갑</button>
       {!joined && (
         <div className="radio-row" data-live="receipt">
           {RECEIPT.map((half) => (
             <button key={half.id} type="button" onClick={() => join(half.id)}>
+              <Mark name={`receipt-${half.id}`} />
               영수증 {half.id === 'left' ? '왼쪽' : '오른쪽'}
               {held === half.id ? ' ·듦' : ''}
             </button>
@@ -513,9 +549,11 @@ function P6({ say }: { say: (text: string) => void }) {
         <div data-live="photos">
           {PHOTOS.map((item) => (
             <button key={item.id} type="button" onClick={() => setPhoto(item.id)}>
+              <Mark name={`photo-${item.id}`} />
               사진 {item.id}
             </button>
           ))}
+          {photo && <img className={styles.clue} src={`/themes/neulbom-lasttrain/props/photo-${photo}.svg`} alt="" />}
           {photo && <p>{PHOTOS.find((item) => item.id === photo)?.text}</p>}
           {photo === 'p4' && (
             <button
@@ -524,6 +562,7 @@ function P6({ say }: { say: (text: string) => void }) {
                 setPhoto(null);
                 say(line('p6.quiet'));
                 playSeat('station');
+                playClue('kwak');
                 say(line('p6.kwak'));
                 say(line('p6.me'));
                 say(line('p6.ask'));
@@ -563,13 +602,18 @@ function P7({ say }: { say: (text: string) => void }) {
   }
 
   return (
-    <section className="gray-box" data-puzzle="P7">
+    <section className={styles.panel} data-puzzle="P7">
       <h2>P7 어디서 내렸나</h2>
       <p>{line('p7.ask')}</p>
-      <p>{line('p7.alarm')} {ALARM}</p>
+      <p><Mark name="alarm" />{line('p7.alarm')} {ALARM}</p>
       <p>{line('p7.read')}</p>
       <p>{line('p7.missed')}</p>
-      {shot && <p>{TIMETABLE}</p>}
+      {shot && (
+        <>
+          <img className={styles.clue} src="/themes/neulbom-lasttrain/props/timetable.svg" alt="" />
+          <p>{TIMETABLE}</p>
+        </>
+      )}
       {!shot && (
         <button type="button" onClick={() => setFinder(true)}>카운터 벽 비추기</button>
       )}
@@ -619,11 +663,11 @@ function P8({
   }
 
   return (
-    <section className="gray-box" data-puzzle="P8">
+    <section className={styles.panel} data-puzzle="P8">
       <h2>P8 우리 방식의 대답</h2>
       <div className="lasttrain-phone">
         <div>
-          <p>시계 2026.12.24 23:52</p>
+          <p><Mark name="phone" />시계 2026.12.24 23:52</p>
           <p>{SISTER_2026}</p>
           <p>{line('p8.ask')}</p>
           {sent.length > 0 && <p>보낸 답 {sent.length}</p>}
@@ -648,9 +692,12 @@ function P8({
 function EndingA({ say }: { say: (text: string) => void }) {
   const [step, setStep] = useState(0);
   const beats = [line('end.a1'), line('end.a2'), line('end.a3'), line('end.a4'), line('end.a5'), line('end.a6')];
+  useEffect(() => {
+    playClue('ending');
+  }, []);
   return (
-    <section className="gray-box" data-puzzle="ending">
-      <h2>받았어</h2>
+    <section className={styles.panel} data-puzzle="ending">
+      <h2><Mark name="snow" />받았어</h2>
       {beats.slice(0, step + 1).map((text) => (
         <p key={text}>{text}</p>
       ))}
@@ -688,7 +735,7 @@ function PhoneBook({
   return (
     <div className="lasttrain-phone" data-live="phone">
       <div>
-        <p>폴더폰 {year} ⏰</p>
+        <p><Mark name="phone" />폴더폰 {year} ⏰</p>
         {lead}
         {app === 'inbox' && (
           <>
@@ -744,8 +791,8 @@ function Notebook({ onClose, say }: { onClose: () => void; say: (text: string) =
   const solved = useLasttrainStore((s) => s.solved);
   const [draft, setDraft] = useState('');
   return (
-    <aside className="lasttrain-sheet">
-      <button type="button" onClick={onClose}>수첩 닫기</button>
+    <aside className={`lasttrain-sheet ${styles.sheet}`}>
+      <button type="button" onClick={onClose}><Mark name="note" />수첩 닫기</button>
       {items.includes('천지인 카드') && <p>{line('card')}</p>}
       {notes.map((note) => (
         <p key={note.id}>{note.text}</p>
@@ -775,10 +822,12 @@ function FinderPad({
   spots,
   caption,
   onShutter,
+  year = 'counter',
 }: {
   spots: { id: string; x: number; y: number; w: number; h: number; label: string }[];
   caption: (ids: string[]) => string;
   onShutter: (ids: string[]) => void;
+  year?: 'counter' | 'warehouse';
 }) {
   const padRef = useRef<HTMLDivElement>(null);
   const [rect, setRect] = useState<ViewRect | null>(null);
@@ -793,14 +842,14 @@ function FinderPad({
     : [];
   return (
     <div>
-      <div ref={padRef} className="lasttrain-pad" data-live="viewfinder" style={{ height: FINDER_PAD.h }}>
+      <div ref={padRef} className="lasttrain-pad" data-live="viewfinder" data-year={year} style={{ height: FINDER_PAD.h }}>
         {spots.map((spot) => (
           <i key={spot.id} className="lasttrain-spot" style={{ left: spot.x, top: spot.y, width: spot.w, height: spot.h }}>
             {spot.label}
           </i>
         ))}
         {rect && (
-          <div className="lasttrain-finder" style={{ left: rect.x, top: rect.y, width: rect.w, height: rect.h }}>
+          <div className="lasttrain-finder" data-year={year} style={{ left: rect.x, top: rect.y, width: rect.w, height: rect.h }}>
             {caption(covered)}
           </div>
         )}
@@ -808,6 +857,10 @@ function FinderPad({
       <button type="button" onClick={() => onShutter(covered)}>셔터</button>
     </div>
   );
+}
+
+function Mark({ name }: { name: string }) {
+  return <img className={styles.mark} src={`/themes/neulbom-lasttrain/props/${name}.svg`} alt="" />;
 }
 
 function addNote(id: string, text: string) {

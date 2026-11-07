@@ -4,11 +4,11 @@ import { LOGICAL_HEIGHT, LOGICAL_WIDTH } from '@/engine/types';
 import { useLasttrainStore } from '../store';
 
 const FILL: Record<string, number> = {
-  counter: 0x1c1e22,
-  warehouse: 0x2a2622,
+  counter: 0x12141a,
+  warehouse: 0x1a1814,
 };
 
-/** Flat fill. Puzzle boxes are DOM. */
+/** Flat night fill behind the DOM scene art. WebGL drops SVG textures. */
 export const mountLasttrainRooms: SceneMount = ({ app }) => {
   app.stage.removeChildren();
   const world = new Container();

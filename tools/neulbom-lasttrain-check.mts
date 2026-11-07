@@ -2,7 +2,7 @@
  * Answer table for 막차 이후. No DOM.
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import {
   fingerForViewfinder,
   placeViewfinder,
@@ -14,6 +14,7 @@ import { EPHEMERAL_EXTRA_KEYS, withoutEphemeralExtra } from '../src/engine/types
 import { replayCheonjiin } from '../src/engine/widgets/cheonjiin.ts';
 import { nearestSnap } from '../src/engine/widgets/DragSnap.ts';
 import { allFound, markFound } from '../src/engine/widgets/FindTap.ts';
+import { BED_SRC, CLUE_SRC, ROOM_SRC, SFX_SRC } from '../src/themes/neulbom-lasttrain/art.ts';
 import { initialExtra } from '../src/themes/neulbom-lasttrain/extra.ts';
 import { themeLasttrain } from '../src/themes/neulbom-lasttrain/index.ts';
 import {
@@ -127,6 +128,19 @@ for (const line of ['B. 20핀짜리.', '1225.', '선물 눈사람.', '쇼핑백.
 const flow = readFileSync(new URL('../src/themes/neulbom-lasttrain/Flow.tsx', import.meta.url), 'utf8');
 assert.equal(flow.includes('requestFullscreen'), false);
 assert.equal(flow.includes('howler'), false);
+assert.equal(flow.includes('gray-box'), false);
+assert.equal(flow.includes('playClue'), true);
+const audio = readFileSync(new URL('../src/themes/neulbom-lasttrain/audio.ts', import.meta.url), 'utf8');
+assert.equal(audio.includes('playHtml5Clip'), true);
+assert.equal(audio.includes('howler'), true);
+for (const url of [...Object.values(ROOM_SRC), ...Object.values(BED_SRC), ...Object.values(CLUE_SRC), ...Object.values(SFX_SRC)]) {
+  assert.ok(existsSync(new URL(`../public${url}`, import.meta.url)), url);
+}
+const charger = readFileSync(new URL('../public/themes/neulbom-lasttrain/props/charger-b.svg', import.meta.url), 'utf8');
+assert.equal(charger.includes('20핀'), true);
+const answerBox = readFileSync(new URL('../public/themes/neulbom-lasttrain/props/box-x-dent.svg', import.meta.url), 'utf8');
+assert.equal(answerBox.includes('#2A6EBE'), true);
+assert.equal(answerBox.includes('polygon'), true);
 assert.equal(flow.includes('BOX_PENALTY_MS'), true);
 assert.equal(flow.includes('REPLY_PENALTY_MS'), true);
 assert.doesNotMatch(flow, /patchExtra\(\{[^}]*phoneOpen/);

@@ -1,0 +1,150 @@
+.flow {
+  isolation: isolate;
+  text-shadow: 0 1px 2px #000;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.flow > :not(.scene):not(:global(.lasttrain-dim)) {
+  position: relative;
+  z-index: 1;
+}
+
+.flow :global(button) {
+  border-color: #8e98a4;
+  color: #f3e6c8;
+  text-shadow: none;
+  background: rgba(18, 20, 26, 0.82);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  background: rgba(18, 20, 26, 0.55);
+  border: 1px solid #3a4450;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.panel :global(h2),
+.panel :global(p) {
+  margin: 0;
+}
+
+.mark {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.clue {
+  display: block;
+  width: min(100%, 440px);
+  height: auto;
+  align-self: flex-start;
+  pointer-events: none;
+  border-radius: 4px;
+}
+
+.sticker {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  pointer-events: none;
+  border-radius: 4px;
+}
+
+.sticker[data-clear='no'] {
+  filter: blur(3px);
+}
+
+.sheet {
+  background: rgba(243, 230, 200, 0.96);
+  color: #1a1814;
+}
+
+.sheet :global(button) {
+  background: #1a2030;
+  color: #f3e6c8;
+  border-color: #8e98a4;
+}
+
+.flow :global(.lasttrain-phone) {
+  background: #161b24 url('/themes/neulbom-lasttrain/props/phone-shell.svg') center / 100% 100% no-repeat;
+  padding: 18px 16px 14px;
+  min-height: 240px;
+}
+
+.flow :global(.lasttrain-pad) {
+  border-color: #6b5344;
+}
+
+.flow :global(.lasttrain-pad[data-live='charger']) {
+  background: #4a382e url('/themes/neulbom-lasttrain/props/desk.svg') center / cover no-repeat;
+}
+
+.flow :global(.lasttrain-pad[data-live='viewfinder']) {
+  background: #12141a url('/themes/neulbom-lasttrain/rooms/counter.svg') center 40% / cover no-repeat;
+}
+
+.flow :global(.lasttrain-pad[data-live='viewfinder'][data-year='warehouse']) {
+  background-image: url('/themes/neulbom-lasttrain/rooms/warehouse.svg');
+}
+
+.flow :global(.lasttrain-pad[data-live='shelf']) {
+  background: #1a1814 url('/themes/neulbom-lasttrain/rooms/warehouse.svg') center / cover no-repeat;
+}
+
+.flow :global(.lasttrain-finder) {
+  border-color: #e7f6ea;
+  color: #f3e6c8;
+  background: rgba(12, 20, 36, 0.35) url('/themes/neulbom-lasttrain/rooms/counter-2009.svg') center 30% / cover no-repeat;
+}
+
+.flow :global(.lasttrain-finder[data-year='warehouse']) {
+  background-image: url('/themes/neulbom-lasttrain/rooms/warehouse-2009.svg');
+}
+
+.flow :global(.lasttrain-port) {
+  background: #1a2030 url('/themes/neulbom-lasttrain/props/port.svg') center 30% / 46px 46px no-repeat;
+  color: #f3e6c8;
+}
+
+.flow :global(.lasttrain-charger[data-charger='A']) {
+  background: #1a2030 url('/themes/neulbom-lasttrain/props/charger-a.svg') center 20% / 48px 48px no-repeat;
+}
+
+.flow :global(.lasttrain-charger[data-charger='B']) {
+  background: #1a2030 url('/themes/neulbom-lasttrain/props/charger-b.svg') center 20% / 48px 48px no-repeat;
+}
+
+.flow :global(.lasttrain-charger[data-charger='C']) {
+  background: #1a2030 url('/themes/neulbom-lasttrain/props/charger-c.svg') center 20% / 48px 48px no-repeat;
+}
+
+.flow :global(.lasttrain-box) {
+  color: #1a1814;
+  text-shadow: 0 0 3px #f3e6c8;
+  font-size: 11px;
+  line-height: 1.15;
+  padding: 2px;
+  background-color: transparent;
+  background-size: cover;
+}
+
+.flow :global(.lasttrain-sheet) {
+  background: rgba(243, 230, 200, 0.96);
+  color: #1a1814;
+}

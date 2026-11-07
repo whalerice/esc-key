@@ -3,13 +3,14 @@
  * The 20% seam rule lives here, not in SewingMachine.
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { nearestSnap } from '../src/engine/widgets/DragSnap.ts';
 import { SequenceTap } from '../src/engine/widgets/SequenceTap.ts';
 import { SewingMachine } from '../src/engine/widgets/SewingMachine.ts';
 import { resolveOnZero } from '../src/engine/systems/Timer.ts';
 import { hintUsesByChannel } from '../src/engine/systems/Hints.ts';
 import { EPHEMERAL_EXTRA_KEYS, withoutEphemeralExtra } from '../src/engine/types.ts';
+import { BED_SRC, CLUE_SRC, ROOM_SRC, SFX_SRC } from '../src/themes/haemu-tailor/art.ts';
 import { initialExtra } from '../src/themes/haemu-tailor/extra.ts';
 import { themeHaemuTailor } from '../src/themes/haemu-tailor/index.ts';
 import {
@@ -125,6 +126,12 @@ for (const line of [
 
 const flow = readFileSync(new URL('../src/themes/haemu-tailor/Flow.tsx', import.meta.url), 'utf8');
 assert.equal(flow.includes('requestFullscreen'), false);
+assert.equal(flow.includes('toneWav'), false);
+assert.equal(flow.includes('playHtml5Clip'), true);
+assert.equal(flow.includes('RadioBed'), false);
+for (const url of [...Object.values(ROOM_SRC), ...Object.values(BED_SRC), ...Object.values(CLUE_SRC), ...Object.values(SFX_SRC)]) {
+  assert.ok(existsSync(new URL(`../public${url}`, import.meta.url)), url);
+}
 const patches = flow.match(/patchExtra\(\{[\s\S]*?\}\)/g) ?? [];
 assert.ok(patches.length > 0);
 for (const call of patches) {

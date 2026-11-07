@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080"><defs><radialGradient id="vig" cx="50%" cy="40%" r="75%"><stop offset="58%" stop-color="#12191F" stop-opacity="0"/><stop offset="100%" stop-color="#12191F" stop-opacity="0.55"/></radialGradient><linearGradient id="fluor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#EDE6C8"/><stop offset="100%" stop-color="#EDE6C8" stop-opacity="0"/></linearGradient></defs><rect width="1920" height="1080" fill="#2a2620"/>
+<rect x="0" y="0" width="520" height="1080" fill="#6d534c"/>
+<circle cx="120" cy="220" r="36" fill="#B9867E"/><circle cx="240" cy="360" r="28" fill="#B9867E"/>
+<circle cx="160" cy="520" r="32" fill="#B9867E"/><circle cx="300" cy="680" r="24" fill="#B9867E"/>
+<rect x="620" y="120" width="760" height="860" rx="6" fill="#6B4E3A" stroke="#3B3A36" stroke-width="8"/>
+<rect x="680" y="190" width="640" height="220" fill="#4a3428"/>
+<rect x="700" y="460" width="600" height="160" rx="8" fill="#B08D4F" stroke="#8A6E3C" stroke-width="4"/>
+<rect x="760" y="500" width="90" height="80" fill="#12191F"/><rect x="900" y="500" width="90" height="80" fill="#12191F"/>
+<rect x="1040" y="500" width="90" height="80" fill="#12191F"/><rect x="1180" y="500" width="90" height="80" fill="#12191F"/>
+<rect x="1500" y="180" width="36" height="640" fill="#E9E2D2" stroke="#3B3A36" stroke-width="4"/>
+<circle cx="1518" cy="280" r="16" fill="#23305A"/><circle cx="1518" cy="400" r="13" fill="#3F6FA6"/>
+<circle cx="1518" cy="520" r="11" fill="#6FAE8E"/><circle cx="1518" cy="640" r="9" fill="#C8463B"/>
+<text x="1580" y="292" fill="#EDE6C8" font-size="54" font-family="WenQuanYi Micro Hei,sans-serif">0</text>
+<text x="1580" y="412" fill="#EDE6C8" font-size="54" font-family="WenQuanYi Micro Hei,sans-serif">7</text>
+<text x="1580" y="532" fill="#EDE6C8" font-size="54" font-family="WenQuanYi Micro Hei,sans-serif">3</text>
+<text x="1580" y="652" fill="#EDE6C8" font-size="54" font-family="WenQuanYi Micro Hei,sans-serif">1</text>
+<circle cx="1518" cy="760" r="10" fill="#B08D4F"/><rect width="1920" height="1080" fill="url(#vig)"/></svg>

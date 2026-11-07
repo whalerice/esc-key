@@ -20,7 +20,7 @@ type FrozenStats = {
   sewScore: { P3: number; P8: number };
 };
 
-/** Gate → spool clock → gray-box shop. Needle and cloth stay off the save. */
+/** Gate → spool clock → illustrated shop. Needle and cloth stay off the save. */
 export function HaemuTailorPlay() {
   const pauseSolved = useTailorStore((s) => !!s.solved.P8);
   const [hold, setHold] = useState(false);
@@ -35,7 +35,7 @@ export function HaemuTailorPlay() {
       useStore={useTailorStore as unknown as ThemePlayStore}
       mountScene={mountTailorRooms}
       openingLines={[...openingLines]}
-      gateNote="소리는 넣지 않았다. 단서는 화면과 자막. 한 손가락으로 진행한다."
+      gateNote="소리는 분위기만. 단서는 화면과 자막. 한 손가락으로 진행한다."
       pauseWhen={pauseSolved || hold}
       clearedEnding={pauseSolved ? 'A' : null}
       onClock={(ms) => clockRef.current(ms)}

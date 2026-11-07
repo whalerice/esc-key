@@ -3,6 +3,7 @@
  */
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
+import { BeamMask } from '../src/engine/fx/BeamMask.ts';
 import { nearestSnap } from '../src/engine/widgets/DragSnap.ts';
 import { SequenceTap } from '../src/engine/widgets/SequenceTap.ts';
 import { MorseInput } from '../src/engine/widgets/MorseInput.ts';
@@ -14,6 +15,8 @@ import { BED_SRC, CLUE_SRC, ROOM_SRC, SFX_SRC } from '../src/themes/haemu-lighth
 import { initialExtra } from '../src/themes/haemu-lighthouse/extra.ts';
 import { themeHaemuLighthouse } from '../src/themes/haemu-lighthouse/index.ts';
 import {
+  BEAM_HOLD_MS,
+  BEAM_WIDTH,
   MORSE_U,
   P2_ORDER,
   P8_ANSWER,
@@ -95,3 +98,52 @@ assert.equal(flow.includes('playHtml5Clip'), true);
 for (const url of [...Object.values(ROOM_SRC), ...Object.values(BED_SRC), ...Object.values(CLUE_SRC), ...Object.values(SFX_SRC)]) {
   assert.ok(existsSync(new URL(`../public${url}`, import.meta.url)), url);
 }
+
+// Slow sweep keeps 해진 8호 inside the wedge for >2s. That is not a hold.
+const swept: string[] = [];
+const sweep = new BeamMask({
+  min: 40,
+  max: 180,
+  widthDeg: BEAM_WIDTH,
+  holdMs: BEAM_HOLD_MS,
+  targets: [
+    { id: 'boatA', deg: 80 },
+    { id: 'boatB', deg: 110 },
+  ],
+  onHeld: (id) => swept.push(id),
+});
+for (let i = 0; i <= 24; i++) {
+  sweep.set(72 + i * 0.5);
+  sweep.sample(i * 100);
+}
+assert.deepEqual(swept, []);
+
+const parked: string[] = [];
+const trap = new BeamMask({
+  min: 40,
+  max: 180,
+  widthDeg: BEAM_WIDTH,
+  holdMs: BEAM_HOLD_MS,
+  targets: [{ id: 'boatA', deg: 80 }],
+  onHeld: (id) => parked.push(id),
+});
+trap.set(80);
+trap.sample(0);
+trap.sample(BEAM_HOLD_MS - 1);
+assert.deepEqual(parked, []);
+trap.sample(BEAM_HOLD_MS);
+assert.deepEqual(parked, ['boatA']);
+
+const answered: string[] = [];
+const answer = new BeamMask({
+  min: 40,
+  max: 180,
+  widthDeg: BEAM_WIDTH,
+  holdMs: BEAM_HOLD_MS,
+  targets: [{ id: 'boatB', deg: 110 }],
+  onHeld: (id) => answered.push(id),
+});
+answer.set(110);
+answer.sample(0);
+answer.sample(BEAM_HOLD_MS);
+assert.deepEqual(answered, ['boatB']);

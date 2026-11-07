@@ -131,7 +131,8 @@ button {
 
 .radio-flow,
 .lighthouse-flow,
-.tailor-flow {
+.tailor-flow,
+.flow112 {
   position: absolute;
   z-index: 20;
   left: 64px;
@@ -156,7 +157,8 @@ button {
 .lighthouse-flow button,
 .lighthouse-flow input[type='range'],
 .tailor-flow button,
-.tailor-flow input[type='range'] {
+.tailor-flow input[type='range'],
+.flow112 button {
   min-height: 44px;
   padding: 0.35rem 0.6rem;
   border: 1px solid rgba(217, 71, 58, 0.7);
@@ -183,8 +185,19 @@ button {
 .radio-room,
 .radio-flow p,
 .lighthouse-flow p,
-.tailor-flow p {
+.tailor-flow p,
+.flow112 p {
   margin: 0;
+}
+
+.flow112-pad {
+  width: 9rem;
+  height: 5.5rem;
+  min-width: 44px;
+  min-height: 44px;
+  background: #3a3a3a;
+  border: 1px solid #8a8a8a;
+  touch-action: none;
 }
 
 .radio-notes {

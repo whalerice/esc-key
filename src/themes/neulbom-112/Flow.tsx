@@ -1,0 +1,566 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import { LetterDial } from '@/engine/widgets/LetterDial';
+import { NumberDial } from '@/engine/widgets/NumberDial';
+import { DragSort } from '@/engine/widgets/DragSort';
+import { line } from './data/script';
+import {
+  COATS,
+  HEIGHTS,
+  MAGNETS,
+  P3_LABEL,
+  P3_ORDER,
+  P3_START,
+  P8_SLOTS,
+  PHOTOS,
+  PIECES,
+  TAPE_PAD,
+  ZOOM,
+  collectPiece,
+  frameLines,
+  isP1Correct,
+  isP2Correct,
+  isP5Correct,
+  isP8Correct,
+  judgeCoat,
+  judgeP3,
+  judgeP4,
+  judgeTape,
+  judgeZoom,
+  nextPuzzle,
+  pieceOpen,
+  piecesComplete,
+  stepZoom,
+} from './puzzles/answers';
+import { use112Store } from './store';
+import { use112Ui } from './ui';
+
+export function Neulbom112Flow({ say }: { say: (text: string) => void }) {
+  const solved = use112Store((s) => s.solved);
+  const items = use112Store((s) => s.items);
+  const pieces = use112Store((s) => s.extra.pieces);
+  const doll = use112Store((s) => !!s.flags.doll);
+  const ending = use112Store((s) => !!s.flags.endingA);
+  const zoom = use112Ui((s) => s.zoom);
+  const sayRef = useRef(say);
+  sayRef.current = say;
+  const [letterOpen, setLetterOpen] = useState(false);
+  const current = nextPuzzle(solved);
+
+  useEffect(() => {
+    if (zoom < ZOOM.p8 || use112Store.getState().flags.x12) return;
+    use112Store.getState().setFlag('x12');
+    sayRef.current(line('narration.x12'));
+  }, [zoom]);
+
+  const has = (id: string) => items.includes(id);
+
+  return (
+    <div className="flow112" data-zoom={zoom} data-puzzle={current ?? 'clear'}>
+      <div className="radio-row">
+        <button type="button" aria-label="배율 낮추기" onClick={() => use112Ui.getState().setZoom(stepZoom(zoom, -1))}>
+          −
+        </button>
+        <p>×{zoom}</p>
+        <button type="button" aria-label="배율 높이기" onClick={() => use112Ui.getState().setZoom(stepZoom(zoom, 1))}>
+          +
+        </button>
+      </div>
+
+      {!has('줄자') && (
+        <button type="button" onClick={() => gain('줄자', say, ['inspect.desk', 'acquire.tape'])}>
+          작업대
+        </button>
+      )}
+      {!has('편지①') && (
+        <button type="button" onClick={() => gain('편지①', say, ['inspect.wall', 'letter.1', 'narration.letter.1'])}>
+          공방 벽
+        </button>
+      )}
+
+      {current === 'P1' && <Mailbox zoom={zoom} say={say} />}
+      {current === 'P2' && <Door zoom={zoom} say={say} hasTape={has('줄자')} />}
+      {current === 'P3' && <Calendar zoom={zoom} say={say} />}
+      {current === 'P4' && <Magnets zoom={zoom} say={say} />}
+      {current === 'P5' && <Clock zoom={zoom} say={say} />}
+      {current === 'P6' && <Bed zoom={zoom} say={say} />}
+      {current === 'P7' && <Wardrobe zoom={zoom} say={say} letters={has('편지①') && has('편지②') && has('편지③')} />}
+      {current === 'P8' && <Attic zoom={zoom} say={say} read={has('그림')} />}
+
+      {solved.P1 && !solved.P5 && (
+        <button type="button" onClick={() => say(zoom >= ZOOM.p5 ? line('inspect.clock.shop') : line('inspect.clock.far'))}>
+          벽시계 문자판
+        </button>
+      )}
+      {solved.P1 && (
+        <button type="button" onClick={() => say(line('inspect.pot'))}>
+          창가 화분
+        </button>
+      )}
+      {solved.P4 && !has('사진·입학') && (
+        <button type="button" onClick={() => gain('사진·입학', say, ['acquire.photo2'])}>
+          거실 액자
+        </button>
+      )}
+      {solved.P5 && !has('사진·졸업') && (
+        <button type="button" onClick={() => gain('사진·졸업', say, ['acquire.photo3'])}>
+          책상
+        </button>
+      )}
+      {(has('편지①') || has('편지②') || has('편지③')) && (
+        <button
+          type="button"
+          onClick={() => {
+            if (has('편지①')) say(line('letter.1'));
+            if (has('편지②')) say(line('letter.2'));
+            if (has('편지③')) say(line('letter.3'));
+          }}
+        >
+          편지 다시 읽기
+        </button>
+      )}
+
+      <div className="radio-row">
+        {PIECES.filter((piece) => pieceOpen(piece.after, solved) && !pieces.includes(piece.id)).map((piece) => (
+          <button key={piece.id} type="button" onClick={() => onPiece(piece.id, piece.zoom, piece.text, zoom, say)}>
+            {piece.label}
+          </button>
+        ))}
+      </div>
+
+      {solved.P8 && !ending && !letterOpen && (
+        <button type="button" data-stand="doll" onClick={() => placeDoll(say, setLetterOpen)}>
+          빈 받침대
+        </button>
+      )}
+      {letterOpen && (
+        <section className="gray-box" data-letter="hidden">
+          <p>{line('letter.hidden')}</p>
+          <button
+            type="button"
+            onClick={() => {
+              setLetterOpen(false);
+              use112Store.getState().setFlag('endingA');
+            }}
+          >
+            접기
+          </button>
+        </section>
+      )}
+      {doll && !ending && <p>창문마다 불이 켜졌다. 기억 조각 {pieces.length}/8</p>}
+    </div>
+  );
+}
+
+function gain(id: string, say: (text: string) => void, keys: Parameters<typeof line>[0][]) {
+  const store = use112Store.getState();
+  if (!store.items.includes(id)) store.addItem(id);
+  for (const key of keys) say(line(key));
+}
+
+function Mailbox({ zoom, say }: { zoom: number; say: (text: string) => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <section data-puzzle="P1">
+      <button
+        type="button"
+        onClick={() => {
+          if (judgeZoom(zoom, ZOOM.p1) === 'far') {
+            say(line('inspect.mailbox.far'));
+            return;
+          }
+          say(line('inspect.mailbox.near'));
+          setOpen(true);
+        }}
+      >
+        우편함
+      </button>
+      {open && (
+        <NumberPad
+          digits={4}
+          aria="지붕 자물쇠"
+          ok={isP1Correct}
+          onYes={() => {
+            const s = use112Store.getState();
+            s.addItem('봉투');
+            s.setScene('dollhouse');
+            s.markSolved('P1');
+            say(line('acquire.envelope'));
+            say(line('narration.p1.solved'));
+          }}
+          onNo={() => say(line('system.wrong'))}
+        />
+      )}
+    </section>
+  );
+}
+
+function Door({ zoom, say, hasTape }: { zoom: number; say: (text: string) => void; hasTape: boolean }) {
+  const [tape, setTape] = useState(false);
+  return (
+    <section data-puzzle="P2">
+      <p>{line('inspect.frame')}</p>
+      <p>{line('inspect.lock')}</p>
+      <button
+        type="button"
+        className="flow112-pad"
+        data-target="frame"
+        onPointerUp={(event) => {
+          if (!hasTape) {
+            say(line('inspect.desk'));
+            return;
+          }
+          const rect = event.currentTarget.getBoundingClientRect();
+          const x = ((event.clientX - rect.left) / rect.width) * TAPE_PAD.w;
+          const y = ((event.clientY - rect.top) / rect.height) * TAPE_PAD.h;
+          const verdict = judgeTape(x, y, zoom);
+          if (verdict === 'miss') say(line('tape.miss'));
+          else if (verdict === 'far') say(line('tape.far'));
+          else {
+            setTape(true);
+            say(line('tape.ok'));
+          }
+        }}
+      >
+        문틀
+      </button>
+      {tape && (
+        <>
+          <p>{HEIGHTS.map((row) => `${row.age}살 ${row.cm}`).join(' · ')}</p>
+          <NumberPad
+            digits={4}
+            aria="신발장"
+            ok={isP2Correct}
+            onYes={() => {
+              const s = use112Store.getState();
+              s.addItem('편지②');
+              s.markSolved('P2');
+              say(line('letter.2'));
+            }}
+            onNo={() => say(line('system.wrong'))}
+          />
+        </>
+      )}
+    </section>
+  );
+}
+
+function Calendar({ zoom, say }: { zoom: number; say: (text: string) => void }) {
+  if (judgeZoom(zoom, ZOOM.p3) === 'far') {
+    return (
+      <button type="button" data-puzzle="P3" onClick={() => say(line('calendar.far'))}>
+        달력
+      </button>
+    );
+  }
+  return (
+    <section data-puzzle="P3">
+      <SortPad
+        onYes={() => {
+          const s = use112Store.getState();
+          s.addItem('편지③');
+          s.addItem('사진·돌');
+          s.markSolved('P3');
+          say(line('narration.p3'));
+          say(line('letter.3'));
+        }}
+        onNo={() => say(line('system.wrong'))}
+      />
+    </section>
+  );
+}
+
+function Magnets({ zoom, say }: { zoom: number; say: (text: string) => void }) {
+  const [taps, setTaps] = useState<string[]>([]);
+  const far = judgeZoom(zoom, ZOOM.p4) === 'far';
+  return (
+    <section data-puzzle="P4">
+      <p>{far ? line('magnet.far') : line('inspect.fridge')}</p>
+      <div className="radio-row">
+        {MAGNETS.map((magnet) => (
+          <button
+            key={magnet.id}
+            type="button"
+            onClick={() => {
+              if (far) {
+                say(line('magnet.far'));
+                return;
+              }
+              if ('route' in magnet && magnet.route && !use112Store.getState().flags.route) {
+                use112Store.getState().setFlag('route');
+                say(line('inspect.route'));
+              }
+              const next = [...taps, magnet.id];
+              const verdict = judgeP4(next);
+              if (verdict === 'reset') {
+                setTaps([]);
+                say(line('p4.wrong'));
+                return;
+              }
+              setTaps(next);
+              if (verdict === 'ok') {
+                use112Store.getState().markSolved('P4');
+                say(line('narration.p4'));
+              }
+            }}
+          >
+            {magnet.label}
+            {!far && magnet.dot > 0 ? ` 점${magnet.dot}` : ''}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Clock({ zoom, say }: { zoom: number; say: (text: string) => void }) {
+  const far = judgeZoom(zoom, ZOOM.p5) === 'far';
+  return (
+    <section data-puzzle="P5">
+      <p>{line('inspect.clock')}</p>
+      {far ? (
+        <p>시계 바늘이 흐리다.</p>
+      ) : (
+        <>
+          {frameLines().map((text) => (
+            <p key={text}>{text}</p>
+          ))}
+          <NumberPad
+            digits={3}
+            aria="벽시계"
+            ok={isP5Correct}
+            onYes={() => {
+              const s = use112Store.getState();
+              if (!s.items.includes(PHOTOS[1]!.id)) s.addItem(PHOTOS[1]!.id);
+              s.markSolved('P5');
+              say(line('narration.p5'));
+            }}
+            onNo={() => say(line('system.wrong'))}
+          />
+        </>
+      )}
+    </section>
+  );
+}
+
+function Bed({ zoom, say }: { zoom: number; say: (text: string) => void }) {
+  return (
+    <section data-puzzle="P6">
+      <p>{line('inspect.bed')}</p>
+      <button
+        type="button"
+        onClick={() => {
+          if (judgeZoom(zoom, ZOOM.p6) === 'far') {
+            say(line('bed.far'));
+            return;
+          }
+          const s = use112Store.getState();
+          s.addItem('쪽지');
+          s.markSolved('P6');
+          say(line('acquire.note'));
+          say(line('note.back'));
+        }}
+      >
+        침대 밑
+      </button>
+    </section>
+  );
+}
+
+function Wardrobe({
+  zoom,
+  say,
+  letters,
+}: {
+  zoom: number;
+  say: (text: string) => void;
+  letters: boolean;
+}) {
+  const far = judgeZoom(zoom, ZOOM.p7) === 'far';
+  return (
+    <section data-puzzle="P7">
+      <button type="button" onClick={() => say(line('inspect.vanity'))}>
+        화장대
+      </button>
+      <p>{far ? line('coat.far') : line('inspect.wardrobe')}</p>
+      {!letters && <p>편지를 다 모으지 않았다.</p>}
+      <div className="radio-row">
+        {COATS.map((coat) => (
+          <button
+            key={coat.id}
+            type="button"
+            onClick={() => {
+              if (far || !letters) {
+                say(far ? line('coat.far') : line('letter.3'));
+                return;
+              }
+              if (judgeCoat(coat.id) === 'no') {
+                say(line('coat.wrong'));
+                return;
+              }
+              const s = use112Store.getState();
+              s.addItem('다락 열쇠');
+              s.markSolved('P7');
+              say(line('coat.ok'));
+              say(line('narration.attic'));
+            }}
+          >
+            {far ? '코트' : coat.label}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Attic({ zoom, say, read }: { zoom: number; say: (text: string) => void; read: boolean }) {
+  const far = judgeZoom(zoom, ZOOM.p8) === 'far';
+  return (
+    <section data-puzzle="P8">
+      <p>{line('inspect.box')}</p>
+      <button
+        type="button"
+        onClick={() => {
+          if (far) {
+            say(line('drawing.far'));
+            return;
+          }
+          const s = use112Store.getState();
+          if (!s.items.includes('그림')) s.addItem('그림');
+          say(line('drawing.near'));
+          say(line('drawing.back'));
+        }}
+      >
+        벽 그림
+      </button>
+      {read && (
+        <>
+          <p>{line('inspect.attic.box')}</p>
+          <LetterPad
+            onYes={() => {
+              use112Store.getState().markSolved('P8');
+              say(line('narration.p8.solved'));
+              say(line('narration.dolls'));
+              say(line('memo.author'));
+              say(line('guide.stand'));
+            }}
+            onNo={() => say(line('system.wrong'))}
+          />
+        </>
+      )}
+    </section>
+  );
+}
+
+function placeDoll(say: (text: string) => void, openLetter: (open: boolean) => void) {
+  const s = use112Store.getState();
+  if (!s.flags.doll) {
+    s.setFlag('doll');
+    say(line('narration.doll'));
+    say(line('narration.home'));
+  }
+  if (piecesComplete(s.extra.pieces)) openLetter(true);
+  else s.setFlag('endingA');
+}
+
+function onPiece(id: string, need: number, text: string, zoom: number, say: (text: string) => void) {
+  if (judgeZoom(zoom, need) === 'far') {
+    say(line('system.wrong'));
+    return;
+  }
+  const s = use112Store.getState();
+  s.patchExtra({ pieces: collectPiece(s.extra.pieces, id) });
+  say(text);
+}
+
+function NumberPad({
+  digits,
+  aria,
+  ok,
+  onYes,
+  onNo,
+}: {
+  digits: number;
+  aria: string;
+  ok: (values: readonly number[]) => boolean;
+  onYes: () => void;
+  onNo: () => void;
+}) {
+  const dial = useRef(new NumberDial(digits));
+  const [, bump] = useState(0);
+  return (
+    <div className="radio-row" data-dial={aria}>
+      {dial.current.values.map((value, index) => (
+        <button
+          key={index}
+          type="button"
+          aria-label={`${aria} ${index + 1}`}
+          onClick={() => {
+            dial.current.setDigit(index, value + 1);
+            bump((n) => n + 1);
+          }}
+        >
+          {value}
+        </button>
+      ))}
+      <button type="button" onClick={() => (ok(dial.current.values) ? onYes() : onNo())}>
+        확인
+      </button>
+    </div>
+  );
+}
+
+function LetterPad({ onYes, onNo }: { onYes: () => void; onNo: () => void }) {
+  const dial = useRef(new LetterDial(P8_SLOTS));
+  const [, bump] = useState(0);
+  return (
+    <div className="radio-row" data-dial="다락">
+      {dial.current.indices.map((index, slot) => (
+        <button
+          key={slot}
+          type="button"
+          aria-label={`글자 ${slot + 1}`}
+          onClick={() => {
+            dial.current.setIndex(slot, index + 1);
+            bump((n) => n + 1);
+          }}
+        >
+          {P8_SLOTS[slot]![index]}
+        </button>
+      ))}
+      <button type="button" onClick={() => (isP8Correct(dial.current.value()) ? onYes() : onNo())}>
+        확인
+      </button>
+    </div>
+  );
+}
+
+function SortPad({ onYes, onNo }: { onYes: () => void; onNo: () => void }) {
+  const sort = useRef(new DragSort([...P3_START]));
+  const [, bump] = useState(0);
+  return (
+    <div data-sort="calendar">
+      {sort.current.order.map((id, index) => (
+        <div key={id} className="radio-row">
+          <p>{P3_LABEL[id as (typeof P3_ORDER)[number]]}</p>
+          {index > 0 && (
+            <button
+              type="button"
+              aria-label={`${P3_LABEL[id as (typeof P3_ORDER)[number]]} 앞으로`}
+              onClick={() => {
+                sort.current.move(index, index - 1);
+                bump((n) => n + 1);
+              }}
+            >
+              앞으로
+            </button>
+          )}
+        </div>
+      ))}
+      <button type="button" onClick={() => (judgeP3(sort.current.order) ? onYes() : onNo())}>
+        서랍 열기
+      </button>
+    </div>
+  );
+}

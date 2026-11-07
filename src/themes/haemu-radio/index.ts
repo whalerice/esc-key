@@ -1,7 +1,7 @@
 import type { ThemeDefinition } from '@/engine/types';
 import { initialExtra, type RadioExtra } from './extra';
 
-/** Gray-box play. Answers live in puzzles/answers.ts. Frequencies are not in extra. */
+/** Illustrated play. Answers live in puzzles/answers.ts. Frequencies are not in extra. */
 export const themeHaemuRadio: ThemeDefinition<RadioExtra> = {
   id: 'haemu-radio',
   world: 'haemu',
@@ -42,7 +42,7 @@ export const themeHaemuRadio: ThemeDefinition<RadioExtra> = {
     ],
   },
   scenes: [
-    { id: 'control', background: '#140c0c' },
+    { id: 'control', background: '#12191F' },
     { id: 'booth', background: '#101418' },
     { id: 'desk', background: '#16120e' },
     { id: 'archive', background: '#12100e' },

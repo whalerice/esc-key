@@ -147,6 +147,10 @@ button {
   text-shadow: 0 1px 2px #000;
 }
 
+.radio-flow {
+  align-items: flex-start;
+}
+
 .radio-flow button,
 .radio-flow input[type='range'],
 .lighthouse-flow button,
@@ -211,8 +215,103 @@ button {
   align-content: center;
   gap: 0.75rem;
   padding: 2rem;
-  background: rgba(0, 0, 0, 0.88);
+  background: rgba(18, 25, 31, 0.9);
   text-align: center;
+}
+
+.radio-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.radio-dj {
+  position: absolute;
+  left: 42%;
+  top: 12%;
+  width: 18%;
+  height: auto;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.radio-flow > :not(.radio-scene):not(.radio-dj) {
+  position: relative;
+  z-index: 1;
+}
+
+.radio-flow .radio-nav,
+.radio-flow .radio-prop {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-shadow: none;
+  color: #e9e2d2;
+}
+
+.radio-flow .radio-nav {
+  background: rgba(30, 42, 51, 0.82);
+  border-color: #bfcad0;
+}
+
+.radio-flow .radio-prop {
+  background: rgba(18, 25, 31, 0.82);
+  border-color: #b08d4f;
+}
+
+.radio-flow .radio-nav img,
+.radio-flow .radio-prop img {
+  width: 36px;
+  height: 36px;
+  flex: none;
+}
+
+.radio-flow .radio-prop[data-on='true'] {
+  outline: 2px solid #6fbf73;
+}
+
+.radio-flow .radio-sheet {
+  background: rgba(233, 226, 210, 0.94);
+  color: #3b3a36;
+  text-shadow: none;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #6b4e3a;
+  border-radius: 2px;
+  max-width: 46rem;
+}
+
+.radio-flow .radio-sheet p,
+.radio-flow .radio-sheet li {
+  color: #3b3a36;
+  text-shadow: none;
+}
+
+.radio-flow .radio-sheet button {
+  background: #f7f1e4;
+  color: #3b3a36;
+  border-color: #6b4e3a;
+  text-shadow: none;
+}
+
+.radio-flow .cuesheet {
+  width: min(100%, 420px);
+  height: auto;
+  background: #e9e2d2;
+  border: 1px solid #b08d4f;
+}
+
+.radio-flow .knob {
+  border-color: #b08d4f;
+  background: radial-gradient(circle at 40% 35%, #d4b56a, #6a5428 46%, #2a2114 74%);
+}
+
+.radio-flow .meter > span {
+  background: #6fbf73;
 }
 
 .gate-btn {

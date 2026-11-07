@@ -19,7 +19,7 @@ type FrozenStats = {
   trapRedKey: boolean;
 };
 
-/** Gate → on-air clock → gray-box rooms. Frequencies never enter the store. */
+/** Gate → on-air clock → illustrated rooms. Frequencies never enter the store. */
 export function HaemuRadioPlay() {
   const pause = useRadioStore((s) => !!s.solved.P8);
   const clockRef = useRef<(ms: number) => void>(() => undefined);

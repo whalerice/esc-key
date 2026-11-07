@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState, type MutableRefObject, type PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useRef, useState, type ComponentProps, type MutableRefObject, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
+import { Howl } from 'howler';
 import { DISTANCE, RadioBed } from '@/engine/audio/RadioBed';
 import { playHtml5Clip } from '@/engine/audio/html5Clip';
+import { isAudioUnlocked } from '@/engine/audio/SoundManager';
 import { useAppStore } from '@/engine/save/appStore';
 import { longPressMs } from '@/engine/widgets/LongPress';
 import { nearestSnap, type SnapTarget } from '@/engine/widgets/DragSnap';
@@ -49,8 +51,8 @@ import {
   stationAt,
   windowDigit,
 } from './puzzles/answers';
+import { BED_SRC, CLUE_SRC, DJ_SRC, ROOM_SRC, SFX_SRC } from './art';
 import { useRadioStore } from './store';
-import { toneWav } from './tone';
 
 const ORDER = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8'] as const;
 
@@ -77,16 +79,43 @@ const P8_STATIONS: TuningStation[] = [{ freq: P8_HZ, width: 0.2, soundId: 'tx' }
 const P3_SLOTS: SnapTarget[] = [0, 1, 2, 3, 4].map((i) => ({ id: String(i), x: 70 + i * 140, y: 36, r: 68 }));
 const P4_SLOTS: SnapTarget[] = [0, 1, 2, 3].map((i) => ({ id: String(i), x: 80 + i * 160, y: 40, r: 70 }));
 
-const BED_HZ: Record<string, number> = {
-  opening: 220,
-  'fog-stop': 247,
-  '3am-coffee': 196,
-  'far-sea': 174,
-  wind: 233,
-  breakwater: 165,
+const KEY_ICON: Record<string, string> = {
+  배: 'key-boat',
+  부표: 'key-buoy',
+  갈매기: 'key-gull',
+  '빨간 등대': 'key-red',
+  '큰 등대': 'key-big',
 };
 
 type Mode = 'p1' | 'p2' | 'p3' | 'p4' | 'p5' | 'lock' | 'p6' | 'keys' | 'tx' | 'fader' | null;
+
+function Prop({
+  icon,
+  nav,
+  className,
+  children,
+  ...rest
+}: ComponentProps<'button'> & { icon?: string; nav?: boolean; children?: ReactNode }) {
+  const cls = [nav ? 'radio-nav' : 'radio-prop', className].filter(Boolean).join(' ');
+  return (
+    <button type="button" {...rest} className={cls}>
+      {icon ? <img src={`/themes/haemu-radio/props/${icon}.svg`} alt="" /> : null}
+      {children}
+    </button>
+  );
+}
+
+const sfxHowls = new Map<string, Howl>();
+
+function radioSfx(url: string) {
+  if (!isAudioUnlocked()) return;
+  let howl = sfxHowls.get(url);
+  if (!howl) {
+    howl = new Howl({ src: [url], volume: 0.35 });
+    sfxHowls.set(url, howl);
+  }
+  howl.play();
+}
 
 export function RadioFlow({
   say,
@@ -127,11 +156,8 @@ export function RadioFlow({
   }, [scene, extra.txLocked, extra.letterPlaced, items, say]);
 
   useEffect(() => {
-    const urls: Record<string, string> = {};
-    for (const [id, hz] of Object.entries(BED_HZ)) urls[id] = toneWav(hz, 1.2);
-    const clueUrls: Record<string, string> = { tease: toneWav(660, 0.35) };
-    for (const s of P5_STATIONS) clueUrls[s.id] = toneWav(400 + s.d, 0.45);
-    clips.current = clueUrls;
+    const urls = { ...BED_SRC };
+    clips.current = { ...CLUE_SRC };
     const bed = new RadioBed(themeHaemuRadio.radioBed, { sounds: urls, startClock: '02:00' });
     bedRef.current = bed;
     let prevDistance = '';
@@ -162,9 +188,15 @@ export function RadioFlow({
       clockRef.current = () => undefined;
       bed.dispose();
       bedRef.current = null;
-      for (const url of [...Object.values(urls), ...Object.values(clueUrls)]) URL.revokeObjectURL(url);
     };
   }, [clockRef, say]);
+
+  useEffect(() => {
+    return () => {
+      for (const howl of sfxHowls.values()) howl.unload();
+      sfxHowls.clear();
+    };
+  }, []);
 
   const next = ORDER.find((id) => !solved[id]) ?? '끝';
   const go = (to: string) => {
@@ -198,69 +230,73 @@ export function RadioFlow({
     say(line('p1.coffee'));
   };
 
+  const seated = scene === 'booth' && (extra.letterPlaced || !!solved.P8);
+
   return (
     <div className="radio-flow" data-scene={scene} data-next={next}>
+      <img className="radio-scene" src={ROOM_SRC[scene] ?? ROOM_SRC.control} alt="" />
+      {seated && <img className="radio-dj" src={DJ_SRC} alt="" />}
       <p className="radio-room">
         {ROOM[scene] ?? scene} · {next}
       </p>
       <div className="radio-row">
-        {scene !== 'control' && <button type="button" onClick={() => go('control')}>부조정실</button>}
-        {scene !== 'booth' && <button type="button" onClick={() => go('booth')}>부스</button>}
-        {scene !== 'desk' && <button type="button" onClick={() => go('desk')}>작가석</button>}
-        {solved.P5 && scene !== 'archive' && <button type="button" onClick={() => go('archive')}>아카이브실</button>}
-        {solved.P4 && !solved.P5 && <button type="button" onClick={() => setMode('lock')}>아카이브 문</button>}
-        {solved.P7 && scene !== 'roof' && <button type="button" onClick={() => go('roof')}>옥상</button>}
+        {scene !== 'control' && <Prop nav onClick={() => go('control')}>부조정실</Prop>}
+        {scene !== 'booth' && <Prop nav onClick={() => go('booth')}>부스</Prop>}
+        {scene !== 'desk' && <Prop nav onClick={() => go('desk')}>작가석</Prop>}
+        {solved.P5 && scene !== 'archive' && <Prop nav onClick={() => go('archive')}>아카이브실</Prop>}
+        {solved.P4 && !solved.P5 && <Prop nav icon="door" onClick={() => setMode('lock')}>아카이브 문</Prop>}
+        {solved.P7 && scene !== 'roof' && <Prop nav onClick={() => go('roof')}>옥상</Prop>}
       </div>
 
       {scene === 'control' && (
         <div className="radio-row">
-          {!solved.P1 && <button type="button" onClick={() => setMode('p1')}>부스 문</button>}
-          <button type="button" onClick={() => say(line('p1.envelope'))}>뜯긴 봉투</button>
-          <button type="button" onClick={onCoffee}>커피</button>
+          {!solved.P1 && <Prop icon="keypad" onClick={() => setMode('p1')}>부스 문</Prop>}
+          <Prop icon="envelope" onClick={() => say(line('p1.envelope'))}>뜯긴 봉투</Prop>
+          <Prop icon="coffee" onClick={onCoffee}>커피</Prop>
           {!solved.P7 && items.includes(KEYRING_ID) && (
-            <button type="button" data-use-target={ROOF_LOCK_ID} onClick={() => setMode('keys')}>
+            <Prop icon="door" data-use-target={ROOF_LOCK_ID} onClick={() => setMode('keys')}>
               옥상 문
-            </button>
+            </Prop>
           )}
           {!items.includes(KEYRING_ID) && solved.P6 && (
-            <button type="button" onClick={() => say(line('p7.door'))}>옥상 문</button>
+            <Prop icon="door" onClick={() => say(line('p7.door'))}>옥상 문</Prop>
           )}
         </div>
       )}
 
       {scene === 'booth' && (
         <div className="radio-row">
-          {!solved.P2 && <button type="button" onClick={() => setMode('p2')}>탁상 라디오</button>}
+          {!solved.P2 && <Prop icon="radio" onClick={() => setMode('p2')}>탁상 라디오</Prop>}
           {solved.P2 && solved.P4 && !solved.P5 && (
-            <button type="button" onClick={() => setMode('p5')}>시험 송출</button>
+            <Prop icon="radio" onClick={() => setMode('p5')}>시험 송출</Prop>
           )}
           {solved.P2 && (!solved.P4 || solved.P5) && (
-            <button type="button" onClick={() => say(line('p2.fixed'))}>라디오 87.9 고정</button>
+            <Prop icon="radio" onClick={() => say(line('p2.fixed'))}>라디오 87.9 고정</Prop>
           )}
-          {solved.P2 && !solved.P3 && <button type="button" onClick={() => setMode('p3')}>카트리지</button>}
-          {extra.letterPlaced && !solved.P8 && <button type="button" onClick={() => setMode('fader')}>페이더</button>}
+          {solved.P2 && !solved.P3 && <Prop icon="cart" onClick={() => setMode('p3')}>카트리지</Prop>}
+          {extra.letterPlaced && !solved.P8 && <Prop icon="fader" onClick={() => setMode('fader')}>페이더</Prop>}
         </div>
       )}
 
       {scene === 'desk' && (
         <div className="radio-row">
-          {!solved.P4 && <button type="button" onClick={() => setMode('p4')}>원고 보드</button>}
+          {!solved.P4 && <Prop icon="board" onClick={() => setMode('p4')}>원고 보드</Prop>}
           {items.includes('팔칠구의 편지') && !extra.letterPlaced && (
-            <button type="button" onClick={() => placeToday(say)}>2번 칸에 오늘 편지</button>
+            <Prop icon="letter" onClick={() => placeToday(say)}>2번 칸에 오늘 편지</Prop>
           )}
         </div>
       )}
 
       {scene === 'archive' && (
         <div className="radio-row">
-          {!solved.P6 && <button type="button" onClick={() => setMode('p6')}>2011년 11월 선반</button>}
+          {!solved.P6 && <Prop icon="tape" onClick={() => setMode('p6')}>2011년 11월 선반</Prop>}
           {solved.P6 && !solved.P7 && <Ptt say={say} step={extra.radioCallStep} />}
         </div>
       )}
 
       {scene === 'roof' && !extra.txLocked && (
         <div className="radio-row">
-          <button type="button" onClick={() => setMode('tx')}>송신기</button>
+          <Prop icon="tower" onClick={() => setMode('tx')}>송신기</Prop>
         </div>
       )}
 
@@ -289,6 +325,7 @@ export function RadioFlow({
             const s = useRadioStore.getState();
             if (s.solved.P2) return;
             s.markSolved('P2');
+            radioSfx(SFX_SRC.beep);
             say(line('p2.solved'));
             setMode(null);
           }}
@@ -391,9 +428,9 @@ export function RadioFlow({
       )}
       {mode === 'fader' && <Fader say={say} />}
       {mode && (
-        <button type="button" onClick={() => setMode(null)}>
+        <Prop nav onClick={() => setMode(null)}>
           닫기
-        </button>
+        </Prop>
       )}
 
       {call && (
@@ -427,7 +464,12 @@ function placeToday(say: (text: string) => void) {
 function P1({ say }: { say: (text: string) => void }) {
   const [code, setCode] = useState('');
   return (
-    <section>
+    <section className="radio-sheet">
+      <img
+        className="cuesheet"
+        src="/themes/haemu-radio/props/cuesheet.svg"
+        alt="큐시트. 빨간 등대 낙서는 굵은 선과 이중 동그라미."
+      />
       <p>{line('p1.memo')}</p>
       <p>{line('p1.sheet')}</p>
       <p>{line('p1.window')}</p>
@@ -436,6 +478,7 @@ function P1({ say }: { say: (text: string) => void }) {
         value={code}
         onChange={(v) => setCode(v.replace(/\D/g, '').slice(0, 4))}
         onSubmit={() => {
+          radioSfx(SFX_SRC.beep);
           const result = judgeP1(code);
           if (result === 'ok') {
             const s = useRadioStore.getState();
@@ -540,7 +583,7 @@ function TunePanel({
 
   const deg = ((freq - 87) / perTurn) * 360;
   return (
-    <section className="radio-row">
+    <section className="radio-row radio-sheet">
       <div ref={el} className="knob" aria-label="주파수 노브" data-freq={freq.toFixed(2)}>
         <div className="knob-mark" style={{ transform: `rotate(${deg}deg)` }} />
       </div>
@@ -580,14 +623,14 @@ function P3({
     useRadioStore.getState().patchExtra({ cartQueue: next });
   };
   return (
-    <section>
+    <section className="radio-sheet">
       <p>{line('p3.manual')}</p>
       <p>한 땀 광고: 찾아가지 않으신 옷, 아직 기다리고 있습니다.</p>
       <div className="radio-row">
         {CARTS.map((c) => (
-          <button key={c.id} type="button" data-on={picked === c.id} onClick={() => setPicked(c.id)}>
+          <Prop key={c.id} icon="cart" data-on={picked === c.id} onClick={() => setPicked(c.id)}>
             {c.label} {c.sec}초
-          </button>
+          </Prop>
         ))}
       </div>
       <div className="radio-row">
@@ -603,6 +646,7 @@ function P3({
       <button
         type="button"
         onClick={() => {
+          radioSfx(SFX_SRC.cart);
           const result = judgeP3(queue);
           if (result === 'ok') {
             useRadioStore.getState().markSolved('P3');
@@ -645,14 +689,14 @@ function P4({
   };
   const shown = LETTERS.find((l) => l.id === open);
   return (
-    <section>
+    <section className="radio-sheet">
       <p>{line('p4.rules')}</p>
       <p>포스터: 해무 불꽃축제 10/18.</p>
       <div className="radio-row">
         {LETTERS.map((l) => (
-          <button key={l.id} type="button" onClick={() => { setOpen(l.id); setPicked(l.id); }}>
+          <Prop key={l.id} icon="letter" onClick={() => { setOpen(l.id); setPicked(l.id); }}>
             {l.id}. {l.face}
-          </button>
+          </Prop>
         ))}
       </div>
       {shown && <p>{shown.back}</p>}
@@ -691,7 +735,7 @@ function Lock({ say, onClose }: { say: (text: string) => void; onClose: () => vo
     setPos(dials.current.map((d) => d.position));
   };
   return (
-    <section>
+    <section className="radio-sheet">
       <p>{line('p5.memo')}</p>
       <div className="radio-row">
         {pos.map((n, i) => (
@@ -705,6 +749,7 @@ function Lock({ say, onClose }: { say: (text: string) => void; onClose: () => vo
       <button
         type="button"
         onClick={() => {
+          radioSfx(SFX_SRC.lock);
           const result = judgeP5(pos.join(''));
           if (result === 'ok') {
             const s = useRadioStore.getState();
@@ -782,7 +827,7 @@ function P6({
     onScrub(null);
   };
   return (
-    <section>
+    <section className="radio-sheet">
       <p>2011년 11월. 목요일마다 하나. 1027 바로 다음 칸. 그 다음 번진 칸은 수능 날.</p>
       <div className="radio-row">
         {order.map((id, i) => {
@@ -790,7 +835,7 @@ function P6({
           return (
             <span key={id}>
               <button type="button" onClick={() => shift(i, -1)} aria-label="왼쪽">‹</button>
-              <button type="button" onClick={() => open(id)}>{box?.label}</button>
+              <Prop icon="tape" onClick={() => open(id)}>{box?.label}</Prop>
               <button type="button" onClick={() => shift(i, 1)} aria-label="오른쪽">›</button>
             </span>
           );
@@ -815,18 +860,16 @@ function P6({
               <button type="button" onPointerDown={down} onPointerUp={up} onPointerCancel={up}>
                 되감기
               </button>
-              <button
-                type="button"
-                onClick={() => nudge(-1)}
-              >
+              <button type="button" aria-label="카운터 감소" onClick={() => nudge(-1)}>
                 −1
               </button>
-              <button type="button" onClick={() => nudge(1)}>
+              <button type="button" aria-label="카운터 증가" onClick={() => nudge(1)}>
                 +1
               </button>
               <button
                 type="button"
                 onClick={() => {
+                  radioSfx(SFX_SRC.tape);
                   const n = useRadioStore.getState().extra.tapeCounter;
                   if (!judgeP6Counter(n)) {
                     say(line('p6.miss'));
@@ -858,8 +901,8 @@ function Ptt({ say, step }: { say: (text: string) => void; step: number }) {
   const downAt = useRef(0);
   if (step >= 3) return <p>커피잔 밑을 봐야 한다.</p>;
   return (
-    <button
-      type="button"
+    <Prop
+      icon="walkie"
       onPointerDown={(e) => {
         e.currentTarget.setPointerCapture(e.pointerId);
         downAt.current = performance.now();
@@ -878,7 +921,7 @@ function Ptt({ say, step }: { say: (text: string) => void; step: number }) {
       }}
     >
       무전 PTT ({step}/3)
-    </button>
+    </Prop>
   );
 }
 
@@ -897,7 +940,7 @@ function Keys({
 }) {
   const held = useRadioStore((s) => s.items.includes(KEYRING_ID));
   return (
-    <section className="radio-lock" data-use-target={ROOF_LOCK_ID}>
+    <section className="radio-lock radio-sheet" data-use-target={ROOF_LOCK_ID}>
       <p>{line('p7.need')}</p>
       {!armed && (
         <button type="button" onClick={() => onUse(selectedItem)}>
@@ -907,14 +950,15 @@ function Keys({
       {armed && held && (
         <div className="radio-row">
           {P7_TAGS.map((tag) => (
-            <button
+            <Prop
               key={tag}
-              type="button"
+              icon={KEY_ICON[tag]}
               onClick={() => {
                 if (!useRadioStore.getState().items.includes(KEYRING_ID)) {
                   say(line('p7.need'));
                   return;
                 }
+                radioSfx(SFX_SRC.lock);
                 const result = judgeKey(tag);
                 if (result === 'ok') {
                   const s = useRadioStore.getState();
@@ -933,7 +977,7 @@ function Keys({
               }}
             >
               {tag}
-            </button>
+            </Prop>
           ))}
         </div>
       )}
@@ -944,7 +988,8 @@ function Keys({
 function Fader({ say }: { say: (text: string) => void }) {
   const fader = useRef(new VerticalFader());
   return (
-    <section>
+    <section className="radio-sheet">
+      <img src="/themes/haemu-radio/props/fader.svg" alt="" width={64} height={64} />
       <p>{line('p8.fader')}</p>
       <input
         type="range"
@@ -957,6 +1002,7 @@ function Fader({ say }: { say: (text: string) => void }) {
           if (!judgeFader(fader.current.value)) return;
           const s = useRadioStore.getState();
           if (s.solved.P8) return;
+          radioSfx(SFX_SRC.beep);
           s.markSolved('P8');
           say(line('p8.ending'));
         }}

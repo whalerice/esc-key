@@ -1,4 +1,4 @@
-/** Short placeholder tones. Real beds and VO are not in the repo. */
+/** Blob tones. Lighthouse still uses these. Radio beds and clues are files. */
 
 export function toneWav(freq: number, seconds: number): string {
   const sr = 8000;

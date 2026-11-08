@@ -235,9 +235,14 @@ export function RadioFlow({
   const controlHits = scene === 'control';
   const boothHits = scene === 'booth';
   const deskHits = scene === 'desk';
+  const archiveHits = scene === 'archive';
+  const roofHits = scene === 'roof';
   const showRoofKey = controlHits && !solved.P7 && items.includes(KEYRING_ID);
   const showRoofHint = controlHits && !items.includes(KEYRING_ID) && !!solved.P6;
   const showLetterPlace = deskHits && items.includes('팔칠구의 편지') && !extra.letterPlaced;
+  const showArchiveTape = archiveHits && !solved.P6;
+  const showArchiveWalkie = archiveHits && !!solved.P6 && !solved.P7;
+  const showRoofTx = roofHits && !extra.txLocked;
 
   const onBoothRadio = () => {
     if (!solved.P2) return setMode('p2');
@@ -348,6 +353,41 @@ export function RadioFlow({
         </div>
       </div>
     )}
+    {archiveHits && !mode && (showArchiveTape || showArchiveWalkie) && (
+      <div className="radio-hits-layer">
+        <div className="radio-frame">
+          <div className="radio-hits">
+            {showArchiveTape && (
+              <button
+                type="button"
+                className="radio-hit"
+                data-hit="tape"
+                aria-label="2011년 11월 선반"
+                onClick={() => setMode('p6')}
+              />
+            )}
+            {showArchiveWalkie && (
+              <WalkieHit say={say} step={extra.radioCallStep} />
+            )}
+          </div>
+        </div>
+      </div>
+    )}
+    {showRoofTx && !mode && (
+      <div className="radio-hits-layer">
+        <div className="radio-frame">
+          <div className="radio-hits">
+            <button
+              type="button"
+              className="radio-hit"
+              data-hit="tower"
+              aria-label="송신기"
+              onClick={() => setMode('tx')}
+            />
+          </div>
+        </div>
+      </div>
+    )}
     <div className="radio-flow" data-scene={scene} data-next={next}>
       <p className="radio-room">
         {ROOM[scene] ?? scene} · {next}
@@ -371,19 +411,6 @@ export function RadioFlow({
           {showRoofHint && (
             <Prop icon="door" onClick={() => say(spoken('p7.door'))}>옥상 문</Prop>
           )}
-        </div>
-      )}
-
-      {scene === 'archive' && (
-        <div className="radio-row">
-          {!solved.P6 && <Prop icon="tape" onClick={() => setMode('p6')}>2011년 11월 선반</Prop>}
-          {solved.P6 && !solved.P7 && <Ptt say={say} step={extra.radioCallStep} />}
-        </div>
-      )}
-
-      {scene === 'roof' && !extra.txLocked && (
-        <div className="radio-row">
-          <Prop icon="tower" onClick={() => setMode('tx')}>송신기</Prop>
         </div>
       )}
 
@@ -981,17 +1008,24 @@ function nudge(dir: number) {
   s.patchExtra({ tapeCounter: n });
 }
 
-function Ptt({ say, step }: { say: SayFn; step: number }) {
+function WalkieHit({ say, step }: { say: SayFn; step: number }) {
   const downAt = useRef(0);
-  if (step >= 3) return <p>커피잔 밑을 봐야 한다.</p>;
   return (
-    <Prop
-      icon="walkie"
+    <button
+      type="button"
+      className="radio-hit"
+      data-hit="walkie"
+      aria-label={step >= 3 ? '무전기 · 커피잔 밑' : `무전 PTT (${step}/3)`}
+      onClick={() => {
+        if (step >= 3) say(spoken('p1.coffee'));
+      }}
       onPointerDown={(e) => {
+        if (step >= 3) return;
         e.currentTarget.setPointerCapture(e.pointerId);
         downAt.current = performance.now();
       }}
       onPointerUp={() => {
+        if (step >= 3) return;
         const ms = performance.now() - downAt.current;
         if (ms < longPressMs(P7_HOLD_MS)) {
           say(spoken('p7.short'));
@@ -1004,9 +1038,7 @@ function Ptt({ say, step }: { say: SayFn; step: number }) {
         const keys = ['p7.1', 'p7.2', 'p7.3'] as const;
         say(spoken(keys[at] ?? 'p7.3'));
       }}
-    >
-      무전 PTT ({step}/3)
-    </Prop>
+    />
   );
 }
 

@@ -15,11 +15,11 @@ const TITLE: Record<string, string> = {
   control: '',
   booth: '',
   desk: '',
-  archive: '아카이브실',
-  roof: '옥상',
+  archive: '',
+  roof: '',
 };
 
-const PAINTED = new Set(['control', 'booth', 'desk']);
+const PAINTED = new Set(['control', 'booth', 'desk', 'archive', 'roof']);
 
 /** Flat night fill behind the DOM scene art. WebGL drops SVG/PNG textures. */
 export const mountRadioRooms: SceneMount = ({ app }) => {

@@ -6,8 +6,8 @@ export const ROOM_SRC: Record<string, string> = {
   control: `${root}/rooms/control.png`,
   booth: `${root}/rooms/booth.png`,
   desk: `${root}/rooms/desk.png`,
-  archive: `${root}/rooms/archive.svg`,
-  roof: `${root}/rooms/roof.svg`,
+  archive: `${root}/rooms/archive.png`,
+  roof: `${root}/rooms/roof.png`,
 };
 
 export const PROP_SRC = {

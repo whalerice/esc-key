@@ -3,14 +3,42 @@
 const root = '/themes/haemu-radio';
 
 export const ROOM_SRC: Record<string, string> = {
-  control: `${root}/rooms/control.svg`,
-  booth: `${root}/rooms/booth.svg`,
-  desk: `${root}/rooms/desk.svg`,
-  archive: `${root}/rooms/archive.svg`,
-  roof: `${root}/rooms/roof.svg`,
+  control: `${root}/rooms/control.png`,
+  booth: `${root}/rooms/booth.png`,
+  desk: `${root}/rooms/desk.png`,
+  archive: `${root}/rooms/archive.png`,
+  roof: `${root}/rooms/roof.png`,
 };
 
-export const DJ_SRC = `${root}/props/dj.svg`;
+export const PROP_SRC = {
+  board: `${root}/props/board.svg`,
+  cart: `${root}/props/cart.svg`,
+  coffee: `${root}/props/coffee.svg`,
+  cuesheet: `${root}/props/cuesheet.svg`,
+  dj: `${root}/props/dj.svg`,
+  door: `${root}/props/door.svg`,
+  envelope: `${root}/props/envelope.svg`,
+  fader: `${root}/props/fader.svg`,
+  'key-big': `${root}/props/key-big.svg`,
+  'key-boat': `${root}/props/key-boat.svg`,
+  'key-buoy': `${root}/props/key-buoy.svg`,
+  'key-gull': `${root}/props/key-gull.svg`,
+  'key-red': `${root}/props/key-red.svg`,
+  keypad: `${root}/props/keypad.svg`,
+  letter: `${root}/props/letter.svg`,
+  radio: `${root}/props/radio.svg`,
+  tape: `${root}/props/tape.svg`,
+  tower: `${root}/props/tower.svg`,
+  walkie: `${root}/props/walkie.svg`,
+} as const;
+
+export function propArt(id: string): string {
+  const src = PROP_SRC[id as keyof typeof PROP_SRC];
+  if (!src) throw new Error(`unknown prop: ${id}`);
+  return src;
+}
+
+export const DJ_SRC = PROP_SRC.dj;
 
 export const BED_SRC: Record<string, string> = {
   opening: `${root}/audio/opening.wav`,

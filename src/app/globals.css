@@ -293,6 +293,7 @@ button {
   pointer-events: none;
 }
 
+/* Scene hits: invisible in normal play; keep ≥44px touch. */
 .radio-hit {
   position: absolute;
   margin: 0;
@@ -300,6 +301,8 @@ button {
   border: 0;
   border-radius: 0;
   background: transparent;
+  box-shadow: none;
+  outline: none;
   min-width: 44px;
   min-height: 44px;
   pointer-events: auto;
@@ -307,12 +310,22 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
+.radio-hit:focus:not(:focus-visible) {
+  outline: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .radio-hit:hover {
+    background: rgba(176, 141, 79, 0.08);
+  }
+}
+
 .radio-hit:focus-visible {
-  outline: 2px solid rgba(176, 141, 79, 0.9);
+  outline: 2px solid rgba(176, 141, 79, 0.55);
   outline-offset: 2px;
 }
 
-/* QA / screenshot: document.documentElement.dataset.radioHits = 'show' */
+/* QA only — never set in play: document.documentElement.dataset.radioHits = 'show' */
 html[data-radio-hits='show'] .radio-hit {
   outline: 2px dashed rgba(176, 141, 79, 0.9);
   background: rgba(176, 141, 79, 0.16);

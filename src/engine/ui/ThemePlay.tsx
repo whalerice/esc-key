@@ -129,7 +129,7 @@ export function ThemePlay({
   const [portrait, setPortrait] = useState(false);
   const [muted, setMuted] = useState(false);
   const [maxBlink, setMaxBlink] = useState(false);
-  const [queue, setQueue] = useState<CaptionLine[]>(() => openingLines.map(asCaption));
+  const [queue, setQueue] = useState<CaptionLine[]>([]);
   const line = queue[0] ?? null;
   const [hintOpen, setHintOpen] = useState(false);
   const [hintBody, setHintBody] = useState<string | null>(null);
@@ -147,6 +147,7 @@ export function ThemePlay({
   const onClockRef = useRef(onClock);
   const onReplayRef = useRef(onReplay);
   const endedRef = useRef(false);
+  const captionsSeededRef = useRef(false);
   portraitRef.current = portrait;
   pauseRef.current = pauseWhen;
   onClockRef.current = onClock;
@@ -160,6 +161,44 @@ export function ThemePlay({
   useEffect(() => {
     if (selectedItem && !items.includes(selectedItem)) setSelectedItem(null);
   }, [items, selectedItem]);
+
+  /** After persist hydrate + gate: restore caption queue, or skip openings on resume. */
+  useEffect(() => {
+    if (!booted || captionsSeededRef.current) return;
+    const store = useStore as ThemePlayStore & {
+      persist?: {
+        hasHydrated?: () => boolean;
+        onFinishHydration?: (cb: () => void) => () => void;
+      };
+    };
+    const seed = () => {
+      if (captionsSeededRef.current) return;
+      captionsSeededRef.current = true;
+      const s = useStore.getState();
+      const saved = s.captionQueue;
+      if (Array.isArray(saved)) {
+        setQueue(saved.map(asCaption));
+        return;
+      }
+      const startScene = theme.scenes[0]?.id;
+      const resumed =
+        s.timer.elapsedMs > 0 ||
+        s.items.length > 0 ||
+        Object.values(s.solved).some(Boolean) ||
+        (!!startScene && s.scene !== startScene);
+      const next = resumed ? [] : openingLines.map(asCaption);
+      setQueue(next);
+      s.setCaptionQueue(next);
+    };
+    if (store.persist?.hasHydrated?.()) {
+      seed();
+      return;
+    }
+    if (store.persist?.onFinishHydration) {
+      return store.persist.onFinishHydration(seed);
+    }
+    seed();
+  }, [booted, openingLines, theme.scenes, useStore]);
 
   useEffect(() => {
     applySafeAreaVars();
@@ -270,9 +309,16 @@ export function ThemePlay({
   const remain = duration == null ? 0 : remainingMs(duration, snap);
   const used = duration == null ? snap.elapsedMs : Math.max(0, duration - remain);
 
-  const say = useCallback((input: CaptionInput) => {
-    setQueue((q) => [...q, asCaption(input)]);
-  }, []);
+  const say = useCallback(
+    (input: CaptionInput) => {
+      setQueue((q) => {
+        const next = [...q, asCaption(input)];
+        useStore.getState().setCaptionQueue(next);
+        return next;
+      });
+    },
+    [useStore],
+  );
 
   const activePuzzle = useMemo((): PuzzleId | null => {
     for (const p of theme.puzzles) {
@@ -360,7 +406,16 @@ export function ThemePlay({
         (typeof overlay === 'function' ? overlay({ say, selectedItem, askHint: onHint }) : overlay)}
 
       {booted && (
-        <Narration line={line} onAdvance={() => setQueue((q) => q.slice(1))} />
+        <Narration
+          line={line}
+          onAdvance={() =>
+            setQueue((q) => {
+              const next = q.slice(1);
+              useStore.getState().setCaptionQueue(next);
+              return next;
+            })
+          }
+        />
       )}
 
       {booted && (

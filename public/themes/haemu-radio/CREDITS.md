@@ -1,25 +1,32 @@
 # 심야 라디오 에셋 크레딧
 
-그림은 해무 스타일 가이드(안개, 밤바다, 종이, 놋쇠, 방송 빨강)에 맞춘 **원작 SVG**다. 상용 스톡 일러스트를 복사하지 않았다.
+해무 스타일 가이드(안개, 밤바다, 종이, 놋쇠, 방송 빨강)에 맞춘 그림.
+`docs/superpowers/specs/2026-11-08-haemu-radio-immerse-design.md` 슬롯 교체 파일럿.
 
-`tools/asset-collector` 규칙 때문에 아래는 게임 파일로 넣지 않았다.
+`tools/asset-collector` 규칙:
 
-- Unsplash API로 받은 파일은 저장소에 커밋하지 않는다.
-- Pngtree, Flaticon은 재배포 조건이 불명확해서 페이지를 긁지 않는다.
-- 스타일 가이드는 사실적 렌더를 쓰지 않는다. 사진 배경 대신 평면 채색으로 맞췄다.
+- Unsplash API 파일은 저장소에 커밋하지 않는다.
+- Pngtree, Flaticon은 페이지를 긁지 않는다.
 
 ## 그림
 
-| 파일 | 내용 | 라이선스 |
-|---|---|---|
-| `rooms/control.svg` | 부조정실. 창밖 배·빨간 등대(굵은 선+이중 동그라미)·부표·갈매기·큰 등대 | 원작. ESC KEY |
-| `rooms/booth.svg` | 부스. 빈 의자, 콘솔, 탁상 라디오 | 원작 |
-| `rooms/desk.svg` | 작가석. 원고 보드, 사연, 10/18 포스터 | 원작 |
-| `rooms/archive.svg` | 아카이브실. 테이프 선반, 데크 | 원작 |
-| `rooms/roof.svg` | 옥상. 안개, 송신탑 경고등, 도윤 | 원작 |
-| `props/*.svg` | 소품·단서 아이콘, 큐시트, 열쇠 태그, 착석 도윤 | 원작 |
+| 파일 | 내용 | 출처 | 비고 |
+|---|---|---|---|
+| `rooms/*.svg` | 5방 BG. UI 라벨 텍스트 제거, 안개·단일 광원 강화 | 원작 SVG 개필 | R-BG-02/03/05/06/08 슬롯 |
+| `rooms/_legacy/*.svg` | 교체 전 와이어/라벨 버전 | 원작 | 폴백·비교용 |
+| `props/*.svg` | 리치 소품·단서 아이콘 | 원작 (rich redraw) | |
+| `props/_legacy/*.svg` | 교체 전 단순 아이콘 | 원작 | |
 
-큐시트 빨간 등대 낙서와 빨간 등대 열쇠는 색과 함께 굵은 선, 이중 동그라미로 구분한다.
+### clue-locked
+
+생성물로 바꾸지 말 것. 검수 필수.
+
+| 파일 | 마크 |
+|---|---|
+| `props/cuesheet.svg` | 빨간 등대 낙서 = 굵은 선 + 이중 동그라미 |
+| `props/radio.svg` | 숫자창 끝자리 깨진 `9` |
+| `props/key-red.svg` | 이중원 + 빨간 등대 실루엣 |
+| `props/key-boat\|buoy\|gull\|big.svg` | 서로 다른 태그 실루엣 |
 
 ## 소리
 
@@ -38,8 +45,6 @@
 | `audio/tease.wav` | 두 음 톤 | P2 티즈. 도윤 방송 한 토막 |
 | `audio/d100.wav` `d50.wav` `d30.wav` `d7.wav` | 두 음 톤 | P5 옛 방송 VO (D-100, D-50, D-30, D-7) |
 | `audio/sfx-beep.wav` | 짧은 비프 | 부스 비프·에어체크 |
-| `audio/sfx-cart.wav` | 짧은 잡음 | 카트리지 꽂기·송출 |
-| `audio/sfx-lock.wav` | 낮은 금속음 | 열쇠·자물쇠 |
-| `audio/sfx-tape.wav` | 짧은 플러터 | 데크 재생 |
-
-라디오 잡음 베드(약·중·강)는 파일이 아니다. `RadioBed`가 Web Audio로 만든다.
+| `audio/sfx-cart.wav` | 짧은 클릭 | 카트리지 |
+| `audio/sfx-lock.wav` | 짧은 클릭 | 자물쇠 |
+| `audio/sfx-tape.wav` | 짧은 클릭 | 테이프 데크 |

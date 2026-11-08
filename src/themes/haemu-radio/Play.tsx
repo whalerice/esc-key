@@ -11,6 +11,7 @@ import { themeHaemuRadio } from './index';
 import { radioResultLines } from './puzzles/answers';
 import { mountRadioRooms } from './scenes/rooms';
 import { initialSave, useRadioStore } from './store';
+import './hud.css';
 
 type FrozenStats = {
   hintsUsed: Record<string, number | undefined>;

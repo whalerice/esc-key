@@ -1,0 +1,42 @@
+[data-theme='haemu-radio'] {
+  --hud: rgba(30, 42, 51, 0.88);
+  --radio-paper: #e9e2d2;
+  --radio-ink: #3b3a36;
+  --radio-brass: #b08d4f;
+  --radio-onair: #d9473a;
+}
+
+[data-theme='haemu-radio'] .hud-btn,
+[data-theme='haemu-radio'] .hud-timer,
+[data-theme='haemu-radio'] .hud-inventory {
+  background: var(--hud);
+  border: 1px solid var(--radio-brass);
+  color: var(--radio-paper);
+  border-radius: 2px;
+}
+
+[data-theme='haemu-radio'] .hud-slot {
+  border-color: var(--radio-brass);
+  background: rgba(18, 25, 31, 0.75);
+  color: var(--radio-paper);
+}
+
+[data-theme='haemu-radio'] .hud-btn.blink {
+  box-shadow: 0 0 0 1px var(--radio-onair);
+}
+
+[data-theme='haemu-radio'] .radio-flow button {
+  border-color: var(--radio-brass);
+  color: var(--radio-paper);
+  background: rgba(18, 25, 31, 0.82);
+}
+
+[data-theme='haemu-radio'] .radio-flow .radio-nav {
+  background: rgba(30, 42, 51, 0.9);
+  border-color: var(--radio-brass);
+}
+
+[data-theme='haemu-radio'] .radio-room {
+  color: var(--radio-paper);
+  text-shadow: 0 1px 2px rgba(18, 25, 31, 0.85);
+}

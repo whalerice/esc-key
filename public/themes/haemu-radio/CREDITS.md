@@ -6,7 +6,7 @@
 
 - Unsplash API로 받은 파일은 저장소에 커밋하지 않는다.
 - Pngtree, Flaticon은 재배포 조건이 불명확해서 페이지를 긁지 않는다.
-- 스타일 가이드는 사실적 렌더를 쓰지 않는다. 사진 배경 대신 평면 채색으로 맞췄다.
+- 스타일 가이드는 사실적 렌더를 쓰지 않는다. 사진 배경 대신 평면 채색 + 그라데이션 1단으로 맞췄다.
 
 ## 그림
 
@@ -17,7 +17,21 @@
 | `rooms/desk.svg` | 작가석. 원고 보드, 사연, 10/18 포스터 | 원작 |
 | `rooms/archive.svg` | 아카이브실. 테이프 선반, 데크 | 원작 |
 | `rooms/roof.svg` | 옥상. 안개, 송신탑 경고등, 도윤 | 원작 |
-| `props/*.svg` | 소품·단서 아이콘, 큐시트, 열쇠 태그, 착석 도윤 | 원작 |
+| `props/board.svg` | 원고 보드 4칸(2번 빈칸 표시) | 원작 |
+| `props/cart.svg` | 카트리지 카트 | 원작 |
+| `props/coffee.svg` | 식은 커피잔·받침·김 | 원작 |
+| `props/cuesheet.svg` | 큐시트. 02:03/14/18/25 + 부표·배·갈매기·빨간 등대 낙서 | 원작 |
+| `props/dj.svg` | 한도윤. 헤드폰·점퍼·휴대 라디오 | 원작 |
+| `props/door.svg` | 잠긴 문·ON AIR 번짐 | 원작 |
+| `props/envelope.svg` | 뜯긴 봉투·갈곶리 소인 | 원작 |
+| `props/fader.svg` | 세로 페이더 | 원작 |
+| `props/key-*.svg` | 열쇠 태그 5종(배·부표·갈매기·빨간 등대·큰 등대) | 원작 |
+| `props/keypad.svg` | 부스 문 키패드 | 원작 |
+| `props/letter.svg` | 사연 편지 | 원작 |
+| `props/radio.svg` | 탁상 라디오. 마스킹테이프·끝자리 9만 | 원작 |
+| `props/tape.svg` | 1103 릴 테이프 | 원작 |
+| `props/tower.svg` | 송신탑·경고등 | 원작 |
+| `props/walkie.svg` | 무전기·PTT | 원작 |
 
 큐시트 빨간 등대 낙서와 빨간 등대 열쇠는 색과 함께 굵은 선, 이중 동그라미로 구분한다.
 

@@ -1,4 +1,4 @@
-/** Lines the gray box speaks. Full VO: docs/단편/잿빛새벽/잿빛새벽_대본_v1.md */
+/** Lines the theme speaks. Full VO: docs/단편/잿빛새벽/잿빛새벽_대본_v1.md */
 
 export const openingLines = [
   '1983년 11월 · 서베를린. 신호분석국 오르겔 분소. 02:58.',

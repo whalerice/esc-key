@@ -10,13 +10,14 @@ import { themeAshDawn } from './index';
 import { resultLines } from './puzzles/answers';
 import { mountAshRooms } from './scenes/rooms';
 import { initialSave, useAshStore } from './store';
+import styles from './art.module.css';
 
 type Frozen = {
   hintsUsed: Record<string, number | undefined>;
   epilogue: 'write' | 'blank' | null;
 };
 
-/** Gate → wall clock → gray rooms. Dials, frequency, and morse stay off the save. */
+/** Gate → wall clock → rooms. Dials, frequency, and morse stay off the save. */
 export function AshDawnPlay() {
   const endingA = useAshStore((s) => !!s.flags.endingA);
   const endingB = useAshStore((s) => !!s.flags.endingB);
@@ -27,6 +28,7 @@ export function AshDawnPlay() {
   const order = themeAshDawn.puzzles.map((puzzle) => puzzle.id);
 
   return (
+    <div className={styles.shell}>
     <ThemePlay
       theme={themeAshDawn}
       useStore={useAshStore as unknown as ThemePlayStore}
@@ -91,5 +93,6 @@ export function AshDawnPlay() {
         />
       )}
     />
+    </div>
   );
 }

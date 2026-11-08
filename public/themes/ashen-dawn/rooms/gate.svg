@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<rect width="1920" height="1080" fill="#10141C"/>
+<rect x="0" y="0" width="1920" height="1080" fill="#1A1F26"/>
+<polygon points="260,980 700,180 860,180 420,980" fill="#1A2128"/>
+<polygon points="700,180 860,180 900,240 740,240" fill="#4E5963"/>
+<rect x="300" y="240" width="280" height="10" fill="#2C3640"/><rect x="318" y="340" width="280" height="10" fill="#2C3640"/><rect x="336" y="440" width="280" height="10" fill="#2C3640"/><rect x="354" y="540" width="280" height="10" fill="#2C3640"/><rect x="372" y="640" width="280" height="10" fill="#2C3640"/><rect x="390" y="740" width="280" height="10" fill="#2C3640"/><rect x="408" y="840" width="280" height="10" fill="#2C3640"/>
+<rect x="980" y="220" width="520" height="640" fill="#1A222A" stroke="#4E5963" stroke-width="10"/>
+<rect x="1120" y="300" width="240" height="360" fill="#101418" stroke="#C6A15B" stroke-width="4"/>
+<circle cx="1320" cy="480" r="8" fill="#C6A15B"/>
+<rect x="1100" y="180" width="280" height="54" fill="#1C1916" stroke="#C6A15B" stroke-width="2"/>
+<text x="1240" y="214" text-anchor="middle" fill="#E4D7C3" font-size="22" font-family="WenQuanYi Micro Hei,sans-serif">신호분석국 오르겔</text>
+<text x="240" y="120" fill="#8E9AAB" font-size="28" font-family="WenQuanYi Micro Hei,sans-serif">1983 · 서베를린</text>
+<text x="240" y="160" fill="#4E5963" font-size="20" font-family="WenQuanYi Micro Hei,sans-serif">02:58</text>
+<rect x="1280" y="860" width="460" height="28" fill="#4A3B2E"/>
+<rect x="1320" y="888" width="16" height="70" fill="#2C241C"/>
+<rect x="1680" y="888" width="16" height="70" fill="#2C241C"/>
+<g fill="none" stroke="#C6A15B" stroke-width="10" stroke-linecap="round">
+<path d="M1456 859 Q1510 760 1564 859"/>
+<rect x="1434.4" y="846.4" width="39.6" height="64.8" rx="10.799999999999999" fill="#2A3138"/>
+<rect x="1546" y="846.4" width="39.6" height="64.8" rx="10.799999999999999" fill="#2A3138"/>
+</g>
+<ellipse cx="1510" cy="900" rx="120" ry="18" fill="#E0A45A" opacity="0.35"/>
+<text x="1510" y="840" text-anchor="middle" fill="#E0A45A" font-size="18" font-family="WenQuanYi Micro Hei,sans-serif">헤드폰</text>
+</svg>

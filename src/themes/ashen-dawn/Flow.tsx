@@ -11,7 +11,9 @@ import { RotaryDial } from '@/engine/widgets/RotaryDial';
 import { SafeDial } from '@/engine/widgets/SafeDial';
 import { TuningKnob, stationSignal } from '@/engine/widgets/TuningKnob';
 import { longPressMs } from '@/engine/widgets/LongPress';
-import { duckBed, playClue, stopNoise, syncNoise } from './audio';
+import { propArt, roomArt } from './art';
+import styles from './art.module.css';
+import { duckBed, playClue, playSeat, stopBeds, stopNoise, syncBed, syncNoise } from './audio';
 import { line } from './data/script';
 import {
   CANCEL_CODE,
@@ -136,22 +138,55 @@ export function AshDawnFlow({
 
   useEffect(() => {
     duckBed(!!banner);
+    if (!banner) return;
+    const voice =
+      banner.id === 'greta' || banner.id === 'greta-b'
+        ? 'greta'
+        : banner.id === 'silent'
+          ? 'breath'
+          : banner.id === 'air'
+            ? 'lenz'
+            : banner.id === 'chief'
+              ? 'chief'
+              : null;
+    if (voice) playClue(voice);
   }, [banner]);
 
-  useEffect(() => () => stopNoise(), []);
+  useEffect(() => {
+    playSeat('train');
+    playSeat('chime');
+    playSeat('tube');
+    syncBed();
+    return () => {
+      stopBeds();
+      stopNoise();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (scene === 'teletype') playSeat('teletype');
+  }, [scene]);
 
   const go = (next: string) => useAshStore.getState().setScene(next);
 
   return (
-    <div className="ash-flow" data-big={big ? 'yes' : 'no'} data-scene={scene} data-puzzle={solved.P9 ? 'clear' : 'play'}>
+    <>
+    <img
+      className={styles.stage}
+      src={roomArt({
+        scene,
+        dark: scene === 'desk' && !solved.P1,
+        finaleA: !!flags.finaleA,
+        finaleB: !!flags.finaleB,
+      })}
+      alt=""
+    />
+    <div className={`ash-flow ${styles.flow}`} data-big={big ? 'yes' : 'no'} data-scene={scene} data-puzzle={solved.P9 ? 'clear' : 'play'}>
       {banner && (
         <div className="ash-banner" role="status">
           <Phone
             lines={banner.lines}
-            onDone={() => {
-              if (banner.id === 'air' || banner.id === 'greta-b') playClue(banner.id === 'air' ? 'hum' : 'click');
-              setBanner(null);
-            }}
+            onDone={() => setBanner(null)}
           />
         </div>
       )}
@@ -182,8 +217,6 @@ export function AshDawnFlow({
       {scene === 'archive' && <Archive say={say} />}
       {scene === 'office' && !solved.P8 && <Safe say={say} stage={lockStage} />}
       {scene === 'teletype' && !flags.finaleA && !flags.finaleB && <Send say={say} />}
-      {flags.finaleA && !flags.endingA && <FinaleA say={say} />}
-      {flags.finaleB && !flags.endingB && <FinaleB say={say} />}
 
       {openNotes && (
         <aside className="ash-notes" data-layer="modal">
@@ -198,7 +231,22 @@ export function AshDawnFlow({
         </aside>
       )}
     </div>
+    {flags.finaleA && !flags.endingA && (
+      <div className={styles.card}>
+        <FinaleA say={say} />
+      </div>
+    )}
+    {flags.finaleB && !flags.endingB && (
+      <div className={styles.card}>
+        <FinaleB say={say} />
+      </div>
+    )}
+    </>
   );
+}
+
+function Mark({ name }: { name: Parameters<typeof propArt>[0] }) {
+  return <img className={styles.mark} src={propArt(name)} alt="" />;
 }
 
 function inLight(event: ReactMouseEvent<HTMLButtonElement>, mask: DarknessMask): boolean {
@@ -249,8 +297,8 @@ function DeskDark({ say }: { say: (text: string) => void }) {
   const [seen, setSeen] = useState({ note: false, clock: false, drawer: false });
   const said = useRef(false);
 
-  function reveal(event: ReactMouseEvent<HTMLButtonElement>, run: () => void) {
-    const panel = event.currentTarget.parentElement?.getBoundingClientRect();
+function reveal(event: ReactMouseEvent<HTMLButtonElement>, run: () => void) {
+  const panel = event.currentTarget.parentElement?.getBoundingClientRect();
     if (!panel || !inLight(event, mask.current)) {
       if (panel) {
         const h = panel.height;
@@ -299,6 +347,7 @@ function DeskDark({ say }: { say: (text: string) => void }) {
 
   return (
     <section data-puzzle="P1">
+      <img className={styles.clue} src={propArt('headphones')} alt="" />
       <div
         className="ash-dark"
         onPointerMove={move}
@@ -320,6 +369,7 @@ function DeskDark({ say }: { say: (text: string) => void }) {
             })
           }
         >
+          <Mark name="sticky" />
           포스트잇
         </button>
         <button
@@ -332,6 +382,7 @@ function DeskDark({ say }: { say: (text: string) => void }) {
             })
           }
         >
+          <Mark name="clock" />
           탁상시계
         </button>
         <button
@@ -343,9 +394,11 @@ function DeskDark({ say }: { say: (text: string) => void }) {
             })
           }
         >
+          <Mark name="drawer" />
           서랍
         </button>
         <button type="button" onClick={(event) => reveal(event, () => say(line('p1.wall')))}>
+          <Mark name="wallclock" />
           벽시계
         </button>
       </div>
@@ -380,7 +433,8 @@ function DeskDark({ say }: { say: (text: string) => void }) {
               gain('성냥갑');
               addNote('lina', 'Lina · 7.11.');
               s.markSolved('P1');
-              playClue('click');
+              playSeat('lock');
+              playSeat('drawer');
               say(line('p1.photo'));
               say(line('p1.match'));
               say(line('p1.power'));
@@ -404,11 +458,19 @@ function PhoneDial({ say }: { say: (text: string) => void }) {
 
   function push(n: number) {
     phone.current.dial(n);
+    playSeat('dial');
     setDigits((prev) => (prev + String(phone.current.lastDigit ?? n)).slice(0, 8));
   }
 
   return (
     <section data-puzzle="P2">
+      <div className={styles.loot}>
+        <Mark name="photo" />
+        <Mark name="phonebook" />
+        <Mark name="film" />
+        <Mark name="matchbox" />
+        <Mark name="phone" />
+      </div>
       <p>HANS 4267 · OTTO 6886 · JOSEF — (번호 없음) 「늘 하던 방식대로」</p>
       <p>{line('p2.book')}</p>
       <p aria-label="돌린 번호">{digits || '—'}</p>
@@ -427,6 +489,7 @@ function PhoneDial({ say }: { say: (text: string) => void }) {
           onClick={() => {
             const hit = judgeCall(digits);
             if (hit === 'hans') {
+              playClue('hans');
               say(line('p2.hans'));
               if (!heard.current.hans) {
                 heard.current.hans = true;
@@ -435,6 +498,7 @@ function PhoneDial({ say }: { say: (text: string) => void }) {
               return;
             }
             if (hit === 'otto') {
+              playClue('otto');
               say(line('p2.otto'));
               if (!heard.current.otto) {
                 heard.current.otto = true;
@@ -443,10 +507,11 @@ function PhoneDial({ say }: { say: (text: string) => void }) {
               return;
             }
             if (hit !== 'josef') {
-              playClue('click');
+              playSeat('busy');
               say(line('p2.none'));
               return;
             }
+            playClue('josef');
             const s = useAshStore.getState();
             s.markSolved('P2');
             addNote('josef', '경비실 요제프 56733 · 라디오는 사진 뒤에 적힌 그대로');
@@ -489,7 +554,7 @@ function Chess({
       return;
     }
     if (file !== 5) {
-      playClue('click');
+      playSeat('chess');
       say(line('p3.back'));
       return;
     }
@@ -497,7 +562,7 @@ function Chess({
       const s = useAshStore.getState();
       s.markSolved('P3');
       addNote('op', '작전명 GLASHAUS');
-      playClue('click');
+      playSeat('chess');
       say(fFileLetters().split('').join(' · '));
       say(line('p3.name'));
       say(line('p3.need'));
@@ -534,6 +599,7 @@ function Chess({
         type="button"
         onClick={() => {
           gain('전문');
+          playSeat('paper');
           addNote('empf', 'EMPF = 수신자, ORGEL-INNEN = 오르겔(우리 분소) 내부');
           setLook((s) => ({ ...s, paper: true }));
           say(line('p3.head'));
@@ -542,6 +608,7 @@ function Chess({
       >
         전문 집기
       </button>
+      <img className={styles.clue} src={propArt('cipher')} alt="" />
       {look.paper && (
         <p className="ash-paper">
           {CIPHER.match(/.{1,7}/g)?.map((row, i) => (
@@ -593,7 +660,7 @@ function Chess({
             const rook = file === 5 && rank === 8;
             return (
               <button key={`${file}${rank}`} type="button" data-file={file} data-rank={rank}>
-                {board ? ch : rook ? '♜' : ''}
+                {board ? ch : rook ? <Mark name="rook" /> : ''}
               </button>
             );
           }),
@@ -671,6 +738,8 @@ function Station({ say, hearing }: { say: (text: string) => void; hearing: boole
 
   return (
     <section data-puzzle="P4">
+      <img className={styles.clue} src={propArt('radio')} alt="" />
+      <img className={styles.mark} src={propArt('mug')} alt="" />
       <p>{line('p4.room')}</p>
       <div ref={el} className="ash-knob" aria-label="주파수 다이얼">
         {freq.toFixed(2)} MHz
@@ -749,7 +818,8 @@ function Matchbook({
     }
     setShown(true);
     addNote('pad', '14페이지 표 숫자 47291 65038');
-    playClue('click');
+    playSeat('lock');
+    playSeat('paper');
     say(line('p5.rule'));
   }
 
@@ -772,6 +842,7 @@ function Matchbook({
             }
           }}
         >
+          <Mark name="matchbox" />
           성냥갑 (오른쪽으로 밀기)
         </button>
       ) : (
@@ -899,6 +970,7 @@ function ChessBox({ say }: { say: (text: string) => void }) {
             say(line('p6.mirror'));
           }}
         >
+          <Mark name="rook" />
           체스 상자
         </button>
       ) : (
@@ -911,6 +983,7 @@ function ChessBox({ say }: { say: (text: string) => void }) {
             <button type="button" onClick={() => setFlipped(true)}>뒤집기</button>
           </div>
           <div className="ash-cuts" data-flip={flipped ? 'no' : 'yes'} style={{ fontSize: `${zoom}rem` }}>
+            <img className={styles.mark} src={propArt('microfilm')} alt="" />
             <button type="button" onClick={() => read('1', line('p6.years'), 'confess', line('film.1'))}>
               {flipped ? line('film.1') : '컷 1'}
             </button>
@@ -985,6 +1058,7 @@ function Archive({ say }: { say: (text: string) => void }) {
       </div>
       {read && (
         <>
+          <img className={styles.clue} src={propArt('file')} alt="" />
           <p>{line('file.card')}</p>
           <p>{line('file.key')}</p>
         </>
@@ -1007,6 +1081,7 @@ function Scarf({ say }: { say: (text: string) => void }) {
 
   return (
     <section data-puzzle="P7">
+      <img className={styles.clue} src={propArt('scarf')} alt="" />
       <p>{line('p7.room')}</p>
       <div className="radio-row">
         <button type="button" aria-label="축소" onClick={() => setZoom(stepZoom(zoom, -1, 1, 4))}>−</button>
@@ -1043,7 +1118,7 @@ function Scarf({ say }: { say: (text: string) => void }) {
           }
           useAshStore.getState().markSolved('P7');
           addNote('vogel', 'VOGEL3 = 매일 03:00 채널 B 송신');
-          playClue('click');
+          playSeat('teletype');
           say(line('p7.hit'));
           say(line('p7.name'));
           say(line('p7.time'));
@@ -1063,13 +1138,14 @@ function Josef({ say }: { say: (text: string) => void }) {
       <p>{line('p8.need')}</p>
       <p>{line('p8.word')}</p>
       <div className="radio-row">
-        <button type="button" onClick={() => say(line('p8.where'))}>렌츠 선배 어디 계세요?</button>
+        <button type="button" onClick={() => { playClue('josef'); say(line('p8.where')); }}>렌츠 선배 어디 계세요?</button>
         <button
           type="button"
           onClick={() => {
             if (useAshStore.getState().items.includes('분소장실 열쇠')) return;
             gain('분소장실 열쇠');
-            playClue('click');
+            playSeat('key');
+            playClue('josef');
             say(line('p8.key1'));
             say(line('p8.key2'));
             say(line('p8.slide'));
@@ -1077,7 +1153,7 @@ function Josef({ say }: { say: (text: string) => void }) {
         >
           검은 비숍
         </button>
-        <button type="button" onClick={() => say(line('p8.keyno'))}>분소장실 열쇠 주세요.</button>
+        <button type="button" onClick={() => { playClue('josef'); say(line('p8.keyno')); }}>분소장실 열쇠 주세요.</button>
       </div>
     </section>
   );
@@ -1115,12 +1191,12 @@ function Safe({ say, stage }: { say: (text: string) => void; stage: number }) {
       return;
     }
     if (hit === 'advance') {
-      playClue('click');
+      playSeat('lock');
       useAshStore.getState().patchExtra({ lockStage: now + 1 });
       setGauge(false);
       return;
     }
-    playClue('thump');
+    playSeat('thump');
     const s = useAshStore.getState();
     s.patchExtra({ lockStage: 3 });
     s.markSolved('P8');
@@ -1139,6 +1215,7 @@ function Safe({ say, stage }: { say: (text: string) => void; stage: number }) {
 
   return (
     <section data-puzzle="P8">
+      <img className={styles.clue} src={propArt('safe')} alt="" />
       <p>스티커 R-L-R · 눈금 {pos}</p>
       <div className="ash-safe" aria-label="금고 다이얼">{pos}</div>
       <div className="radio-row">
@@ -1165,6 +1242,7 @@ function MusicBox({ say, hearing }: { say: (text: string) => void; hearing: bool
 
   return (
     <section data-puzzle="P9">
+      <img className={styles.clue} src={propArt('musicbox')} alt="" />
       <p>{line('p9.lid')}</p>
       <p>오르골: 도 레 미 파 솔 솔 솔</p>
       <button type="button" onClick={() => setNames((v) => !v)}>계이름 자막</button>
@@ -1205,7 +1283,7 @@ function MusicBox({ say, hearing }: { say: (text: string) => void; hearing: bool
         type="button"
         onClick={() => {
           if (!pinsMatch(pins)) {
-            playClue('hum');
+            playClue('box');
             say(line('p9.no'));
             return;
           }
@@ -1250,7 +1328,6 @@ function Send({ say }: { say: (text: string) => void }) {
     if (hit === 'A') {
       s.patchExtra({ sent: 'A' });
       s.setFlag('finaleA');
-      playClue('danke');
       return;
     }
     s.patchExtra({ sent: 'B' });
@@ -1259,6 +1336,7 @@ function Send({ say }: { say: (text: string) => void }) {
 
   return (
     <section data-puzzle="P9">
+      <img className={styles.clue} src={propArt('teletype')} alt="" />
       <p>{line('safe.form')}</p>
       <div className="radio-row">
         {['A', 'B', 'C', 'D'].map((id) => (
@@ -1306,6 +1384,8 @@ function FinaleA({ say }: { say: (text: string) => void }) {
   useEffect(() => {
     if (said.current) return;
     said.current = true;
+    playSeat('chime');
+    playClue('danke');
     say(line('endA.1'));
     say(line('endA.2'));
     say(line('endA.3'));
@@ -1325,9 +1405,10 @@ function FinaleA({ say }: { say: (text: string) => void }) {
   }
 
   return (
-    <section data-ending="A">
+    <section className={styles.finale} data-ending="A">
+      <img className={styles.clue} src={propArt('border')} alt="" />
       <h2>새벽은 오지 않았다</h2>
-      <p>국경 검문소. 눈. 두 뒷모습. 회색 면.</p>
+      <p>국경 검문소. 눈 내리는 새벽. 두 사람의 뒷모습.</p>
       <p>내부 협력자: VOGEL3 (그레타 포겔) ____</p>
       <Hold label="렌츠 이름도 적는다" onHold={() => choose('write')} />
       <Hold label="적지 않는다" onHold={() => choose('blank')} />
@@ -1347,8 +1428,9 @@ function FinaleB({ say }: { say: (text: string) => void }) {
     say(line('endB.5'));
   }, [say]);
   return (
-    <section data-ending="B">
+    <section className={styles.finale} data-ending="B">
       <h2>가로챈 새벽</h2>
+      <img className={styles.clue} src={propArt('file')} alt="" />
       <button type="button" onClick={() => useAshStore.getState().setFlag('endingB')}>끝</button>
     </section>
   );

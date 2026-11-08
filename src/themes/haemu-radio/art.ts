@@ -4,8 +4,8 @@ const root = '/themes/haemu-radio';
 
 export const ROOM_SRC: Record<string, string> = {
   control: `${root}/rooms/control.png`,
-  booth: `${root}/rooms/booth.svg`,
-  desk: `${root}/rooms/desk.svg`,
+  booth: `${root}/rooms/booth.png`,
+  desk: `${root}/rooms/desk.png`,
   archive: `${root}/rooms/archive.svg`,
   roof: `${root}/rooms/roof.svg`,
 };

@@ -12,8 +12,10 @@
 | 파일 | 내용 | 출처 | 비고 |
 |---|---|---|---|
 | `rooms/control.png` | 부조정실 풀블리드 페인티드 BG (1920×1080) | 원작 일러스트 | R-BG-02. 밤·책상램프·ON AIR·창밖 등대 |
-| `rooms/booth.svg` `desk.svg` `archive.svg` `roof.svg` | 단색 wash 플레이스홀더 | 원작 SVG | 부조정실 패스만 그림. 이후 교체 |
-| `props/*.svg` | 소품·단서 아이콘 (L2 손때) | 원작 SVG | 부조정실: coffee, envelope, cuesheet, door, keypad |
+| `rooms/booth.png` | 부스 풀블리드 페인티드 BG (1920×1080) | 원작 일러스트 | R-BG-03. 콘솔·마이크·탁상 라디오·카트리지 랙·빈 DJ 의자 |
+| `rooms/desk.png` | 작가석 풀블리드 페인티드 BG (1920×1080) | 원작 일러스트 | R-BG-05. 원고 보드 4칸·사연함·책상램프·코르크보드 |
+| `rooms/archive.svg` `roof.svg` | 단색 wash 플레이스홀더 | 원작 SVG | 아카이브·옥상은 이후 교체 |
+| `props/*.svg` | 소품·단서 아이콘 (L2 손때) | 원작 SVG | 부조정실·부스·작가석 핫스팟 아이콘 |
 
 ### clue-locked
 

@@ -13,11 +13,13 @@ const FILL: Record<string, number> = {
 
 const TITLE: Record<string, string> = {
   control: '',
-  booth: '부스',
-  desk: '작가석',
+  booth: '',
+  desk: '',
   archive: '아카이브실',
   roof: '옥상',
 };
+
+const PAINTED = new Set(['control', 'booth', 'desk']);
 
 /** Flat night fill behind the DOM scene art. WebGL drops SVG/PNG textures. */
 export const mountRadioRooms: SceneMount = ({ app }) => {
@@ -37,8 +39,8 @@ export const mountRadioRooms: SceneMount = ({ app }) => {
     const fill = FILL[scene] ?? 0x12191f;
     bg.clear();
     bg.rect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT).fill(fill);
-    // Control room is painted in DOM; keep Pixi blank under it.
-    if (scene !== 'control') {
+    // Painted rooms load as DOM img; keep Pixi blank under them.
+    if (!PAINTED.has(scene)) {
       bg.roundRect(100, 200, 1720, 700, 8).fill(0x1a1a1a);
     }
     label.text = TITLE[scene] ?? scene;

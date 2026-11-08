@@ -1,5 +1,7 @@
 /** Lines the gray box speaks. Full VO: docs/시리즈/늘봄/06_겨울온실_대본_v1.md */
 
+import { dialogue, narration, type CaptionLine } from '@/engine/ui/caption';
+
 export const script = {
   'open.1': '12월 14일 밤 10시 40분. 올겨울 첫 한파.',
   'open.2': '하윤아. 온실 열쇠는 경비실에 있다. 하나만 살려다오. 작업대 위 화분을 매트에 올리고.',
@@ -71,14 +73,29 @@ export function line(key: ScriptKey): string {
   return script[key];
 }
 
-export const openingLines = [
-  script['open.1'],
-  script['open.2'],
-  script['open.3'],
-  script['open.4'],
-  script['open.5'],
-  script['open.6'],
-] as const;
+const SPEAKER: Partial<Record<ScriptKey, string>> = {
+  'open.2': '아버지',
+  'open.5': '경비',
+  'p2.radio': '경비',
+  'p3.radio': '경비',
+  'p6.recall': '회상',
+  'p7.radio': '경비',
+  'end.door': '경비',
+};
+
+export function spoken(key: ScriptKey): CaptionLine {
+  const speaker = SPEAKER[key];
+  return speaker !== undefined ? dialogue(script[key], speaker) : narration(script[key]);
+}
+
+export const openingLines: CaptionLine[] = [
+  narration(script['open.1']),
+  dialogue(script['open.2'], '아버지'),
+  narration(script['open.3']),
+  narration(script['open.4']),
+  dialogue(script['open.5'], '경비'),
+  narration(script['open.6']),
+];
 
 export const JOURNAL = `1997. 4.  일곱 다 피었다. 봄이 늦나 보다.
 1998. 4.  일곱 다 피었다. 난초 이름을 그 애 이름으로 했다. 안 왔다.

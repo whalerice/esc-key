@@ -1,5 +1,7 @@
 /** Lines from docs/시리즈/늘봄/04_미니어처_대본_v1.md. Gray-box subset. */
 
+import { narration, type CaptionLine } from '@/engine/ui/caption';
+
 export const script = {
   'narration.opening.1': '비가 그치지 않는 저녁이었다.',
   'narration.opening.2': '작가님은 보이지 않았다. 작업대 위에, 내가 자란 집이 있었다.',
@@ -70,8 +72,12 @@ export function line(key: ScriptKey): string {
   return script[key];
 }
 
-export const openingLines = [
-  script['narration.opening.1'],
-  script['narration.opening.2'],
-  script['narration.guide.onehand'],
+export function spoken(key: ScriptKey): CaptionLine {
+  return narration(script[key]);
+}
+
+export const openingLines: CaptionLine[] = [
+  narration(script['narration.opening.1']),
+  narration(script['narration.opening.2']),
+  narration(script['narration.guide.onehand']),
 ];

@@ -32,6 +32,7 @@ import { applySafeAreaVars } from '@/engine/stage/safeArea';
 import { Hud } from '@/engine/ui/Hud';
 import { hudCollapsed } from '@/engine/ui/hudCollapse';
 import { Narration } from '@/engine/ui/Narration';
+import { asCaption, type CaptionInput, type CaptionLine, type SayFn } from '@/engine/ui/caption';
 import { Banner } from '@/engine/ui/Banner';
 import { RotateOverlay } from '@/engine/ui/RotateOverlay';
 import { HintMemo } from '@/engine/ui/HintMemo';
@@ -69,14 +70,14 @@ export type ThemePlayProps = {
   theme: ThemeDefinition;
   useStore: ThemePlayStore;
   mountScene: SceneMount;
-  openingLines?: string[];
+  openingLines?: CaptionInput[];
   /** Shown under the gate button. */
   gateNote?: string;
   /** Theme overlay once the gate has opened. `askHint` opens the HUD hint (sewing scenes hide that button). */
   overlay?:
     | ReactNode
     | ((api: {
-        say: (text: string) => void;
+        say: SayFn;
         selectedItem: string | null;
         askHint: () => void;
       }) => ReactNode);
@@ -128,7 +129,7 @@ export function ThemePlay({
   const [portrait, setPortrait] = useState(false);
   const [muted, setMuted] = useState(false);
   const [maxBlink, setMaxBlink] = useState(false);
-  const [queue, setQueue] = useState<string[]>(openingLines);
+  const [queue, setQueue] = useState<CaptionLine[]>(() => openingLines.map(asCaption));
   const line = queue[0] ?? null;
   const [hintOpen, setHintOpen] = useState(false);
   const [hintBody, setHintBody] = useState<string | null>(null);
@@ -269,8 +270,8 @@ export function ThemePlay({
   const remain = duration == null ? 0 : remainingMs(duration, snap);
   const used = duration == null ? snap.elapsedMs : Math.max(0, duration - remain);
 
-  const say = useCallback((text: string) => {
-    setQueue((q) => [...q, text]);
+  const say = useCallback((input: CaptionInput) => {
+    setQueue((q) => [...q, asCaption(input)]);
   }, []);
 
   const activePuzzle = useMemo((): PuzzleId | null => {

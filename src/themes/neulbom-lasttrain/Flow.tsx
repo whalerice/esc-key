@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type MutableRefObject, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
+import type { SayFn } from '@/engine/ui/caption';
 import { useAppStore } from '@/engine/save/appStore';
 import { batteryPercent } from '@/engine/systems/Timer';
 import { rectContains, Viewfinder, type ViewRect } from '@/engine/fx/Viewfinder';
@@ -11,7 +12,7 @@ import type { ThemeTimerApi } from '@/engine/ui/ThemePlay';
 import styles from './art.module.css';
 import { boxArt, roomArt } from './art';
 import { playClue, playSeat, stopBeds, syncBed } from './audio';
-import { line } from './data/script';
+import { line, spoken } from './data/script';
 import {
   ALARM,
   BOX_PENALTY_MS,
@@ -56,7 +57,7 @@ export function LasttrainFlow({
   timerRef,
   notebookRef,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   clockRef: MutableRefObject<(ms: number) => void>;
   timerRef: MutableRefObject<ThemeTimerApi | null>;
   notebookRef: MutableRefObject<() => void>;
@@ -164,7 +165,7 @@ function screenOf(
   return 'end';
 }
 
-function P1({ say }: { say: (text: string) => void }) {
+function P1({ say }: { say: SayFn }) {
   const [held, setHeld] = useState<string | null>(null);
   const padRef = useRef<HTMLDivElement>(null);
 
@@ -172,7 +173,7 @@ function P1({ say }: { say: (text: string) => void }) {
     const hit = nearestSnap(x, y, [PORT]);
     if (!hit) return;
     if (!judgeCharger(id)) {
-      say(line('p1.wrong'));
+      say(spoken('p1.wrong'));
       return;
     }
     const s = useLasttrainStore.getState();
@@ -180,8 +181,8 @@ function P1({ say }: { say: (text: string) => void }) {
     s.addItem('천지인 카드');
     addNote('cheonjiin', line('p1.card'));
     playSeat('boot');
-    say(line('p1.solved'));
-    say(line('p1.drain'));
+    say(spoken('p1.solved'));
+    say(spoken('p1.drain'));
   }
 
   function local(e: ReactPointerEvent) {
@@ -194,10 +195,10 @@ function P1({ say }: { say: (text: string) => void }) {
     <section className={styles.panel} data-puzzle="P1">
       <h2>P1 맞는 충전기</h2>
       <div className="radio-row">
-        <button type="button" onClick={() => say(line('p1.log'))}><Mark name="log" />근무일지</button>
-        <button type="button" onClick={() => say(line('p1.wall'))}><Mark name="wall" />퇴역 안내</button>
-        <button type="button" onClick={() => say(line('p1.l4'))}><Mark name="l4" />온실 안내</button>
-        <button type="button" onClick={() => say(line('p1.bin'))}><Mark name="bin" />반납함</button>
+        <button type="button" onClick={() => say(spoken('p1.log'))}><Mark name="log" />근무일지</button>
+        <button type="button" onClick={() => say(spoken('p1.wall'))}><Mark name="wall" />퇴역 안내</button>
+        <button type="button" onClick={() => say(spoken('p1.l4'))}><Mark name="l4" />온실 안내</button>
+        <button type="button" onClick={() => say(spoken('p1.bin'))}><Mark name="bin" />반납함</button>
       </div>
       <p>{line('p1.dead')}</p>
       <div
@@ -239,7 +240,7 @@ function P1({ say }: { say: (text: string) => void }) {
   );
 }
 
-function P2({ say }: { say: (text: string) => void }) {
+function P2({ say }: { say: SayFn }) {
   const [zoom, setZoom] = useState(1);
   const [pin, setPin] = useState('');
 
@@ -274,15 +275,15 @@ function P2({ say }: { say: (text: string) => void }) {
           onChange={setPin}
           onSubmit={() => {
             if (!judgePin(pin)) {
-              say(line('p2.wrong'));
+              say(spoken('p2.wrong'));
               setPin('');
               return;
             }
             useLasttrainStore.getState().markSolved('P2');
             addNote('read', '문자 읽음 23:22 / 안 읽음 23:31·23:40');
             playSeat('sms');
-            say(line('p2.solved'));
-            say(line('p2.inbox'));
+            say(spoken('p2.solved'));
+            say(spoken('p2.inbox'));
           }}
         />
       </div>
@@ -290,7 +291,7 @@ function P2({ say }: { say: (text: string) => void }) {
   );
 }
 
-function P3({ say }: { say: (text: string) => void }) {
+function P3({ say }: { say: SayFn }) {
   const [draft, setDraft] = useState('');
   const solved = useLasttrainStore((s) => !!s.solved.P3);
   const called = useLasttrainStore((s) => !!s.flags.called);
@@ -317,12 +318,12 @@ function P3({ say }: { say: (text: string) => void }) {
               onChange={setDraft}
               onSubmit={() => {
                 if (!judgeDraft(draft)) {
-                  say(line('p3.wrong'));
+                  say(spoken('p3.wrong'));
                   return;
                 }
                 useLasttrainStore.getState().markSolved('P3');
                 addNote('draft', '임시보관함: 선물 눈사람');
-                say(line('p3.solved'));
+                say(spoken('p3.solved'));
               }}
             />
           ) : null
@@ -335,8 +336,8 @@ function P3({ say }: { say: (text: string) => void }) {
             useLasttrainStore.getState().setFlag('called');
             playSeat('hangup');
             playClue('out');
-            say(line('p3.call'));
-            say(line('p3.mine'));
+            say(spoken('p3.call'));
+            say(spoken('p3.mine'));
           }}
         >
           통화
@@ -349,7 +350,7 @@ function P3({ say }: { say: (text: string) => void }) {
 
 const DRAFT = '8215003255 5325812551200';
 
-function P4({ say }: { say: (text: string) => void }) {
+function P4({ say }: { say: SayFn }) {
   const [photo, setPhoto] = useState<'ledger' | 'time' | 'glass' | null>(null);
   const flags = useLasttrainStore((s) => s.flags);
 
@@ -373,14 +374,14 @@ function P4({ say }: { say: (text: string) => void }) {
             addNote('time', '2009 막차 시각표');
             if (!flags.timetableSaid) {
               useLasttrainStore.getState().setFlag('timetableSaid');
-              say(line('p4.time'));
+              say(spoken('p4.time'));
             }
             return;
           }
           if (ids.includes('glass')) {
             setPhoto('glass');
             useLasttrainStore.getState().setFlag('glassShot');
-            say(line('p4.glass'));
+            say(spoken('p4.glass'));
             return;
           }
           say('거긴 아니다.');
@@ -396,12 +397,12 @@ function P4({ say }: { say: (text: string) => void }) {
               type="button"
               onClick={() => {
                 if (!judgeLedger(row.id)) {
-                  say(line(row.id === 'hat' ? 'p4.hat' : row.id === 'film' ? 'p4.film' : row.id === 'phone' ? 'p4.phone' : 'p4.other'));
+                  say(spoken(row.id === 'hat' ? 'p4.hat' : row.id === 'film' ? 'p4.film' : row.id === 'phone' ? 'p4.phone' : 'p4.other'));
                   return;
                 }
                 useLasttrainStore.getState().markSolved('P4');
                 addNote('box24', '2009 막차 7칸 쇼핑백 → 상자 24');
-                say(line('p4.bag'));
+                say(spoken('p4.bag'));
               }}
             >
               {row.text}
@@ -424,7 +425,7 @@ function P5({
   say,
   timerRef,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   timerRef: MutableRefObject<ThemeTimerApi | null>;
 }) {
   const [saw, setSaw] = useState(false);
@@ -446,8 +447,8 @@ function P5({
           }
           setSaw(true);
           addNote('boxlook', '2009 상자 24: 파란 테이프 X자, 오른쪽 위 찌그러짐');
-          say(line('p5.old'));
-          say(line('p5.moved'));
+          say(spoken('p5.old'));
+          say(spoken('p5.moved'));
         }}
       />
       <div className="lasttrain-pad" data-live="shelf" style={{ height: FINDER_PAD.h }}>
@@ -471,11 +472,11 @@ function P5({
                     return;
                   }
                   useLasttrainStore.getState().markSolved('P5');
-                  say(line('p5.solved'));
+                  say(spoken('p5.solved'));
                   return;
                 }
                 timerRef.current?.penalty(BOX_PENALTY_MS);
-                say(line(result === 'plus' ? 'p5.plus' : result === 'line' ? 'p5.line' : result === 'dent' ? 'p5.dent' : 'p5.other'));
+                say(spoken(result === 'plus' ? 'p5.plus' : result === 'line' ? 'p5.line' : result === 'dent' ? 'p5.dent' : 'p5.other'));
               }}
             >
               {tapeLabel(box)}
@@ -487,7 +488,7 @@ function P5({
   );
 }
 
-function P6({ say }: { say: (text: string) => void }) {
+function P6({ say }: { say: SayFn }) {
   const solved = useLasttrainStore((s) => !!s.solved.P6);
   const joined = useLasttrainStore((s) => !!s.flags.receipt);
   const [held, setHeld] = useState<string | null>(null);
@@ -503,7 +504,7 @@ function P6({ say }: { say: (text: string) => void }) {
     if (!target || !nearestSnap(target.x, target.y, [...RECEIPT])) return;
     useLasttrainStore.getState().setFlag('receipt');
     addNote('receipt', '영수증 22:47');
-    say(line('p6.slip'));
+    say(spoken('p6.slip'));
     setHeld(null);
   }
 
@@ -513,7 +514,7 @@ function P6({ say }: { say: (text: string) => void }) {
       <img className={styles.clue} src="/themes/neulbom-lasttrain/props/bag.svg" alt="" />
       <p>{line('p6.tag')}</p>
       <p><Mark name="card" />{line('p6.card')}</p>
-      <button type="button" onClick={() => say(line('p6.glove'))}><Mark name="glove" />털장갑</button>
+      <button type="button" onClick={() => say(spoken('p6.glove'))}><Mark name="glove" />털장갑</button>
       {!joined && (
         <div className="radio-row" data-live="receipt">
           {RECEIPT.map((half) => (
@@ -534,7 +535,7 @@ function P6({ say }: { say: (text: string) => void }) {
             onChange={setCode}
             onSubmit={() => {
               if (!judgeFolder(code)) {
-                say(line('p6.wrong'));
+                say(spoken('p6.wrong'));
                 setCode('');
                 return;
               }
@@ -560,13 +561,13 @@ function P6({ say }: { say: (text: string) => void }) {
               type="button"
               onClick={() => {
                 setPhoto(null);
-                say(line('p6.quiet'));
+                say(spoken('p6.quiet'));
                 playSeat('station');
                 playClue('kwak');
-                say(line('p6.kwak'));
-                say(line('p6.me'));
-                say(line('p6.ask'));
-                say(line('p6.blank'));
+                say(spoken('p6.kwak'));
+                say(spoken('p6.me'));
+                say(spoken('p6.ask'));
+                say(spoken('p6.blank'));
                 useLasttrainStore.getState().setFlag('revealed');
               }}
             >
@@ -579,7 +580,7 @@ function P6({ say }: { say: (text: string) => void }) {
   );
 }
 
-function P7({ say }: { say: (text: string) => void }) {
+function P7({ say }: { say: SayFn }) {
   const [name, setName] = useState('');
   const [finder, setFinder] = useState(false);
   const shot = useLasttrainStore((s) => !!s.flags.timetableShot);
@@ -593,11 +594,11 @@ function P7({ say }: { say: (text: string) => void }) {
       }
       useLasttrainStore.getState().markSolved('P7');
       playSeat('sms');
-      say(line('p7.solved'));
-      say(line('p7.knew'));
+      say(spoken('p7.solved'));
+      say(spoken('p7.knew'));
       return;
     }
-    say(line(result === 'saemal' ? 'p7.saemal' : result === 'dorae' ? 'p7.dorae' : result === 'asleep' ? 'p7.asleep' : 'p7.none'));
+    say(spoken(result === 'saemal' ? 'p7.saemal' : result === 'dorae' ? 'p7.dorae' : result === 'asleep' ? 'p7.asleep' : 'p7.none'));
     setName('');
   }
 
@@ -625,7 +626,7 @@ function P7({ say }: { say: (text: string) => void }) {
             if (!ids.includes('timetable')) return;
             useLasttrainStore.getState().setFlag('timetableShot');
             addNote('time', '2009 막차 시각표');
-            say(line('p4.time'));
+            say(spoken('p4.time'));
             setFinder(false);
           }}
         />
@@ -640,7 +641,7 @@ function P8({
   say,
   timerRef,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   timerRef: MutableRefObject<ThemeTimerApi | null>;
 }) {
   const [script, setScript] = useState<CheonjiinScript>('digit');
@@ -654,11 +655,11 @@ function P8({
     if (result === 'ok') {
       s.markSolved('P8');
       playSeat('poweroff');
-      say(line('p8.sent'));
+      say(spoken('p8.sent'));
       return;
     }
     timerRef.current?.penalty(REPLY_PENALTY_MS);
-    say(line(result === 'ourWay' ? 'p8.ourWay' : result === 'eungok' ? 'p8.eungok' : 'p8.wrong'));
+    say(spoken(result === 'ourWay' ? 'p8.ourWay' : result === 'eungok' ? 'p8.eungok' : 'p8.wrong'));
     setText('');
   }
 
@@ -689,7 +690,7 @@ function P8({
   );
 }
 
-function EndingA({ say }: { say: (text: string) => void }) {
+function EndingA({ say }: { say: SayFn }) {
   const [step, setStep] = useState(0);
   const beats = [line('end.a1'), line('end.a2'), line('end.a3'), line('end.a4'), line('end.a5'), line('end.a6')];
   useEffect(() => {
@@ -707,7 +708,7 @@ function EndingA({ say }: { say: (text: string) => void }) {
         <button
           type="button"
           onClick={() => {
-            say(line('end.a6'));
+            say(spoken('end.a6'));
             useLasttrainStore.getState().setFlag('endingA');
           }}
         >
@@ -727,7 +728,7 @@ function PhoneBook({
 }: {
   year: string;
   showSister: boolean;
-  say: (text: string) => void;
+  say: SayFn;
   lead?: ReactNode;
   pad?: ReactNode;
 }) {
@@ -785,7 +786,7 @@ function PhoneBook({
   );
 }
 
-function Notebook({ onClose, say }: { onClose: () => void; say: (text: string) => void }) {
+function Notebook({ onClose, say }: { onClose: () => void; say: SayFn }) {
   const notes = useLasttrainStore((s) => s.notebook);
   const items = useLasttrainStore((s) => s.items);
   const solved = useLasttrainStore((s) => s.solved);
@@ -805,12 +806,12 @@ function Notebook({ onClose, say }: { onClose: () => void; say: (text: string) =
           onChange={setDraft}
           onSubmit={() => {
             if (!judgeDraft(draft)) {
-              say(line('p3.wrong'));
+              say(spoken('p3.wrong'));
               return;
             }
             useLasttrainStore.getState().markSolved('P3');
             addNote('draft', '임시보관함: 선물 눈사람');
-            say(line('p3.solved'));
+            say(spoken('p3.solved'));
           }}
         />
       )}

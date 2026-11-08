@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type ComponentProps, type MutableRefObject, type PointerEvent as ReactPointerEvent } from 'react';
+import type { SayFn } from '@/engine/ui/caption';
 import { Howl } from 'howler';
 import { playHtml5Clip } from '@/engine/audio/html5Clip';
 import { isAudioUnlocked } from '@/engine/audio/SoundManager';
@@ -20,6 +21,7 @@ import {
   LEDGER_2023,
   line,
   MOM_NOTE,
+  spoken,
   type ScriptKey,
 } from './data/script';
 import { BED_SRC, CLUE_SRC, ROOM_SRC, SFX_SRC } from './art';
@@ -109,7 +111,7 @@ export function TailorFlow({
   onUseRef,
   onHold,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   askHint: () => void;
   clockRef: MutableRefObject<(ms: number) => void>;
   selectedItem: string | null;
@@ -138,26 +140,26 @@ export function TailorFlow({
     const s = useTailorStore.getState();
     if (scene === 'warehouse' && !s.flags.p2room) {
       s.setFlag('p2room');
-      sayRef.current(line('p2.room'));
+      sayRef.current(spoken('p2.room'));
     }
     if (scene === 'shelf' && !s.flags.p4look) {
       s.setFlag('p4look');
-      sayRef.current(line('p4.look'));
+      sayRef.current(spoken('p4.look'));
     }
     if (scene === 'bench' && s.solved.P4 && !s.flags.p5flash) {
       s.setFlag('p5flash');
-      sayRef.current(line('p5.flash'));
+      sayRef.current(spoken('p5.flash'));
     }
     if (scene === 'sewing-straight' && !s.flags.sewGuide) {
       s.setFlag('sewGuide');
-      sayRef.current(line('p3.guide1'));
-      sayRef.current(line('p3.guide2'));
-      sayRef.current(line('p3.one'));
+      sayRef.current(spoken('p3.guide1'));
+      sayRef.current(spoken('p3.guide2'));
+      sayRef.current(spoken('p3.one'));
     }
     if (scene === 'sewing-curve' && !s.flags.curveGuide) {
       s.setFlag('curveGuide');
-      sayRef.current(line('p8.pocket'));
-      sayRef.current(line('p8.ask'));
+      sayRef.current(spoken('p8.pocket'));
+      sayRef.current(spoken('p8.ask'));
     }
   }, [scene]);
 
@@ -239,7 +241,7 @@ export function TailorFlow({
           icon="warehouse"
           onClick={() => {
             if (!solved.P1 && scene !== 'door') {
-              say(line('p1.curtain'));
+              say(spoken('p1.curtain'));
               go('door');
               return;
             }
@@ -344,17 +346,17 @@ function addNote(id: string, text: string) {
   useTailorStore.setState({ notebook: [...s.notebook, { id, text }] });
 }
 
-function Shop({ say }: { say: (text: string) => void }) {
+function Shop({ say }: { say: SayFn }) {
   return (
     <section>
       <div className="radio-row">
-        <Prop icon="boss" onClick={() => say(line('p1.boss'))}>
+        <Prop icon="boss" onClick={() => say(spoken('p1.boss'))}>
           사장
         </Prop>
         <Prop
           icon="ticket"
           onClick={() => {
-            say(line('p1.ticket'));
+            say(spoken('p1.ticket'));
             addNote('ticket', line('p1.ticket'));
           }}
         >
@@ -365,7 +367,7 @@ function Shop({ say }: { say: (text: string) => void }) {
   );
 }
 
-function Door({ say }: { say: (text: string) => void }) {
+function Door({ say }: { say: SayFn }) {
   const solved = useTailorStore((s) => !!s.solved.P1);
   const dial = useRef(new NumberDial(4));
   const [vals, setVals] = useState<number[]>([0, 0, 0, 0]);
@@ -374,20 +376,20 @@ function Door({ say }: { say: (text: string) => void }) {
   return (
     <section>
       <div className="radio-row">
-        <Prop icon="lock" onClick={() => say(line('p1.curtain'))}>
+        <Prop icon="lock" onClick={() => say(spoken('p1.curtain'))}>
           자물쇠
         </Prop>
         <Prop
           icon="tape"
           onClick={() => {
             setClues((prev) => markFound(prev, 'tape'));
-            say(line('p1.tape'));
+            say(spoken('p1.tape'));
             addNote('tape', '줄자 단추: 0 · 7 · 3 · 1');
           }}
         >
           줄자 {clues[0]?.found ? '확인' : ''}
         </Prop>
-        <Prop icon="boss" onClick={() => say(line('p1.boss'))}>
+        <Prop icon="boss" onClick={() => say(spoken('p1.boss'))}>
           사장
         </Prop>
       </div>
@@ -418,17 +420,17 @@ function Door({ say }: { say: (text: string) => void }) {
                 if (s.solved.P1) return;
                 s.markSolved('P1');
                 s.setScene('warehouse');
-                say(line('p1.solved'));
-                say(line('p1.chance'));
-                say(line('p1.smell'));
+                say(spoken('p1.solved'));
+                say(spoken('p1.chance'));
+                say(spoken('p1.smell'));
                 return;
               }
               if (verdict === 'reverse') {
                 useTailorStore.getState().patchExtra({ trapReverseTape: true });
-                say(line('p1.reverse'));
+                say(spoken('p1.reverse'));
                 return;
               }
-              say(line('p1.no'));
+              say(spoken('p1.no'));
             }}
           >
             열기
@@ -444,7 +446,7 @@ function Ledger({
   say,
   setCard,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   setCard: (card: Card) => void;
 }) {
   const solved = useTailorStore((s) => s.solved);
@@ -462,8 +464,8 @@ function Ledger({
             tailorSfx(SFX_SRC.page);
             setBooks((prev) => markFound(prev, '1999'));
             setCard({ title: '1999년 장부', body: LEDGER_1999 });
-            say(line('p2.book1999'));
-            say(line('p2.boss'));
+            say(spoken('p2.book1999'));
+            say(spoken('p2.boss'));
             addNote('0731', line('p2.book1999'));
           }}
         >
@@ -475,7 +477,7 @@ function Ledger({
             tailorSfx(SFX_SRC.page);
             setBooks((prev) => markFound(prev, '2023'));
             setCard({ title: '2023년 장부', body: LEDGER_2023 });
-            say(line('p2.book2023'));
+            say(spoken('p2.book2023'));
           }}
         >
           2023 {books.find((book) => book.id === '2023')?.found ? '봄' : ''}
@@ -490,7 +492,7 @@ function Ledger({
         <Prop
           icon="cloth"
           onClick={() => {
-            say(line('p8.ask'));
+            say(spoken('p8.ask'));
             useTailorStore.getState().setScene('sewing-curve');
           }}
         >
@@ -501,39 +503,39 @@ function Ledger({
   );
 }
 
-function openStraight(say: (text: string) => void) {
-  say(line('p3.ask'));
-  say(line('p3.me'));
+function openStraight(say: SayFn) {
+  say(spoken('p3.ask'));
+  say(spoken('p3.me'));
   useTailorStore.getState().setScene('sewing-straight');
 }
 
-function Warehouse({ say }: { say: (text: string) => void }) {
+function Warehouse({ say }: { say: SayFn }) {
   const solved = useTailorStore((s) => s.solved);
   const items = useTailorStore((s) => s.items);
   const pick = (color: string, fromTop: number) => {
     const verdict = judgeShelf(color, fromTop);
     tailorSfx(SFX_SRC.cloth);
     if (verdict === 'clue') {
-      say(line('p2.uniform'));
+      say(spoken('p2.uniform'));
       addNote('ribbon', line('p2.note'));
       return;
     }
     if (verdict === 'trap') {
       useTailorStore.getState().patchExtra({ trapShelfFromBottom: true });
-      say(line('p2.trap'));
+      say(spoken('p2.trap'));
       return;
     }
     if (verdict === 'ok') {
       const s = useTailorStore.getState();
-      if (s.solved.P2) return say(line('p2.solved'));
+      if (s.solved.P2) return say(spoken('p2.solved'));
       s.patchExtra({ shelfFound: true });
       s.markSolved('P2');
-      say(line('p2.solved'));
-      say(line('p2.jin'));
-      say(line('p2.call'));
+      say(spoken('p2.solved'));
+      say(spoken('p2.jin'));
+      say(spoken('p2.call'));
       return;
     }
-    say(line('p2.no'));
+    say(spoken('p2.no'));
   };
 
   return (
@@ -557,7 +559,7 @@ function Warehouse({ say }: { say: (text: string) => void }) {
         <Prop
           icon="mesh"
           onClick={() => {
-            if (!items.includes(ITEM_KEY)) return say(line('p4.need'));
+            if (!items.includes(ITEM_KEY)) return say(spoken('p4.need'));
             tailorSfx(SFX_SRC.key);
             useTailorStore.getState().setScene('shelf');
           }}
@@ -574,7 +576,7 @@ function Warehouse({ say }: { say: (text: string) => void }) {
   );
 }
 
-function compare(itemId: string | null, coverId: string, say: (text: string) => void) {
+function compare(itemId: string | null, coverId: string, say: SayFn) {
   tailorSfx(SFX_SRC.page);
   if (itemId !== ITEM_TICKET) {
     say('번호표 반쪽을 맞대 봐.');
@@ -589,21 +591,21 @@ function compare(itemId: string | null, coverId: string, say: (text: string) => 
   if (verdict === 'ok') {
     useTailorStore.getState().markSolved('P4');
     useTailorStore.getState().setScene('bench');
-    say(line('p4.solved'));
-    say(line('p4.years'));
+    say(spoken('p4.solved'));
+    say(spoken('p4.years'));
     addNote('years', line('p4.years'));
     return;
   }
   const key: ScriptKey =
     verdict === 'edge' ? 'p4.edge' : verdict === 'wave' ? 'p4.wave' : 'p4.seal';
-  say(line(key));
+  say(spoken(key));
 }
 
 function Shelf({
   say,
   selectedItem,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   selectedItem: string | null;
 }) {
   const solved = useTailorStore((s) => !!s.solved.P4);
@@ -613,7 +615,7 @@ function Shelf({
         icon="stub-mine"
         wide
         onClick={() => {
-          say(line('p4.mine'));
+          say(spoken('p4.mine'));
           addNote('stub', line('p4.mine'));
         }}
       >
@@ -642,7 +644,7 @@ function Shelf({
   );
 }
 
-function finishStraight(ratio: number, say: (text: string) => void) {
+function finishStraight(ratio: number, say: SayFn) {
   const s = useTailorStore.getState();
   if (s.solved.P3) return;
   s.patchExtra({ sewScore: { ...s.extra.sewScore, P3: straightPercent(ratio) } });
@@ -650,16 +652,16 @@ function finishStraight(ratio: number, say: (text: string) => void) {
   s.addItem(ITEM_KEY);
   s.addItem(ITEM_RIPPER);
   s.setScene('warehouse');
-  say(line('p3.solved'));
-  say(line('p3.key'));
-  say(line('p3.ripper'));
+  say(spoken('p3.solved'));
+  say(spoken('p3.key'));
+  say(spoken('p3.ripper'));
 }
 
 function Bench({
   say,
   setCard,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   setCard: (card: Card) => void;
 }) {
   const solved = useTailorStore((s) => s.solved);
@@ -673,20 +675,20 @@ function Bench({
       {!solved.P5 && (
         <>
           <div className="radio-row">
-            <Prop icon="memo" onClick={() => say(line('p5.memo'))}>
+            <Prop icon="memo" onClick={() => say(spoken('p5.memo'))}>
               커버 메모
             </Prop>
-            <Prop icon="pocket" onClick={() => say(line('p5.left'))}>
+            <Prop icon="pocket" onClick={() => say(spoken('p5.left'))}>
               겉 왼쪽
             </Prop>
-            <Prop icon="pocket" onClick={() => say(line('p5.right'))}>
+            <Prop icon="pocket" onClick={() => say(spoken('p5.right'))}>
               겉 오른쪽
             </Prop>
             <Prop
               icon="ripper"
               data-use-target="lining"
               onClick={() => {
-                say(line('p5.lining'));
+                say(spoken('p5.lining'));
                 startRip(items.includes(ITEM_RIPPER) ? ITEM_RIPPER : null, say);
                 if (items.includes(ITEM_RIPPER)) setRipping(true);
               }}
@@ -734,11 +736,11 @@ function Bench({
   );
 }
 
-function startRip(itemId: string | null, say: (text: string) => void) {
-  if (itemId !== ITEM_RIPPER) say(line('p5.need'));
+function startRip(itemId: string | null, say: SayFn) {
+  if (itemId !== ITEM_RIPPER) say(spoken('p5.need'));
 }
 
-function finishRip(say: (text: string) => void, setCard: (card: Card) => void) {
+function finishRip(say: SayFn, setCard: (card: Card) => void) {
   const s = useTailorStore.getState();
   if (s.solved.P5) return;
   s.markSolved('P5');
@@ -747,12 +749,12 @@ function finishRip(say: (text: string) => void, setCard: (card: Card) => void) {
   addNote('mom', '엄마의 쪽지');
   addNote('how', '꼬마 단추 다는 법');
   setCard({ title: '엄마의 쪽지', body: MOM_NOTE });
-  say(line('p5.solved'));
-  say(line('p5.boss'));
-  say(line('p5.card'));
+  say(spoken('p5.solved'));
+  say(spoken('p5.boss'));
+  say(spoken('p5.card'));
 }
 
-function RipPad({ say, onDone }: { say: (text: string) => void; onDone: () => void }) {
+function RipPad({ say, onDone }: { say: SayFn; onDone: () => void }) {
   const padRef = useRef<HTMLDivElement>(null);
   const api = useRef<SeamRip | null>(null);
   const [left, setLeft] = useState(RIP_COUNT);
@@ -773,7 +775,7 @@ function RipPad({ say, onDone }: { say: (text: string) => void; onDone: () => vo
         tailorSfx(SFX_SRC.rip);
         useTailorStore.getState().patchExtra({ ripped: RIP_COUNT - n });
       },
-      onStray: () => sayRef.current(line('p5.stray')),
+      onStray: () => sayRef.current(spoken('p5.stray')),
       onComplete: () => onDoneRef.current(),
     });
     const saved = Math.min(RIP_COUNT, useTailorStore.getState().extra.ripped);
@@ -819,7 +821,7 @@ function CasePuzzle({
   piece,
   setPiece,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   piece: string | null;
   setPiece: (id: string) => void;
 }) {
@@ -827,19 +829,19 @@ function CasePuzzle({
   return (
     <section>
       <div className="radio-row">
-        <Prop icon="button-spot" onClick={() => say(line('p6.spot'))}>
+        <Prop icon="button-spot" onClick={() => say(spoken('p6.spot'))}>
           빈 단추 자리
         </Prop>
         <Prop
           icon="case"
           onClick={() => {
-            say(line('p6.case'));
+            say(spoken('p6.case'));
             addNote('lid', '엄마 생일 12/22 단추!!');
           }}
         >
           필통
         </Prop>
-        <Prop icon="gauge" onClick={() => say(line('p6.gauge'))}>
+        <Prop icon="gauge" onClick={() => say(spoken('p6.gauge'))}>
           게이지
         </Prop>
       </div>
@@ -867,7 +869,7 @@ function CasePuzzle({
                 say(`${line('p6.fit')} ${mm}mm.`);
                 return;
               }
-              say(line('p6.loose'));
+              say(spoken('p6.loose'));
             }}
           >
             {hole.id}mm
@@ -881,18 +883,18 @@ function CasePuzzle({
             if (verdict === 'ok') {
               const s = useTailorStore.getState();
               if (!s.solved.P6) s.markSolved('P6');
-              say(line('p6.solved'));
-              say(line('p6.boss'));
+              say(spoken('p6.solved'));
+              say(spoken('p6.boss'));
               return;
             }
             if (verdict === 'small') {
               useTailorStore.getState().patchExtra({ trapBrownGlass: true });
-              say(line('p6.brown'));
+              say(spoken('p6.brown'));
               return;
             }
             const key: ScriptKey =
               verdict === 'big' ? 'p6.big' : verdict === 'one' ? 'p6.one' : verdict === 'roll' ? 'p6.roll' : 'p6.plain';
-            say(line(key));
+            say(spoken(key));
           }}
         >
           단추 자리에
@@ -907,7 +909,7 @@ function ButtonPuzzle({
   step,
   setCard,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   step: number;
   setCard: (card: Card) => void;
 }) {
@@ -922,7 +924,7 @@ function ButtonPuzzle({
           icon="scissors"
           onClick={() => {
             tailorSfx(SFX_SRC.snip);
-            say(line('p7.spool'));
+            say(spoken('p7.spool'));
             useTailorStore.getState().patchExtra({ buttonStep: 1 });
           }}
         >
@@ -937,7 +939,7 @@ function ButtonPuzzle({
   );
 }
 
-function Eye({ say }: { say: (text: string) => void }) {
+function Eye({ say }: { say: SayFn }) {
   const [holding, setHolding] = useState(false);
   const [inside, setInside] = useState(false);
   const start = useRef<number | null>(null);
@@ -979,10 +981,10 @@ function Eye({ say }: { say: (text: string) => void }) {
           const verdict = judgeEye(true, inside, held);
           if (verdict === 'ok') return;
           if (verdict === 'miss' || verdict === 'short') {
-            sayRef.current(line('p7.miss'));
+            sayRef.current(spoken('p7.miss'));
             if (!said.current) {
               said.current = true;
-              sayRef.current(line('p7.hand'));
+              sayRef.current(spoken('p7.hand'));
             }
           }
         }}
@@ -990,14 +992,14 @@ function Eye({ say }: { say: (text: string) => void }) {
       >
         실 끝 대기
       </Prop>
-      <Prop icon="spool" onClick={() => say(line('p7.fuzz'))}>
+      <Prop icon="spool" onClick={() => say(spoken('p7.fuzz'))}>
         안 자르고 꿰기
       </Prop>
     </div>
   );
 }
 
-function Holes({ say }: { say: (text: string) => void }) {
+function Holes({ say }: { say: SayFn }) {
   const [seq, setSeq] = useState<string[]>([]);
   const tap = (id: string) => {
     const next = [...seq, id];
@@ -1011,7 +1013,7 @@ function Holes({ say }: { say: (text: string) => void }) {
       return;
     }
     setSeq([]);
-    say(line('p7.tangle'));
+    say(spoken('p7.tangle'));
   };
   return (
     <div className="radio-row">
@@ -1028,7 +1030,7 @@ function Holes({ say }: { say: (text: string) => void }) {
   );
 }
 
-function Wrap({ say }: { say: (text: string) => void }) {
+function Wrap({ say }: { say: SayFn }) {
   const acc = useRef(0);
   const prev = useRef<number | null>(null);
   const [turns, setTurns] = useState(0);
@@ -1038,7 +1040,7 @@ function Wrap({ say }: { say: (text: string) => void }) {
     if (done.current || judgeWrap(n) !== 'ok') return;
     done.current = true;
     useTailorStore.getState().patchExtra({ buttonStep: 4 });
-    say(line('p7.wrap'));
+    say(spoken('p7.wrap'));
   };
   const angle = (event: ReactPointerEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -1075,7 +1077,7 @@ function Wrap({ say }: { say: (text: string) => void }) {
   );
 }
 
-function Knot({ say }: { say: (text: string) => void }) {
+function Knot({ say }: { say: SayFn }) {
   const down = useRef(0);
   return (
     <Prop
@@ -1086,16 +1088,16 @@ function Knot({ say }: { say: (text: string) => void }) {
       onPointerUp={() => {
         const held = performance.now() - down.current;
         if (judgeKnot(held) !== 'ok') {
-          say(line('p7.short'));
+          say(spoken('p7.short'));
           return;
         }
         tailorSfx(SFX_SRC.knot);
         const s = useTailorStore.getState();
         if (s.solved.P7) return;
         s.markSolved('P7');
-        say(line('p7.solved'));
-        say(line('p7.knot'));
-        say(line('p7.next'));
+        say(spoken('p7.solved'));
+        say(spoken('p7.knot'));
+        say(spoken('p7.next'));
       }}
     >
       매듭 누르기
@@ -1109,7 +1111,7 @@ function SewBox({
   onPass,
 }: {
   curve: boolean;
-  say: (text: string) => void;
+  say: SayFn;
   onPass: (ratio: number) => void;
 }) {
   const padRef = useRef<HTMLDivElement>(null);
@@ -1132,8 +1134,8 @@ function SewBox({
       oneHand: true,
       feed: curve ? [0, 40, 40, 40] : [0, 140, 200, 260],
       stepMs: curve ? 3000 : 500,
-      onBunch: () => sayRef.current(line('p3.bunch')),
-      onBigMiss: () => sayRef.current(line('p3.miss')),
+      onBunch: () => sayRef.current(spoken('p3.bunch')),
+      onBigMiss: () => sayRef.current(spoken('p3.miss')),
       onReachEnd: (ratio) => {
         if (judgeSew(ratio) === 'ok') {
           if (passed.current) return;
@@ -1141,7 +1143,7 @@ function SewBox({
           onPassRef.current(ratio);
           return;
         }
-        sayRef.current(line('p3.bad'));
+        sayRef.current(spoken('p3.bad'));
         machine.reset();
         passed.current = false;
       },

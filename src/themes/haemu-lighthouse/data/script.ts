@@ -1,5 +1,7 @@
 /** Lines that move the night. Full VO stays in the script doc. */
 
+import { dialogue, narration, type CaptionLine } from '@/engine/ui/caption';
+
 export const script = {
   'open.1': '2026년 11월 12일 목요일. 새벽 1시 55분. 해무.',
   'open.2': '영감이 휴대 무전기를 건넨다. 발목을 접질려 등탑에는 못 오른다.',
@@ -122,7 +124,37 @@ export function line(key: ScriptKey): string {
   return script[key];
 }
 
-export const openingLines = [script['open.1'], script['open.2'], script['open.3']];
+const SPEAKER: Partial<Record<ScriptKey, string>> = {
+  'p1.chartWrong': '영감',
+  'p1.solved': '영감',
+  'p2.tube': '영감',
+  'p2.tubeSilent': '영감',
+  'p3.tube': '영감',
+  'p4.tube': '영감',
+  'p5.tube': '영감',
+  'p6.tube': '영감',
+  'p7.tube': '영감',
+  'p7.tube1': '영감',
+  'p7.tube2': '영감',
+  'p8.no': '영감',
+  'p8.tube': '영감',
+  'end.cap': '무전',
+  'end.corner': '도윤',
+  'end.letter': '영감',
+  'end.off': '도윤',
+  'end.handover': '영감',
+};
+
+export function spoken(key: ScriptKey): CaptionLine {
+  const speaker = SPEAKER[key];
+  return speaker !== undefined ? dialogue(script[key], speaker) : narration(script[key]);
+}
+
+export const openingLines: CaptionLine[] = [
+  narration(script['open.1']),
+  narration(script['open.2']),
+  narration(script['open.3']),
+];
 
 export const endingBeats = [
   'end.cap',

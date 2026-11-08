@@ -1,5 +1,7 @@
 /** Lines the gray box speaks. Full scene text stays in the script doc. */
 
+import { dialogue, narration, type CaptionLine } from '@/engine/ui/caption';
+
 const LINES = {
   'p1.curtain': '꽃무늬 커튼 뒤 나무 문. 4자리 숫자 자물쇠.',
   'p1.tape': '단추가 꽂혀 있다. 0, 7, 3, 1… 자리에.',
@@ -98,17 +100,41 @@ export function line(key: ScriptKey): string {
   return LINES[key];
 }
 
-export const openingLines = [
-  '2026년 12월 4일 금요일 · 밤 8시 58분 · 해무시장 2층. 간판 한 땀.',
-  '라디오 광고 하나 듣고 여기까지 왔다.',
-  '뭘 맡겼는지도 모르면서.',
-  '오늘은 찾아가는 손님만 받아요. 번호표 있어요?',
-  '0731… 99년이네. 너 그 꼬마구나. 키가 이만했는데.',
-  '기억하고말고. 27년 만이네. 늦었다, 꼬마.',
-  '아, 아. 2층 상인분들, 전기 21시 30분에 내립니다. 남은 짐은 컨테이너로 갑니다.',
-  '들었지? 반 시간. 창고 들어가서 찾아. 실 한 패 다 쓰기 전에 끝내자.',
-  '장부 보면 나와. 창고 문은… 문에 걸린 줄자가 알려 줘.',
-] as const;
+const SPEAKER: Partial<Record<ScriptKey, string>> = {
+  'p1.boss': '사장',
+  'p2.boss': '사장',
+  'p2.jin': '진억수',
+  'p2.call': '사장',
+  'p3.ask': '진억수',
+  'p3.bunch': '사장',
+  'p3.miss': '사장',
+  'p3.bad': '사장',
+  'p3.solved': '진억수',
+  'p3.key': '진억수',
+  'clock.mangnae': '손님',
+  'clock.cat': '손님',
+  'clock.kim': '손님',
+  'clock.pa2': '방송',
+  'end.8': '사장',
+  'end.9': '엄마',
+};
+
+export function spoken(key: ScriptKey): CaptionLine {
+  const speaker = SPEAKER[key];
+  return speaker !== undefined ? dialogue(LINES[key], speaker) : narration(LINES[key]);
+}
+
+export const openingLines: CaptionLine[] = [
+  narration('2026년 12월 4일 금요일 · 밤 8시 58분 · 해무시장 2층. 간판 한 땀.'),
+  narration('라디오 광고 하나 듣고 여기까지 왔다.'),
+  narration('뭘 맡겼는지도 모르면서.'),
+  dialogue('오늘은 찾아가는 손님만 받아요. 번호표 있어요?', '사장'),
+  dialogue('0731… 99년이네. 너 그 꼬마구나. 키가 이만했는데.', '사장'),
+  dialogue('기억하고말고. 27년 만이네. 늦었다, 꼬마.', '사장'),
+  dialogue('아, 아. 2층 상인분들, 전기 21시 30분에 내립니다. 남은 짐은 컨테이너로 갑니다.', '방송'),
+  dialogue('들었지? 반 시간. 창고 들어가서 찾아. 실 한 패 다 쓰기 전에 끝내자.', '사장'),
+  dialogue('장부 보면 나와. 창고 문은… 문에 걸린 줄자가 알려 줘.', '사장'),
+];
 
 export const endingBeats = [
   'end.1',

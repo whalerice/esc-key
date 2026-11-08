@@ -1,5 +1,7 @@
 /** Spoken lines. Full VO: docs/시리즈/늘봄/09_막차이후_대본_v1.md */
 
+import { dialogue, narration, type CaptionLine } from '@/engine/ui/caption';
+
 export const script = {
   'open.1': '2026년 12월 24일 밤 11시 30분. 늘봄시 새말역.',
   'open.2': '이번 열차는 새말선 2009년식 전동차의 마지막 운행입니다.',
@@ -85,10 +87,32 @@ export function line(id: ScriptId): string {
   return script[id];
 }
 
-export const openingLines = [
-  script['open.1'],
-  script['open.2'],
-  script['open.3'],
-  script['open.4'],
-  script['open.5'],
-] as const;
+/** Keys that are character speech on the bottom strip. */
+const SPEAKER: Partial<Record<ScriptId, string>> = {
+  'open.3': '기관사',
+  'p3.call': '안내',
+  'p6.kwak': '곽 반장',
+  'p6.ask': '곽 반장',
+  'p7.saemal': '곽 반장',
+  'p7.dorae': '곽 반장',
+  'p7.asleep': '곽 반장',
+  'p7.none': '곽 반장',
+  'p8.ourWay': '누나',
+  'p8.eungok': '누나',
+  'end.a2': '손님',
+  'end.a3': '손님',
+  'end.a4': '누나',
+};
+
+export function spoken(id: ScriptId): CaptionLine {
+  const speaker = SPEAKER[id];
+  return speaker !== undefined ? dialogue(script[id], speaker) : narration(script[id]);
+}
+
+export const openingLines: CaptionLine[] = [
+  narration(script['open.1']),
+  narration(script['open.2']),
+  dialogue(script['open.3'], '기관사'),
+  narration(script['open.4']),
+  narration(script['open.5']),
+];

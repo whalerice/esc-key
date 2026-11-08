@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type ComponentProps, type MutableRefObject, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
+import type { SayFn } from '@/engine/ui/caption';
 import { Howl } from 'howler';
 import { DISTANCE, RadioBed } from '@/engine/audio/RadioBed';
 import { playHtml5Clip } from '@/engine/audio/html5Clip';
@@ -13,7 +14,7 @@ import { Keypad } from '@/engine/widgets/Keypad';
 import { SafeDial } from '@/engine/widgets/SafeDial';
 import { TuningKnob, type TuningStation } from '@/engine/widgets/TuningKnob';
 import { VerticalFader } from '@/engine/widgets/VerticalFader';
-import { P6_CALL, P7_CALLS, line } from './data/script';
+import { P6_CALL, line, spoken } from './data/script';
 import { themeHaemuRadio } from './index';
 import {
   CARTS,
@@ -123,7 +124,7 @@ export function RadioFlow({
   selectedItem,
   onUseRef,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   clockRef: MutableRefObject<(ms: number) => void>;
   selectedItem: string | null;
   onUseRef: MutableRefObject<(itemId: string | null, targetId: string) => void>;
@@ -152,7 +153,7 @@ export function RadioFlow({
     if (scene !== 'control' || !extra.txLocked || extra.letterPlaced) return;
     if (items.includes('팔칠구의 편지')) return;
     useRadioStore.getState().addItem('팔칠구의 편지');
-    say(line('p8.letter'));
+    say(spoken('p8.letter'));
   }, [scene, extra.txLocked, extra.letterPlaced, items, say]);
 
   useEffect(() => {
@@ -168,7 +169,7 @@ export function RadioFlow({
       const alarm = !s.solved.P3 && ms >= 3 * 60_000;
       if (alarm && !s.flags.silence) {
         s.setFlag('silence');
-        say(line('p3.alarm'));
+        say(spoken('p3.alarm'));
       }
       const distance = s.scene === 'roof' && s.extra.txLocked ? DISTANCE.clear : (DISTANCE_BY[s.scene] ?? DISTANCE.near);
       const key = `${distance.cutoffHz}`;
@@ -201,10 +202,10 @@ export function RadioFlow({
   const next = ORDER.find((id) => !solved[id]) ?? '끝';
   const go = (to: string) => {
     const s = useRadioStore.getState();
-    if (to === 'booth' && !s.solved.P1) return say(line('need.booth'));
-    if (to === 'desk' && !s.solved.P3) return say(line('need.desk'));
-    if (to === 'archive' && !s.solved.P5) return say(line('p5.locked'));
-    if (to === 'roof' && !s.solved.P7) return say(line('p7.door'));
+    if (to === 'booth' && !s.solved.P1) return say(spoken('need.booth'));
+    if (to === 'desk' && !s.solved.P3) return say(spoken('need.desk'));
+    if (to === 'archive' && !s.solved.P5) return say(spoken('p5.locked'));
+    if (to === 'roof' && !s.solved.P7) return say(spoken('p7.door'));
     s.setScene(to);
   };
 
@@ -217,17 +218,17 @@ export function RadioFlow({
       return;
     }
     setMode('keys');
-    say(line(result === 'wrong' ? 'p7.wrongItem' : 'p7.need'));
+    say(spoken(result === 'wrong' ? 'p7.wrongItem' : 'p7.need'));
   };
 
   const onCoffee = () => {
     const s = useRadioStore.getState();
     if (s.extra.radioCallStep >= 3 && !s.items.includes(KEYRING_ID)) {
       s.addItem(KEYRING_ID);
-      say(line('p7.keys'));
+      say(spoken('p7.keys'));
       return;
     }
-    say(line('p1.coffee'));
+    say(spoken('p1.coffee'));
   };
 
   const seated = scene === 'booth' && (extra.letterPlaced || !!solved.P8);
@@ -251,7 +252,7 @@ export function RadioFlow({
       {scene === 'control' && (
         <div className="radio-row">
           {!solved.P1 && <Prop icon="keypad" onClick={() => setMode('p1')}>부스 문</Prop>}
-          <Prop icon="envelope" onClick={() => say(line('p1.envelope'))}>뜯긴 봉투</Prop>
+          <Prop icon="envelope" onClick={() => say(spoken('p1.envelope'))}>뜯긴 봉투</Prop>
           <Prop icon="coffee" onClick={onCoffee}>커피</Prop>
           {!solved.P7 && items.includes(KEYRING_ID) && (
             <Prop icon="door" data-use-target={ROOF_LOCK_ID} onClick={() => setMode('keys')}>
@@ -259,7 +260,7 @@ export function RadioFlow({
             </Prop>
           )}
           {!items.includes(KEYRING_ID) && solved.P6 && (
-            <Prop icon="door" onClick={() => say(line('p7.door'))}>옥상 문</Prop>
+            <Prop icon="door" onClick={() => say(spoken('p7.door'))}>옥상 문</Prop>
           )}
         </div>
       )}
@@ -271,7 +272,7 @@ export function RadioFlow({
             <Prop icon="radio" onClick={() => setMode('p5')}>시험 송출</Prop>
           )}
           {solved.P2 && (!solved.P4 || solved.P5) && (
-            <Prop icon="radio" onClick={() => say(line('p2.fixed'))}>라디오 87.9 고정</Prop>
+            <Prop icon="radio" onClick={() => say(spoken('p2.fixed'))}>라디오 87.9 고정</Prop>
           )}
           {solved.P2 && !solved.P3 && <Prop icon="cart" onClick={() => setMode('p3')}>카트리지</Prop>}
           {extra.letterPlaced && !solved.P8 && <Prop icon="fader" onClick={() => setMode('fader')}>페이더</Prop>}
@@ -315,7 +316,7 @@ export function RadioFlow({
               tease.current = true;
               const url = clips.current.tease;
               if (url) playHtml5Clip(url);
-              say(line('p2.tease'));
+              say(spoken('p2.tease'));
             }
           }}
           onStop={() => {
@@ -326,7 +327,7 @@ export function RadioFlow({
             if (s.solved.P2) return;
             s.markSolved('P2');
             radioSfx(SFX_SRC.beep);
-            say(line('p2.solved'));
+            say(spoken('p2.solved'));
             setMode(null);
           }}
           note={line('p2.guide')}
@@ -363,8 +364,8 @@ export function RadioFlow({
             const url = clips.current[id];
             if (url) playHtml5Clip(url);
             say(station.caption);
-            if (heard.length === 1) say(line('p5.first'));
-            if (heard.length === P5_STATIONS.length) say(line('p5.all'));
+            if (heard.length === 1) say(spoken('p5.first'));
+            if (heard.length === P5_STATIONS.length) say(spoken('p5.all'));
           }}
           note={line('p5.memo')}
         />
@@ -410,7 +411,7 @@ export function RadioFlow({
             tuning.current = true;
             if (!other.current && freq >= 88.5) {
               other.current = true;
-              say(line('p8.other'));
+              say(spoken('p8.other'));
             }
           }}
           onStop={() => {
@@ -420,7 +421,7 @@ export function RadioFlow({
             const s = useRadioStore.getState();
             if (s.extra.txLocked) return;
             s.patchExtra({ txLocked: true });
-            say(line('p8.locked'));
+            say(spoken('p8.locked'));
             setMode(null);
           }}
           note={line('p8.guide')}
@@ -442,7 +443,7 @@ export function RadioFlow({
             type="button"
             onClick={() => {
               setCall(null);
-              say(line('p6.alive'));
+              say(spoken('p6.alive'));
             }}
           >
             받았다
@@ -454,14 +455,14 @@ export function RadioFlow({
   );
 }
 
-function placeToday(say: (text: string) => void) {
+function placeToday(say: SayFn) {
   const hit = nearestSnap(P4_SLOTS[1]!.x, P4_SLOTS[1]!.y, P4_SLOTS);
   if (!hit || hit.id !== '1') return;
   useRadioStore.getState().patchExtra({ letterPlaced: true });
-  say(line('p8.placed'));
+  say(spoken('p8.placed'));
 }
 
-function P1({ say }: { say: (text: string) => void }) {
+function P1({ say }: { say: SayFn }) {
   const [code, setCode] = useState('');
   return (
     <section className="radio-sheet">
@@ -484,15 +485,15 @@ function P1({ say }: { say: (text: string) => void }) {
             const s = useRadioStore.getState();
             s.markSolved('P1');
             s.setScene('booth');
-            say(line('p1.solved'));
+            say(spoken('p1.solved'));
             return;
           }
           if (result === 'postit') {
             useRadioStore.getState().patchExtra({ trapPostit: true });
-            say(line('p1.postit'));
+            say(spoken('p1.postit'));
             return;
           }
-          say(line('p1.no'));
+          say(spoken('p1.no'));
         }}
       />
     </section>
@@ -607,7 +608,7 @@ function P3({
   queue,
   onClose,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   queue: (string | null)[];
   onClose: () => void;
 }) {
@@ -650,11 +651,11 @@ function P3({
           const result = judgeP3(queue);
           if (result === 'ok') {
             useRadioStore.getState().markSolved('P3');
-            say(line('p3.solved'));
+            say(spoken('p3.solved'));
             onClose();
             return;
           }
-          say(line(result === 'short' ? 'p3.short' : result === 'long' ? 'p3.long' : 'p3.rule'));
+          say(spoken(result === 'short' ? 'p3.short' : result === 'long' ? 'p3.long' : 'p3.rule'));
         }}
       >
         송출
@@ -668,7 +669,7 @@ function P4({
   board,
   onClose,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   board: (string | null)[];
   onClose: () => void;
 }) {
@@ -680,7 +681,7 @@ function P4({
     if (!hit) return;
     const at = Number(hit.id);
     if (slot2Rejects(at)) {
-      say(line('p4.slot2'));
+      say(spoken('p4.slot2'));
       return;
     }
     const next = board.map((id) => (id === picked ? null : id));
@@ -713,11 +714,11 @@ function P4({
           const result = judgeP4(board);
           if (result === 'ok') {
             useRadioStore.getState().markSolved('P4');
-            say(line('p4.solved'));
+            say(spoken('p4.solved'));
             onClose();
             return;
           }
-          say(line(result === 'morning' ? 'p4.morning' : result === 'same' ? 'p4.same' : 'p4.no'));
+          say(spoken(result === 'morning' ? 'p4.morning' : result === 'same' ? 'p4.same' : 'p4.no'));
         }}
       >
         원고 확정
@@ -726,7 +727,7 @@ function P4({
   );
 }
 
-function Lock({ say, onClose }: { say: (text: string) => void; onClose: () => void }) {
+function Lock({ say, onClose }: { say: SayFn; onClose: () => void }) {
   const dials = useRef([0, 1, 2, 3].map(() => new SafeDial(10)));
   const [pos, setPos] = useState([0, 0, 0, 0]);
   const spin = (i: number, dir: number) => {
@@ -755,11 +756,11 @@ function Lock({ say, onClose }: { say: (text: string) => void; onClose: () => vo
             const s = useRadioStore.getState();
             s.markSolved('P5');
             s.setScene('archive');
-            say(line('p5.solved'));
+            say(spoken('p5.solved'));
             onClose();
             return;
           }
-          say(line(result === 'order' ? 'p5.order' : 'p5.no'));
+          say(spoken(result === 'order' ? 'p5.order' : 'p5.no'));
         }}
       >
         자물쇠
@@ -777,7 +778,7 @@ function P6({
   onCall,
   onClose,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   counter: number;
   stopped: boolean;
   onScrub: (n: number | null) => void;
@@ -799,10 +800,10 @@ function P6({
     const result = judgeP6Box(id);
     if (result === 'ok') {
       useRadioStore.getState().setFlag('box1103');
-      say(line('p6.note'));
+      say(spoken('p6.note'));
       return;
     }
-    say(line(result === 'trap' ? 'p6.trap' : 'p6.no'));
+    say(spoken(result === 'trap' ? 'p6.trap' : 'p6.no'));
   };
   const down = (e: ReactPointerEvent<HTMLButtonElement>) => {
     if (!stopped) return;
@@ -849,7 +850,7 @@ function P6({
               type="button"
               onClick={() => {
                 useRadioStore.getState().patchExtra({ deckStopped: true, tapeCounter: P6_ORIGIN });
-                say(line('p6.stop'));
+                say(spoken('p6.stop'));
               }}
             >
               정지
@@ -872,11 +873,11 @@ function P6({
                   radioSfx(SFX_SRC.tape);
                   const n = useRadioStore.getState().extra.tapeCounter;
                   if (!judgeP6Counter(n)) {
-                    say(line('p6.miss'));
+                    say(spoken('p6.miss'));
                     return;
                   }
                   useRadioStore.getState().markSolved('P6');
-                  say(line('p6.play'));
+                  say(spoken('p6.play'));
                   onCall();
                   onClose();
                 }}
@@ -897,7 +898,7 @@ function nudge(dir: number) {
   s.patchExtra({ tapeCounter: n });
 }
 
-function Ptt({ say, step }: { say: (text: string) => void; step: number }) {
+function Ptt({ say, step }: { say: SayFn; step: number }) {
   const downAt = useRef(0);
   if (step >= 3) return <p>커피잔 밑을 봐야 한다.</p>;
   return (
@@ -910,14 +911,15 @@ function Ptt({ say, step }: { say: (text: string) => void; step: number }) {
       onPointerUp={() => {
         const ms = performance.now() - downAt.current;
         if (ms < longPressMs(P7_HOLD_MS)) {
-          say(line('p7.short'));
+          say(spoken('p7.short'));
           return;
         }
         const s = useRadioStore.getState();
         const at = s.extra.radioCallStep;
         if (at >= 3) return;
         s.patchExtra({ radioCallStep: at + 1 });
-        say(P7_CALLS[at] ?? line('p7.3'));
+        const keys = ['p7.1', 'p7.2', 'p7.3'] as const;
+        say(spoken(keys[at] ?? 'p7.3'));
       }}
     >
       무전 PTT ({step}/3)
@@ -932,7 +934,7 @@ function Keys({
   selectedItem,
   onUse,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   postit: boolean;
   armed: boolean;
   selectedItem: string | null;
@@ -955,7 +957,7 @@ function Keys({
               icon={KEY_ICON[tag]}
               onClick={() => {
                 if (!useRadioStore.getState().items.includes(KEYRING_ID)) {
-                  say(line('p7.need'));
+                  say(spoken('p7.need'));
                   return;
                 }
                 radioSfx(SFX_SRC.lock);
@@ -964,16 +966,16 @@ function Keys({
                   const s = useRadioStore.getState();
                   s.markSolved('P7');
                   s.setScene('roof');
-                  say(line('p7.solved'));
+                  say(spoken('p7.solved'));
                   return;
                 }
                 if (result === 'red') {
                   useRadioStore.getState().patchExtra({ trapRedKey: true });
-                  say(line('p7.red'));
-                  if (postit) say(line('p7.red.note'));
+                  say(spoken('p7.red'));
+                  if (postit) say(spoken('p7.red.note'));
                   return;
                 }
-                say(line('p7.miss'));
+                say(spoken('p7.miss'));
               }}
             >
               {tag}
@@ -985,7 +987,7 @@ function Keys({
   );
 }
 
-function Fader({ say }: { say: (text: string) => void }) {
+function Fader({ say }: { say: SayFn }) {
   const fader = useRef(new VerticalFader());
   return (
     <section className="radio-sheet">
@@ -1004,7 +1006,7 @@ function Fader({ say }: { say: (text: string) => void }) {
           if (s.solved.P8) return;
           radioSfx(SFX_SRC.beep);
           s.markSolved('P8');
-          say(line('p8.ending'));
+          say(spoken('p8.ending'));
         }}
       />
     </section>

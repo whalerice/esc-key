@@ -427,8 +427,17 @@ html[data-radio-hits='show'] .radio-hit {
 }
 
 .radio-flow .radio-nav {
-  background: rgba(30, 42, 51, 0.82);
-  border-color: #bfcad0;
+  border-color: #6a7378;
+  border-radius: 4px;
+  color: #f0ebe3;
+  background:
+    radial-gradient(circle at 40% 28%, rgba(255, 255, 255, 0.1), transparent 55%),
+    linear-gradient(180deg, #4a555c 0%, #2a333a 48%, #151c22 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(220, 230, 235, 0.25),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65);
 }
 
 .radio-flow .radio-prop {
@@ -1151,6 +1160,148 @@ html[data-radio-hits='show'] .radio-hit {
   font-style: normal;
   font-weight: 500;
   color: #fff8ef;
+}
+
+/* haemu-radio: broadcast-desk / quiet-film chrome (HUD lives outside .radio-flow). */
+.theme-play[data-theme='haemu-radio'] {
+  --hud: rgba(18, 25, 31, 0.78);
+  --accent: #b08d4f;
+}
+
+.theme-play[data-theme='haemu-radio'] .hud-btn {
+  border: 1px solid #6a7378;
+  border-radius: 4px;
+  color: #f0ebe3;
+  background:
+    radial-gradient(circle at 40% 28%, rgba(255, 255, 255, 0.1), transparent 55%),
+    linear-gradient(180deg, #4a555c 0%, #2a333a 48%, #151c22 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(220, 230, 235, 0.22),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.48),
+    0 2px 4px rgba(0, 0, 0, 0.32),
+    0 0 0 1px rgba(176, 141, 79, 0.28);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65);
+}
+
+.theme-play[data-theme='haemu-radio'] .hud-timer {
+  border: 1px solid #0c1014;
+  border-radius: 4px;
+  color: #e8e2d6;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(191, 202, 208, 0.14), transparent 55%),
+    linear-gradient(165deg, #3a444c 0%, #1a2228 52%, #0c1014 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(191, 202, 208, 0.28),
+    inset 0 0 0 1px rgba(176, 141, 79, 0.22),
+    0 0 0 1px rgba(176, 141, 79, 0.42),
+    0 4px 10px rgba(8, 12, 16, 0.45);
+}
+
+.theme-play[data-theme='haemu-radio'] .timer-face--onair-clock .timer-mark {
+  color: #f2d6d2;
+  letter-spacing: 0.12em;
+}
+
+.theme-play[data-theme='haemu-radio'] .timer-face--onair-clock .lamp {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 0 0 1px rgba(12, 16, 20, 0.7);
+}
+
+.theme-play[data-theme='haemu-radio'] .hud-inventory {
+  padding: 0.4rem 0.35rem 0.5rem;
+  border: 1px solid #0c1014;
+  border-radius: 4px;
+  background:
+    radial-gradient(circle at 20% 8%, rgba(191, 202, 208, 0.12), transparent 55%),
+    linear-gradient(180deg, #2a333a 0%, #151c22 55%, #0c1014 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(191, 202, 208, 0.22),
+    inset 0 0 0 1px rgba(176, 141, 79, 0.2),
+    0 0 0 1px rgba(176, 141, 79, 0.4),
+    0 8px 18px rgba(8, 12, 16, 0.5);
+}
+
+.theme-play[data-theme='haemu-radio'] .hud-inventory-label {
+  color: #c9b07a;
+  opacity: 0.92;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.62rem;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65);
+}
+
+.theme-play[data-theme='haemu-radio'] .hud-slot {
+  border: 1px solid #4a555c;
+  border-radius: 3px;
+  color: #e8e2d6;
+  background:
+    linear-gradient(180deg, rgba(12, 16, 20, 0.92) 0%, rgba(26, 34, 40, 0.88) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(191, 202, 208, 0.12),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.45),
+    0 1px 0 rgba(176, 141, 79, 0.18);
+}
+
+.theme-play[data-theme='haemu-radio'] .hud-slot[data-empty='true'] {
+  opacity: 0.72;
+}
+
+.theme-play[data-theme='haemu-radio'] .hud-slot[data-selected='true'] {
+  border-color: #7dcf82;
+  box-shadow:
+    inset 0 0 0 1px rgba(125, 207, 130, 0.35),
+    0 0 0 1px rgba(125, 207, 130, 0.45);
+}
+
+.theme-play[data-theme='haemu-radio'] .hud-drag-ghost {
+  background: #151c22;
+  border-color: #b08d4f;
+  color: #f0ebe3;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+.theme-play[data-theme='haemu-radio'] .narration {
+  background: linear-gradient(transparent, rgba(8, 12, 16, 0.78) 55%, rgba(8, 12, 16, 0.9));
+}
+
+.theme-play[data-theme='haemu-radio'] .narration-panel {
+  border-left-width: 2px;
+  background: rgba(12, 16, 20, 0.62);
+  box-shadow:
+    inset 0 1px 0 rgba(191, 202, 208, 0.08),
+    0 0 0 1px rgba(176, 141, 79, 0.16);
+}
+
+.theme-play[data-theme='haemu-radio'] .narration[data-kind='narration'] .narration-panel {
+  border-left-color: rgba(176, 141, 79, 0.55);
+}
+
+.theme-play[data-theme='haemu-radio'] .narration[data-kind='dialogue'] .narration-panel {
+  border-left-color: #b08d4f;
+  background: rgba(14, 18, 22, 0.74);
+}
+
+.theme-play[data-theme='haemu-radio'] .banner {
+  border: 1px solid #6a7378;
+  border-radius: 4px;
+  color: #f0ebe3;
+  background:
+    linear-gradient(180deg, #4a555c 0%, #2a333a 48%, #151c22 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(220, 230, 235, 0.2),
+    0 0 0 1px rgba(176, 141, 79, 0.28);
+}
+
+.theme-play[data-theme='haemu-radio'] .modal.hint-memo,
+.theme-play[data-theme='haemu-radio'] .modal.notebook {
+  border-color: rgba(176, 141, 79, 0.45);
+  background:
+    linear-gradient(165deg, #2a333a 0%, #151c22 55%, #0c1014 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(191, 202, 208, 0.16),
+    0 0 0 1px rgba(176, 141, 79, 0.28),
+    0 16px 36px rgba(0, 0, 0, 0.5);
 }
 
 .banner {

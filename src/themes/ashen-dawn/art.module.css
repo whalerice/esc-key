@@ -40,9 +40,31 @@
   gap: 0.35rem;
 }
 
+.card {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 4.5rem 7rem 16% 4.5rem;
+  background: rgba(18, 20, 24, 0.9);
+  pointer-events: auto;
+}
+
 .finale {
+  width: min(36rem, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: 1.25rem 1.4rem;
+  background: #171b20;
+  border: 1px solid #c6a15b;
   color: #e7eef4;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
+}
+
+.shell :global(.theme-play[data-theme='ashen-dawn'] .ending-lock) {
+  z-index: 90;
+  background: #121418;
 }
 
 .shell :global(.theme-play[data-theme='ashen-dawn'] .gate) {

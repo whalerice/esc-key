@@ -217,8 +217,6 @@ export function AshDawnFlow({
       {scene === 'archive' && <Archive say={say} />}
       {scene === 'office' && !solved.P8 && <Safe say={say} stage={lockStage} />}
       {scene === 'teletype' && !flags.finaleA && !flags.finaleB && <Send say={say} />}
-      {flags.finaleA && !flags.endingA && <FinaleA say={say} />}
-      {flags.finaleB && !flags.endingB && <FinaleB say={say} />}
 
       {openNotes && (
         <aside className="ash-notes" data-layer="modal">
@@ -233,6 +231,16 @@ export function AshDawnFlow({
         </aside>
       )}
     </div>
+    {flags.finaleA && !flags.endingA && (
+      <div className={styles.card}>
+        <FinaleA say={say} />
+      </div>
+    )}
+    {flags.finaleB && !flags.endingB && (
+      <div className={styles.card}>
+        <FinaleB say={say} />
+      </div>
+    )}
     </>
   );
 }
@@ -1420,7 +1428,7 @@ function FinaleB({ say }: { say: (text: string) => void }) {
     say(line('endB.5'));
   }, [say]);
   return (
-    <section data-ending="B">
+    <section className={styles.finale} data-ending="B">
       <h2>가로챈 새벽</h2>
       <img className={styles.clue} src={propArt('file')} alt="" />
       <button type="button" onClick={() => useAshStore.getState().setFlag('endingB')}>끝</button>

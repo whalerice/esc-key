@@ -232,16 +232,54 @@ export function RadioFlow({
   };
 
   const seated = scene === 'booth' && (extra.letterPlaced || !!solved.P8);
+  const controlHits = scene === 'control';
+  const showRoofKey = controlHits && !solved.P7 && items.includes(KEYRING_ID);
+  const showRoofHint = controlHits && !items.includes(KEYRING_ID) && !!solved.P6;
 
   return (
     <>
-    <img
-      className="radio-scene"
-      src={ROOM_SRC[scene] ?? ROOM_SRC.control}
-      alt=""
-      data-scene={scene}
-    />
-    {seated && <img className="radio-dj" src={DJ_SRC} alt="" />}
+    <div className="radio-stage">
+      <div className="radio-frame">
+        <img
+          className="radio-scene"
+          src={ROOM_SRC[scene] ?? ROOM_SRC.control}
+          alt=""
+          data-scene={scene}
+        />
+        {seated && <img className="radio-dj" src={DJ_SRC} alt="" />}
+      </div>
+    </div>
+    {controlHits && !mode && (
+      <div className="radio-hits-layer">
+        <div className="radio-frame">
+          <div className="radio-hits">
+            {!solved.P1 && (
+              <button
+                type="button"
+                className="radio-hit"
+                data-hit="door"
+                aria-label="부스 문"
+                onClick={() => setMode('p1')}
+              />
+            )}
+            <button
+              type="button"
+              className="radio-hit"
+              data-hit="envelope"
+              aria-label="뜯긴 봉투"
+              onClick={() => say(spoken('p1.envelope'))}
+            />
+            <button
+              type="button"
+              className="radio-hit"
+              data-hit="coffee"
+              aria-label="커피"
+              onClick={onCoffee}
+            />
+          </div>
+        </div>
+      </div>
+    )}
     <div className="radio-flow" data-scene={scene} data-next={next}>
       <p className="radio-room">
         {ROOM[scene] ?? scene} · {next}
@@ -255,17 +293,14 @@ export function RadioFlow({
         {solved.P7 && scene !== 'roof' && <Prop nav onClick={() => go('roof')}>옥상</Prop>}
       </div>
 
-      {scene === 'control' && (
+      {(showRoofKey || showRoofHint) && (
         <div className="radio-row">
-          {!solved.P1 && <Prop icon="keypad" onClick={() => setMode('p1')}>부스 문</Prop>}
-          <Prop icon="envelope" onClick={() => say(spoken('p1.envelope'))}>뜯긴 봉투</Prop>
-          <Prop icon="coffee" onClick={onCoffee}>커피</Prop>
-          {!solved.P7 && items.includes(KEYRING_ID) && (
+          {showRoofKey && (
             <Prop icon="door" data-use-target={ROOF_LOCK_ID} onClick={() => setMode('keys')}>
               옥상 문
             </Prop>
           )}
-          {!items.includes(KEYRING_ID) && solved.P6 && (
+          {showRoofHint && (
             <Prop icon="door" onClick={() => say(spoken('p7.door'))}>옥상 문</Prop>
           )}
         </div>

@@ -150,6 +150,12 @@ button {
 
 .radio-flow {
   align-items: flex-start;
+  /* Scene hit targets sit under the flow; empty flow area must not swallow taps. */
+  pointer-events: none;
+}
+
+.radio-flow > * {
+  pointer-events: auto;
 }
 
 .radio-flow button,
@@ -232,16 +238,33 @@ button {
   text-align: center;
 }
 
+.radio-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  background: #12191f;
+}
+
+.radio-frame {
+  position: relative;
+  width: min(100%, calc(100vh * 16 / 9));
+  height: min(100%, calc(100vw * 9 / 16));
+  aspect-ratio: 16 / 9;
+  max-width: 100%;
+  max-height: 100%;
+}
+
 .radio-scene {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: fill;
   object-position: center;
   pointer-events: none;
-  z-index: 5;
-  background: #12191f;
 }
 
 .radio-dj {
@@ -251,7 +274,69 @@ button {
   width: 14%;
   height: auto;
   pointer-events: none;
-  z-index: 6;
+  z-index: 1;
+}
+
+/* Above narration (25) so desk props stay tappable; hidden while a sheet is open. */
+.radio-hits-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 26;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.radio-hits {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.radio-hit {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  min-width: 44px;
+  min-height: 44px;
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.radio-hit:focus-visible {
+  outline: 2px solid rgba(176, 141, 79, 0.9);
+  outline-offset: 2px;
+}
+
+/* QA / screenshot: document.documentElement.dataset.radioHits = 'show' */
+html[data-radio-hits='show'] .radio-hit {
+  outline: 2px dashed rgba(176, 141, 79, 0.9);
+  background: rgba(176, 141, 79, 0.16);
+}
+
+.radio-hit[data-hit='coffee'] {
+  left: 18%;
+  top: 78%;
+  width: 10%;
+  height: 16%;
+}
+
+.radio-hit[data-hit='envelope'] {
+  left: 28%;
+  top: 80%;
+  width: 13%;
+  height: 14%;
+}
+
+.radio-hit[data-hit='door'] {
+  left: 70%;
+  top: 10%;
+  width: 16%;
+  height: 68%;
 }
 
 .radio-flow > * {

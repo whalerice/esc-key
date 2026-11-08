@@ -339,6 +339,43 @@ html[data-radio-hits='show'] .radio-hit {
   height: 68%;
 }
 
+/* Booth (rooms/booth.png) */
+.radio-hit[data-hit='radio'] {
+  left: 72%;
+  top: 55%;
+  width: 18%;
+  height: 30%;
+}
+
+.radio-hit[data-hit='cart'] {
+  left: 2%;
+  top: 16%;
+  width: 14%;
+  height: 42%;
+}
+
+.radio-hit[data-hit='fader'] {
+  left: 34%;
+  top: 48%;
+  width: 26%;
+  height: 22%;
+}
+
+/* Writer's desk (rooms/desk.png) */
+.radio-hit[data-hit='board'] {
+  left: 34%;
+  top: 40%;
+  width: 34%;
+  height: 34%;
+}
+
+.radio-hit[data-hit='letter'] {
+  left: 42%;
+  top: 46%;
+  width: 12%;
+  height: 28%;
+}
+
 .radio-flow > * {
   position: relative;
   z-index: 1;

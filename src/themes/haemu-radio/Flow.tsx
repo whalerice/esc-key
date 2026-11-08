@@ -233,8 +233,17 @@ export function RadioFlow({
 
   const seated = scene === 'booth' && (extra.letterPlaced || !!solved.P8);
   const controlHits = scene === 'control';
+  const boothHits = scene === 'booth';
+  const deskHits = scene === 'desk';
   const showRoofKey = controlHits && !solved.P7 && items.includes(KEYRING_ID);
   const showRoofHint = controlHits && !items.includes(KEYRING_ID) && !!solved.P6;
+  const showLetterPlace = deskHits && items.includes('팔칠구의 편지') && !extra.letterPlaced;
+
+  const onBoothRadio = () => {
+    if (!solved.P2) return setMode('p2');
+    if (solved.P4 && !solved.P5) return setMode('p5');
+    say(spoken('p2.fixed'));
+  };
 
   return (
     <>
@@ -280,6 +289,65 @@ export function RadioFlow({
         </div>
       </div>
     )}
+    {boothHits && !mode && (
+      <div className="radio-hits-layer">
+        <div className="radio-frame">
+          <div className="radio-hits">
+            <button
+              type="button"
+              className="radio-hit"
+              data-hit="radio"
+              aria-label={!solved.P2 ? '탁상 라디오' : solved.P4 && !solved.P5 ? '시험 송출' : '라디오 87.9 고정'}
+              onClick={onBoothRadio}
+            />
+            {solved.P2 && !solved.P3 && (
+              <button
+                type="button"
+                className="radio-hit"
+                data-hit="cart"
+                aria-label="카트리지"
+                onClick={() => setMode('p3')}
+              />
+            )}
+            {extra.letterPlaced && !solved.P8 && (
+              <button
+                type="button"
+                className="radio-hit"
+                data-hit="fader"
+                aria-label="페이더"
+                onClick={() => setMode('fader')}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    )}
+    {deskHits && !mode && (
+      <div className="radio-hits-layer">
+        <div className="radio-frame">
+          <div className="radio-hits">
+            {!solved.P4 && (
+              <button
+                type="button"
+                className="radio-hit"
+                data-hit="board"
+                aria-label="원고 보드"
+                onClick={() => setMode('p4')}
+              />
+            )}
+            {showLetterPlace && (
+              <button
+                type="button"
+                className="radio-hit"
+                data-hit="letter"
+                aria-label="2번 칸에 오늘 편지"
+                onClick={() => placeToday(say)}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    )}
     <div className="radio-flow" data-scene={scene} data-next={next}>
       <p className="radio-room">
         {ROOM[scene] ?? scene} · {next}
@@ -302,29 +370,6 @@ export function RadioFlow({
           )}
           {showRoofHint && (
             <Prop icon="door" onClick={() => say(spoken('p7.door'))}>옥상 문</Prop>
-          )}
-        </div>
-      )}
-
-      {scene === 'booth' && (
-        <div className="radio-row">
-          {!solved.P2 && <Prop icon="radio" onClick={() => setMode('p2')}>탁상 라디오</Prop>}
-          {solved.P2 && solved.P4 && !solved.P5 && (
-            <Prop icon="radio" onClick={() => setMode('p5')}>시험 송출</Prop>
-          )}
-          {solved.P2 && (!solved.P4 || solved.P5) && (
-            <Prop icon="radio" onClick={() => say(spoken('p2.fixed'))}>라디오 87.9 고정</Prop>
-          )}
-          {solved.P2 && !solved.P3 && <Prop icon="cart" onClick={() => setMode('p3')}>카트리지</Prop>}
-          {extra.letterPlaced && !solved.P8 && <Prop icon="fader" onClick={() => setMode('fader')}>페이더</Prop>}
-        </div>
-      )}
-
-      {scene === 'desk' && (
-        <div className="radio-row">
-          {!solved.P4 && <Prop icon="board" onClick={() => setMode('p4')}>원고 보드</Prop>}
-          {items.includes('팔칠구의 편지') && !extra.letterPlaced && (
-            <Prop icon="letter" onClick={() => placeToday(say)}>2번 칸에 오늘 편지</Prop>
           )}
         </div>
       )}

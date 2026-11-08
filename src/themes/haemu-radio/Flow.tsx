@@ -388,7 +388,8 @@ export function RadioFlow({
         </div>
       </div>
     )}
-    <div className="radio-flow" data-scene={scene} data-next={next}>
+    {/* Above .radio-hits-layer (26): booth cart / other scene hits must not steal room nav taps. */}
+    <div className="radio-nav-layer" data-scene={scene} data-next={next}>
       <p className="radio-room">
         {ROOM[scene] ?? scene} · {next}
       </p>
@@ -400,7 +401,6 @@ export function RadioFlow({
         {solved.P4 && !solved.P5 && <Prop nav icon="door" onClick={() => setMode('lock')}>아카이브 문</Prop>}
         {solved.P7 && scene !== 'roof' && <Prop nav onClick={() => go('roof')}>옥상</Prop>}
       </div>
-
       {(showRoofKey || showRoofHint) && (
         <div className="radio-row">
           {showRoofKey && (
@@ -413,7 +413,8 @@ export function RadioFlow({
           )}
         </div>
       )}
-
+    </div>
+    <div className="radio-flow" data-scene={scene} data-next={next}>
       {mode === 'p1' && <P1 say={say} />}
       {mode === 'p2' && (
         <TunePanel

@@ -152,14 +152,42 @@ button {
   align-items: flex-start;
   /* Scene hit targets sit under the flow; empty flow area must not swallow taps. */
   pointer-events: none;
+  /* Clear .radio-nav-layer (room label + one nav row) now that nav is a sibling. */
+  padding-top: 5.25rem;
 }
 
 .radio-flow > * {
   pointer-events: auto;
 }
 
+/* Room nav above scene hits (26) so cart/door targets cannot cover 작가석 etc. */
+.radio-nav-layer {
+  position: absolute;
+  z-index: 28;
+  left: 64px;
+  right: 108px;
+  top: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  pointer-events: none;
+  color: #f2efe8;
+  text-shadow: 0 1px 2px #000;
+}
+
+.radio-nav-layer > * {
+  pointer-events: auto;
+}
+
+/* Extra roof-door row under the main nav. */
+.radio-nav-layer:has(> .radio-row:nth-child(3)) + .radio-flow {
+  padding-top: 8rem;
+}
+
 .radio-flow button,
 .radio-flow input[type='range'],
+.radio-nav-layer button,
 .lighthouse-flow button,
 .lighthouse-flow input[type='range'],
 .tailor-flow button,
@@ -418,7 +446,9 @@ html[data-radio-hits='show'] .radio-hit {
 }
 
 .radio-flow .radio-nav,
-.radio-flow .radio-prop {
+.radio-flow .radio-prop,
+.radio-nav-layer .radio-nav,
+.radio-nav-layer .radio-prop {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -426,7 +456,8 @@ html[data-radio-hits='show'] .radio-hit {
   color: #e9e2d2;
 }
 
-.radio-flow .radio-nav {
+.radio-flow .radio-nav,
+.radio-nav-layer .radio-nav {
   border-color: #6a7378;
   border-radius: 4px;
   color: #f0ebe3;
@@ -440,13 +471,16 @@ html[data-radio-hits='show'] .radio-hit {
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65);
 }
 
-.radio-flow .radio-prop {
+.radio-flow .radio-prop,
+.radio-nav-layer .radio-prop {
   background: rgba(18, 25, 31, 0.82);
   border-color: #b08d4f;
 }
 
 .radio-flow .radio-nav img,
-.radio-flow .radio-prop img {
+.radio-flow .radio-prop img,
+.radio-nav-layer .radio-nav img,
+.radio-nav-layer .radio-prop img {
   width: 36px;
   height: 36px;
   flex: none;

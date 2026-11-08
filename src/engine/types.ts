@@ -190,6 +190,11 @@ export type ThemeSave<TExtra = unknown> = {
   hintsUsed: Record<PuzzleId, 0 | 1 | 2 | 3>;
   timer: { elapsedMs: number; bonusPausedMs: number; penaltyMs: number };
   flags: Record<string, boolean>;
+  /**
+   * Remaining bottom-strip lines. Restored on resume so the room and caption match.
+   * `undefined` = never seeded (fresh or pre-field save). `[]` = openings finished.
+   */
+  captionQueue?: { text: string; kind: 'narration' | 'dialogue'; speaker?: string }[];
   extra: TExtra;
 };
 

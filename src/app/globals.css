@@ -814,6 +814,55 @@ html[data-radio-hits='show'] .radio-hit {
   font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 }
 
+.radio-flow .radio-cart-meter {
+  margin: 0.35rem 0 0.55rem;
+}
+
+.radio-flow .radio-cart-meter-track {
+  position: relative;
+  height: 10px;
+  border-radius: 2px;
+  border: 1px solid #3a4448;
+  background: #0c1216;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+.radio-flow .radio-cart-meter-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #6fbf73 0%, #a8e0a4 100%);
+  box-shadow: 0 0 6px rgba(111, 191, 115, 0.35);
+}
+
+.radio-flow .radio-cart-meter[data-ready='yes'] .radio-cart-meter-fill {
+  background: linear-gradient(90deg, #b08d4f 0%, #e2c888 100%);
+}
+
+.radio-flow .radio-cart-meter-goal {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: 100%;
+  width: 2px;
+  margin-left: -2px;
+  background: #e8e2d6;
+  box-shadow: 0 0 4px rgba(232, 226, 214, 0.6);
+}
+
+.radio-flow .radio-cart-meter p {
+  margin: 0.3rem 0 0;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.95rem;
+}
+
+.radio-flow .radio-sheet[data-sheet='cart'] button[data-ready='yes'] {
+  border-color: #b08d4f;
+  color: #1a1510;
+  background: linear-gradient(180deg, #e2c888 0%, #b08d4f 100%);
+  text-shadow: none;
+}
+
 .radio-flow .radio-sheet[data-sheet='letter'] {
   --paper: #e8d9b8;
   --ink: #2a241c;

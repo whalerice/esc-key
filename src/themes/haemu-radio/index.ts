@@ -32,8 +32,9 @@ export const themeHaemuRadio: ThemeDefinition<RadioExtra> = {
     ],
   },
   radioBed: {
+    // No bed at 02:00 — enter boom (opening.wav ~220Hz loop) was too loud on control entry.
+    // Silence until fog-stop; later cues stay.
     cues: [
-      { at: '02:00', soundId: 'opening' },
       { at: '02:03', soundId: 'fog-stop' },
       { at: '02:07', soundId: '3am-coffee' },
       { at: '02:14', soundId: 'far-sea' },
@@ -78,9 +79,9 @@ export const themeHaemuRadio: ThemeDefinition<RadioExtra> = {
     P3: {
       intro: '채: 무음 3초 경보, 나도 첫날 울렸어요.',
       steps: [
-        '벽의 내가 자리 비울 때. 그대로.',
-        '호출부호가 맨 앞, 날씨가 맨 끝. 가운데 초를 세 봐요.',
-        '호출부호, 녹음 코너, 해무수산, 날씨. 2분 30초.',
+        '매뉴얼 「내가 자리 비울 때」. 호출부호·날씨·광고 금지부터. 목표는 곡까지 2분 30초(150초).',
+        '맨 앞·맨 끝 지키면 가운데 100초. 80초짜리 + 20초짜리.',
+        '호출부호, 녹음 코너, 해무수산, 날씨. 딱 2분 30초.',
       ],
     },
     P4: {

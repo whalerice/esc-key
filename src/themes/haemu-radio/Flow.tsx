@@ -52,7 +52,7 @@ import {
   stationAt,
   windowDigit,
 } from './puzzles/answers';
-import { BED_SRC, CLUE_SRC, DJ_SRC, PROP_SRC, ROOM_SRC, SFX_SRC, propArt } from './art';
+import { BED_SRC, CLUE_SRC, DJ_SRC, ROOM_SRC, SFX_SRC } from './art';
 import { useRadioStore } from './store';
 
 const ORDER = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8'] as const;
@@ -100,7 +100,7 @@ function Prop({
   const cls = [nav ? 'radio-nav' : 'radio-prop', className].filter(Boolean).join(' ');
   return (
     <button type="button" {...rest} className={cls}>
-      {icon ? <img src={propArt(icon)} alt="" /> : null}
+      {icon ? <img src={`/themes/haemu-radio/props/${icon}.svg`} alt="" /> : null}
       {children}
     </button>
   );
@@ -468,7 +468,7 @@ function P1({ say }: { say: SayFn }) {
     <section className="radio-sheet">
       <img
         className="cuesheet"
-        src={PROP_SRC.cuesheet}
+        src="/themes/haemu-radio/props/cuesheet.svg"
         alt="큐시트. 빨간 등대 낙서는 굵은 선과 이중 동그라미."
       />
       <p>{line('p1.memo')}</p>
@@ -991,7 +991,7 @@ function Fader({ say }: { say: SayFn }) {
   const fader = useRef(new VerticalFader());
   return (
     <section className="radio-sheet">
-      <img src={PROP_SRC.fader} alt="" width={64} height={64} />
+      <img src="/themes/haemu-radio/props/fader.svg" alt="" width={64} height={64} />
       <p>{line('p8.fader')}</p>
       <input
         type="range"

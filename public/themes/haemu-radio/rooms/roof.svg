@@ -21,6 +21,7 @@
   <circle cx="1520" cy="640" r="54" fill="#6a5428" stroke="#B08D4F" stroke-width="6"/>
   <rect x="1514" y="592" width="12" height="40" fill="#F4EBD0"/>
   <circle cx="1660" cy="620" r="22" fill="#C8463B"/>
+  <text x="1460" y="740" fill="#A9B4B9" font-family="sans-serif" font-size="22">송신기</text>
   <g transform="translate(720 480)">
     <circle cx="90" cy="36" r="28" fill="#E4D3C4"/>
     <path d="M62 34 q-16 -8 -8 -20" fill="none" stroke="#3B3A36" stroke-width="4"/>
@@ -34,17 +35,5 @@
     <path d="M78 52 q8 6 4 10" fill="none" stroke="#1a1a1a" stroke-width="2"/>
   </g>
   <rect x="80" y="700" width="220" height="70" rx="4" fill="#243038" stroke="#5D6668"/>
-  <defs>
-    <linearGradient id="rooffog" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#A9B4B9" stop-opacity="0.15"/>
-      <stop offset="55%" stop-color="#A9B4B9" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#1E2A33" stop-opacity="0.55"/>
-    </linearGradient>
-    <radialGradient id="warn" cx="62%" cy="28%" r="18%">
-      <stop offset="0%" stop-color="#D9473A" stop-opacity="0.45"/>
-      <stop offset="100%" stop-color="#D9473A" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-  <rect width="1920" height="1080" fill="url(#warn)"/>
-  <rect y="620" width="1920" height="460" fill="url(#rooffog)"/>
+  <text x="100" y="742" fill="#E9E2D2" font-family="sans-serif" font-size="18">87.9 고정</text>
 </svg>

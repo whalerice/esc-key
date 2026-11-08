@@ -1,90 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="280" height="460" viewBox="0 0 280 460">
-  <defs>
-    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#EBD6C4"/>
-      <stop offset="100%" stop-color="#D4B8A4"/>
-    </linearGradient>
-    <linearGradient id="jumper" x1="0" y1="0" x2="0.3" y2="1">
-      <stop offset="0%" stop-color="#4a5c6a"/>
-      <stop offset="100%" stop-color="#2c3840"/>
-    </linearGradient>
-    <linearGradient id="pants" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#3a4448"/>
-      <stop offset="100%" stop-color="#1E2A33"/>
-    </linearGradient>
-    <radialGradient id="cheek" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#C9867E" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#C9867E" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-
-  <!-- soft ground shadow -->
-  <ellipse cx="140" cy="440" rx="70" ry="12" fill="#12191F" opacity="0.35"/>
-
-  <!-- legs -->
-  <rect x="98" y="300" width="30" height="110" rx="6" fill="url(#pants)"/>
-  <rect x="152" y="300" width="30" height="110" rx="6" fill="url(#pants)"/>
-  <rect x="94" y="400" width="38" height="14" rx="4" fill="#1a2228"/>
-  <rect x="148" y="400" width="38" height="14" rx="4" fill="#1a2228"/>
-
-  <!-- torso / jumper -->
-  <path d="M78 140
-           C70 160 68 210 74 280
-           L206 280
-           C212 210 210 160 202 140
-           Z" fill="url(#jumper)"/>
-  <path d="M100 150 L140 280 L180 150" fill="#3d4e5c" opacity="0.35"/>
-
-  <!-- arms -->
-  <path d="M78 150 C40 170 36 220 48 250" fill="none" stroke="#3d4e5c" stroke-width="28" stroke-linecap="round"/>
-  <path d="M202 150 C240 170 244 220 232 250" fill="none" stroke="#3d4e5c" stroke-width="28" stroke-linecap="round"/>
-  <circle cx="48" cy="252" r="14" fill="url(#skin)"/>
-  <circle cx="232" cy="252" r="14" fill="url(#skin)"/>
-
-  <!-- collar / mic badge -->
-  <rect x="118" y="156" width="44" height="58" rx="6" fill="#E9E2D2"/>
-  <rect x="126" y="168" width="28" height="4" fill="#3B3A36" opacity="0.35"/>
-  <rect x="126" y="178" width="22" height="3" fill="#3B3A36" opacity="0.25"/>
-  <circle cx="140" cy="198" r="8" fill="#D9473A"/>
-  <circle cx="140" cy="198" r="3" fill="#F4EBD0" opacity="0.7"/>
-
-  <!-- neck -->
-  <rect x="124" y="112" width="32" height="28" rx="8" fill="url(#skin)"/>
-
-  <!-- head -->
-  <circle cx="140" cy="78" r="42" fill="url(#skin)"/>
-  <ellipse cx="118" cy="90" rx="10" ry="6" fill="url(#cheek)"/>
-  <ellipse cx="162" cy="90" rx="10" ry="6" fill="url(#cheek)"/>
-
-  <!-- hair (salt-and-pepper mid-50s) -->
-  <path d="M98 70
-           C92 36 120 22 140 24
-           C168 22 196 36 186 72
-           C176 48 150 44 140 46
-           C128 44 108 50 98 70 Z" fill="#3B3A36"/>
-  <path d="M104 58 C118 48 140 46 160 52" fill="none" stroke="#5D6668" stroke-width="3" stroke-linecap="round" opacity="0.55"/>
-
-  <!-- headphones (signature) -->
-  <path d="M92 78 Q140 40 188 78" fill="none" stroke="#12191F" stroke-width="10" stroke-linecap="round"/>
-  <path d="M92 78 Q140 46 188 78" fill="none" stroke="#5D6668" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-  <rect x="78" y="86" width="28" height="34" rx="8" fill="#12191F"/>
-  <rect x="174" y="86" width="28" height="34" rx="8" fill="#12191F"/>
-  <rect x="82" y="92" width="20" height="22" rx="5" fill="#2a343a"/>
-  <rect x="178" y="92" width="20" height="22" rx="5" fill="#2a343a"/>
-  <circle cx="92" cy="103" r="3" fill="#B08D4F"/>
-  <circle cx="188" cy="103" r="3" fill="#B08D4F"/>
-
-  <!-- face -->
-  <circle cx="126" cy="80" r="3.2" fill="#3B3A36"/>
-  <circle cx="154" cy="80" r="3.2" fill="#3B3A36"/>
-  <path d="M118 74 q8 -6 16 0" fill="none" stroke="#3B3A36" stroke-width="2" stroke-linecap="round"/>
-  <path d="M146 74 q8 -6 16 0" fill="none" stroke="#3B3A36" stroke-width="2" stroke-linecap="round"/>
-  <path d="M136 88 q4 3 8 0" fill="none" stroke="#3B3A36" stroke-width="1.5" stroke-linecap="round"/>
-  <path d="M130 102 q10 8 20 0" fill="none" stroke="#3B3A36" stroke-width="2" stroke-linecap="round"/>
-
-  <!-- portable radio in hand (P8 cue) -->
-  <rect x="214" y="236" width="36" height="28" rx="3" fill="#2a241c" stroke="#B08D4F" stroke-width="1.5"/>
-  <circle cx="240" cy="250" r="6" fill="#6a5428" stroke="#E9E2D2" stroke-width="1"/>
-  <rect x="218" y="242" width="10" height="6" rx="1" fill="#12191F"/>
-  <rect x="220" y="243" width="4" height="4" fill="#6FBF73" opacity="0.8"/>
+  <circle cx="140" cy="78" r="40" fill="#E4D3C4"/>
+  <path d="M100 70 q-8 -36 40 -40 q48 -4 52 36" fill="#3B3A36"/>
+  <path d="M96 86 h88" stroke="#1a1a1a" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="96" cy="100" r="14" fill="#1a1a1a"/>
+  <circle cx="184" cy="100" r="14" fill="#1a1a1a"/>
+  <circle cx="126" cy="82" r="3" fill="#3B3A36"/>
+  <circle cx="154" cy="82" r="3" fill="#3B3A36"/>
+  <path d="M132 98 q8 6 16 0" fill="none" stroke="#3B3A36" stroke-width="2"/>
+  <rect x="78" y="124" width="124" height="160" rx="12" fill="#3d4e5c"/>
+  <rect x="118" y="150" width="44" height="56" rx="6" fill="#E9E2D2"/>
+  <rect x="40" y="150" width="46" height="18" rx="6" fill="#3d4e5c"/>
+  <rect x="194" y="160" width="46" height="18" rx="6" fill="#3d4e5c"/>
+  <rect x="96" y="284" width="28" height="90" fill="#2c3840"/>
+  <rect x="156" y="284" width="28" height="90" fill="#2c3840"/>
 </svg>

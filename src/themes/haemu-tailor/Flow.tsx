@@ -24,7 +24,7 @@ import {
   spoken,
   type ScriptKey,
 } from './data/script';
-import { BED_SRC, CLUE_SRC, ROOM_SRC, SFX_SRC } from './art';
+import { BED_SRC, CLUE_SRC, SFX_SRC } from './art';
 import styles from './art.module.css';
 import {
   CASE,
@@ -97,7 +97,7 @@ function Prop({
   const cls = [styles.prop, wide ? styles.wide : '', className].filter(Boolean).join(' ');
   return (
     <button type="button" {...rest} className={cls}>
-      {icon ? <img src={`/themes/haemu-tailor/props/${icon}.svg`} alt="" /> : null}
+      
       {children}
     </button>
   );
@@ -219,7 +219,7 @@ export function TailorFlow({
       data-next={next}
       data-flicker={flicker ? (quiet ? 'soft' : 'hard') : 'no'}
     >
-      <img className={styles.scene} src={ROOM_SRC[scene] ?? ROOM_SRC.shop} alt="" />
+      
       <p className="radio-room">
         {ROOM[scene] ?? scene} · {next}
       </p>
@@ -299,9 +299,7 @@ export function TailorFlow({
 
       {beat != null && !solved.P8 && (
         <div className="tailor-ending" role="dialog">
-          {beat >= endingBeats.length - 1 && (
-            <img className={styles.stamp} src="/themes/haemu-tailor/props/stamp.svg" alt="" />
-          )}
+          
           <p>{line(endingBeats[beat] ?? 'end.10')}</p>
           <button
             type="button"

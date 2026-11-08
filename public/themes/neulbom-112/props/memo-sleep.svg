@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-<rect width="128" height="128" rx="8" fill="#1A1510"/>
-<rect x="16" y="36" width="96" height="64" rx="6" fill="#F3E6C8"/>
-<path d="M28 78 h72 v8 h-72 z" fill="#1E3A78"/>
-<circle cx="86" cy="56" r="10" fill="#E6C36A"/>
-<text x="64" y="28" text-anchor="middle" fill="#F3E6C8" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">잠</text>
-</svg>

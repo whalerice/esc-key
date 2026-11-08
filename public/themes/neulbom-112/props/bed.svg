@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-<rect width="128" height="128" rx="8" fill="#1A1510"/>
-<rect x="16" y="48" width="96" height="22" fill="#F3E6C8"/>
-<rect x="16" y="70" width="96" height="36" fill="#3A2E22"/>
-<rect x="24" y="40" width="28" height="16" fill="#E7D7B8"/>
-<rect x="20" y="100" width="88" height="6" fill="#1A1814"/>
-<text x="64" y="28" text-anchor="middle" fill="#F3E6C8" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">침대</text>
-</svg>

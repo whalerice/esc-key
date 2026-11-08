@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-<rect width="128" height="128" fill="#121418"/>
-<rect x="24" y="28" width="80" height="72" rx="28" fill="#2A3138" stroke="#C6A15B" stroke-width="3"/>
-<circle cx="64" cy="64" r="18" fill="none" stroke="#C6A15B" stroke-width="3"/>
-<text x="64" y="118" text-anchor="middle" fill="#E4D7C3" font-size="13" font-family="WenQuanYi Micro Hei,sans-serif">다이얼</text>
-</svg>

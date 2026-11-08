@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-<rect width="128" height="128" fill="#121418"/>
-<rect x="16" y="40" width="96" height="48" fill="#101418" stroke="#4E5963"/>
-<rect x="28" y="48" width="22" height="32" fill="#CDBFA6"/>
-<rect x="54" y="48" width="22" height="32" fill="#E4D7C3"/>
-<rect x="80" y="48" width="22" height="32" fill="#CDBFA6"/>
-<text x="64" y="112" text-anchor="middle" fill="#E4D7C3" font-size="12" font-family="WenQuanYi Micro Hei,sans-serif">3컷</text>
-</svg>

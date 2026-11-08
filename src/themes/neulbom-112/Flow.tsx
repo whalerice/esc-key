@@ -5,7 +5,7 @@ import type { SayFn } from '@/engine/ui/caption';
 import { LetterDial } from '@/engine/widgets/LetterDial';
 import { NumberDial } from '@/engine/widgets/NumberDial';
 import { DragSort } from '@/engine/widgets/DragSort';
-import { coatArt, magnetArt, MEMO_SRC, PHOTO_SRC, roomArt } from './art';
+
 import { playClue, playSeat, stopBeds, syncBed } from './audio';
 import styles from './art.module.css';
 import { line, spoken } from './data/script';
@@ -67,11 +67,7 @@ export function Neulbom112Flow({ say }: { say: SayFn }) {
 
   return (
     <div className={`flow112 ${styles.flow}`} data-zoom={zoom} data-puzzle={current ?? 'clear'}>
-      <img
-        className={styles.scene}
-        src={roomArt({ open: !!solved.P1, up: !!solved.P5, attic: !!solved.P7, lights: doll || ending })}
-        alt=""
-      />
+      
       <div className="radio-row">
         <button type="button" aria-label="배율 낮추기" onClick={() => use112Ui.getState().setZoom(stepZoom(zoom, -1))}>
           −
@@ -177,7 +173,7 @@ export function Neulbom112Flow({ say }: { say: SayFn }) {
 }
 
 function Mark({ name }: { name: string }) {
-  return <img className={styles.mark} src={`/themes/neulbom-112/props/${name}.svg`} alt="" />;
+  return <span aria-hidden>{name}</span>;
 }
 
 function gain(id: string, say: SayFn, keys: Parameters<typeof line>[0][]) {
@@ -209,8 +205,7 @@ function Mailbox({ zoom, say }: { zoom: number; say: SayFn }) {
         <Mark name="mailbox" />
         우편함
       </button>
-      {open && <img className={styles.clue} src="/themes/neulbom-112/props/envelope-near.svg" alt="" />}
-      {open && (
+            {open && (
         <NumberPad
           digits={4}
           aria="지붕 자물쇠"
@@ -263,7 +258,7 @@ function Door({ zoom, say, hasTape }: { zoom: number; say: SayFn; hasTape: boole
       </button>
       {tape && (
         <>
-          <img className={styles.clue} src="/themes/neulbom-112/props/heights.svg" alt="" />
+          
           <p>{HEIGHTS.map((row) => `${row.age}살 ${row.cm}`).join(' · ')}</p>
           <NumberPad
             digits={4}
@@ -321,7 +316,7 @@ function Magnets({ zoom, say }: { zoom: number; say: SayFn }) {
   return (
     <section data-puzzle="P4">
       <p>{far ? line('magnet.far') : line('inspect.fridge')}</p>
-      <img className={styles.clue} data-clear={far ? 'no' : 'yes'} src="/themes/neulbom-112/props/fridge.svg" alt="" />
+      
       <div className="radio-row">
         {MAGNETS.map((magnet) => (
           <button
@@ -352,7 +347,7 @@ function Magnets({ zoom, say }: { zoom: number; say: SayFn }) {
               }
             }}
           >
-            <img className={styles.mark} data-clear={far ? 'no' : 'yes'} src={magnetArt(magnet.id)} alt="" />
+            
             {magnet.label}
             {!far && magnet.dot > 0 ? ` 점${magnet.dot}` : ''}
           </button>
@@ -367,14 +362,12 @@ function Clock({ zoom, say }: { zoom: number; say: SayFn }) {
   return (
     <section data-puzzle="P5">
       <p>{line('inspect.clock')}</p>
-      <img className={styles.clue} data-clear={far ? 'no' : 'yes'} src="/themes/neulbom-112/props/clock.svg" alt="" />
+      
       {far ? (
         <p>시계 바늘이 흐리다.</p>
       ) : (
         <>
-          {PHOTOS.map((photo) => (
-            <img key={photo.id} className={styles.clue} src={PHOTO_SRC[photo.id]} alt="" />
-          ))}
+          
           {frameLines().map((text) => (
             <p key={text}>{text}</p>
           ))}
@@ -402,7 +395,7 @@ function Bed({ zoom, say }: { zoom: number; say: SayFn }) {
   return (
     <section data-puzzle="P6">
       <p>{line('inspect.bed')}</p>
-      <img className={styles.clue} data-clear={judgeZoom(zoom, ZOOM.p6) === 'far' ? 'no' : 'yes'} src="/themes/neulbom-112/props/bed.svg" alt="" />
+      
       <button
         type="button"
         onClick={() => {
@@ -465,7 +458,7 @@ function Wardrobe({
               say(spoken('narration.attic'));
             }}
           >
-            <img className={styles.mark} src={coatArt(coat.id, far)} alt="" />
+            
             {far ? '코트' : coat.label}
           </button>
         ))}
@@ -479,7 +472,7 @@ function Attic({ zoom, say, read }: { zoom: number; say: SayFn; read: boolean })
   return (
     <section data-puzzle="P8">
       <p>{line('inspect.box')}</p>
-      <img className={styles.clue} src="/themes/neulbom-112/props/box.svg" alt="" />
+      
       <button
         type="button"
         onClick={() => {
@@ -496,12 +489,12 @@ function Attic({ zoom, say, read }: { zoom: number; say: SayFn; read: boolean })
           say(spoken('drawing.back'));
         }}
       >
-        <img className={styles.mark} data-clear={far ? 'no' : 'yes'} src={far ? '/themes/neulbom-112/props/drawing.svg' : '/themes/neulbom-112/props/drawing-near.svg'} alt="" />
+        
         벽 그림
       </button>
       {read && (
         <>
-          <img className={styles.clue} src="/themes/neulbom-112/props/drawing-near.svg" alt="" />
+          
           <p>{line('inspect.attic.box')}</p>
           <LetterPad
             onYes={() => {
@@ -617,7 +610,7 @@ function SortPad({ onYes, onNo }: { onYes: () => void; onNo: () => void }) {
     <div data-sort="calendar">
       {sort.current.order.map((id, index) => (
         <div key={id} className="radio-row">
-          <img className={styles.mark} src={MEMO_SRC[id] ?? MEMO_SRC.talk} alt="" />
+          
           <p>{P3_LABEL[id as (typeof P3_ORDER)[number]]}</p>
           {index > 0 && (
             <button

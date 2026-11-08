@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="192" height="128" viewBox="0 0 192 128">
-<rect width="192" height="128" rx="8" fill="#1A1510"/>
-<rect x="8" y="8" width="176" height="112" fill="#F3E6C8"/>
-<polygon points="28,70 88,24 148,70" fill="#C23B3B"/>
-<rect x="40" y="58" width="16" height="14" fill="#2A6EBE" transform="rotate(-6 48 65)"/>
-<rect x="112" y="54" width="18" height="16" fill="#E6C36A" transform="rotate(8 121 62)"/>
-<rect x="78" y="62" width="18" height="22" fill="#6B5344"/>
-<text x="96" y="104" text-anchor="middle" fill="#1A1814" font-size="28" font-family="WenQuanYi Micro Hei,sans-serif">우리집</text>
-</svg>

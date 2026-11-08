@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-<rect x="2" y="2" width="60" height="60" rx="6" fill="#1E2A33" stroke="#B08D4F" stroke-width="2"/>
-<path d="M16 10 h22 l6 8 6 -8 h0 v44 h-34 z" fill="#E9E2D2" stroke="#3B3A36" stroke-width="1.5"/>
-<path d="M18 14 q2 3 0 6 q2 3 0 6 q2 3 0 6" fill="none" stroke="#A9B4B9" stroke-width="1.4"/>
-<text x="34" y="36" text-anchor="middle" fill="#3B3A36" font-size="11" font-family="WenQuanYi Micro Hei,sans-serif">0731</text>
-<path d="M40 40 a6 6 0 0 1 0 12" fill="none" stroke="#C8463B" stroke-width="1.6"/>
-</svg>

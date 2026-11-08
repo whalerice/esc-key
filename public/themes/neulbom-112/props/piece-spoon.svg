@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-<rect width="128" height="128" rx="8" fill="#1A1510"/>
-<ellipse cx="64" cy="40" rx="18" ry="22" fill="#C9D5CC" stroke="#8E98A4" stroke-width="2"/>
-<rect x="60" y="58" width="8" height="40" fill="#C9D5CC"/>
-<text x="64" y="112" text-anchor="middle" fill="#F3E6C8" font-size="13" font-family="WenQuanYi Micro Hei,sans-serif">숟가락</text>
-</svg>

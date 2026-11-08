@@ -17,7 +17,7 @@ import { PathFollow, reelTolerance, spiralPath } from '@/engine/widgets/PathFoll
 import { TuningKnob } from '@/engine/widgets/TuningKnob';
 import type { ThemeTimerApi } from '@/engine/ui/ThemePlay';
 import styles from './art.module.css';
-import { roomArt } from './art';
+
 import { playClue, playSeat, stopBeds, syncBed, syncSteps } from './audio';
 import { line, spoken, NOTEBOOK_PAGES } from './data/script';
 import {
@@ -148,7 +148,7 @@ export function DarkroomFlow({
         data-filter={filter.current.kind}
         data-puzzle={puzzleId(solved)}
       >
-        <img className={styles.scene} src={roomArt(scene, extra.safelightOn, endingA)} alt="" />
+        
         <p>
           {ROOM[scene] ?? scene}
           {extra.safelightOn ? ' · 안전등' : ' · 암'}
@@ -1112,15 +1112,15 @@ function LongHold({ label, mark, onHold }: { label: string; mark?: string; onHol
 }
 
 function Mark({ name }: { name: string }) {
-  return <img className={styles.mark} src={`/themes/neulbom-darkroom/props/${name}.svg`} alt="" />;
+  return <span aria-hidden>{name}</span>;
 }
 
 function Pip({ name }: { name: string }) {
-  return <img className={styles.pip} src={`/themes/neulbom-darkroom/props/${name}.svg`} alt="" />;
+  return <span aria-hidden>{name}</span>;
 }
 
 function Clue({ name }: { name: string }) {
-  return <img className={styles.clue} src={`/themes/neulbom-darkroom/props/${name}.svg`} alt="" />;
+  return <span aria-hidden>{name}</span>;
 }
 
 function trapIcon(id: string): string {

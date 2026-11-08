@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-<rect width="128" height="128" fill="#121418"/>
-<rect x="18" y="28" width="92" height="72" fill="#4A3B2E" stroke="#2C241C" stroke-width="3"/>
-<rect x="28" y="40" width="72" height="22" fill="#2C241C"/>
-<rect x="28" y="68" width="72" height="22" fill="#2C241C"/>
-<circle cx="64" cy="51" r="4" fill="#C6A15B"/>
-<text x="64" y="118" text-anchor="middle" fill="#E4D7C3" font-size="13" font-family="WenQuanYi Micro Hei,sans-serif">자물쇠</text>
-</svg>

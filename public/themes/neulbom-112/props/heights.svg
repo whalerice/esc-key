@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="216" height="128" viewBox="0 0 216 128">
-<rect width="216" height="128" rx="8" fill="#1A1510"/>
-<rect x="8" y="8" width="200" height="112" fill="#F3E6C8"/>
-<rect x="20" y="28" width="40" height="3" fill="#1A1814"/>
-<rect x="20" y="52" width="52" height="3" fill="#1A1814"/>
-<rect x="20" y="76" width="64" height="3" fill="#1A1814"/>
-<rect x="20" y="100" width="76" height="3" fill="#1A1814"/>
-<text x="90" y="34" text-anchor="start" fill="#1A1814" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">6살 108</text><text x="90" y="58" text-anchor="start" fill="#1A1814" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">8살 121</text><text x="90" y="82" text-anchor="start" fill="#1A1814" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">10살 133</text><text x="90" y="106" text-anchor="start" fill="#1A1814" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">12살 146</text>
-</svg>

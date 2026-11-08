@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-<rect width="128" height="128" fill="#121418"/>
-<rect x="16" y="36" width="96" height="60" fill="#2A2E28" stroke="#4E5963"/>
-<rect x="26" y="46" width="60" height="36" fill="#E4D7C3"/>
-<rect x="32" y="54" width="40" height="4" fill="#9B2C2C"/>
-<text x="64" y="116" text-anchor="middle" fill="#E4D7C3" font-size="12" font-family="WenQuanYi Micro Hei,sans-serif">전신</text>
-</svg>

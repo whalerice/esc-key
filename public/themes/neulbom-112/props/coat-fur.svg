@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-<rect width="128" height="128" rx="8" fill="#1A1510"/>
-<path d="M36 40 l28 -10 28 10 v58 h-56 z" fill="#6B5344" stroke="#3A2E22" stroke-width="2"/>
-<path d="M36 40 l8 -16 12 10 8 -14 12 12 8 -12 8 20" fill="#F4EFE4" stroke="#E7D7B8" stroke-width="2"/>
-<text x="64" y="24" text-anchor="middle" fill="#F3E6C8" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">털 칼라</text>
-</svg>

@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-<rect width="128" height="128" rx="8" fill="#1A1510"/>
-<rect x="24" y="78" width="80" height="14" fill="#6B5344"/>
-<rect x="36" y="70" width="56" height="10" fill="#C4A07A"/>
-<circle cx="64" cy="48" r="16" fill="none" stroke="#F3E6C8" stroke-width="3" stroke-dasharray="4 3"/>
-<text x="64" y="28" text-anchor="middle" fill="#F3E6C8" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">받침대</text>
-</svg>

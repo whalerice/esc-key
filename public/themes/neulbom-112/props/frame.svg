@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="140" height="128" viewBox="0 0 140 128">
-<rect width="140" height="128" rx="8" fill="#1A1510"/>
-<rect x="36" y="16" width="56" height="100" fill="none" stroke="#C4A07A" stroke-width="8"/>
-<rect x="96" y="36" width="22" height="3" fill="#1A1814"/>
-<rect x="96" y="52" width="26" height="3" fill="#1A1814"/>
-<rect x="96" y="68" width="30" height="3" fill="#1A1814"/>
-<rect x="96" y="84" width="34" height="3" fill="#1A1814"/>
-<text x="64" y="70" text-anchor="middle" fill="#F3E6C8" font-size="16" font-family="WenQuanYi Micro Hei,sans-serif">문</text>
-</svg>

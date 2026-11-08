@@ -10,7 +10,7 @@ import { allFound, markFound } from '@/engine/widgets/FindTap';
 import { Keypad, type CheonjiinScript } from '@/engine/widgets/Keypad';
 import type { ThemeTimerApi } from '@/engine/ui/ThemePlay';
 import styles from './art.module.css';
-import { boxArt, roomArt } from './art';
+
 import { playClue, playSeat, stopBeds, syncBed } from './audio';
 import { line, spoken } from './data/script';
 import {
@@ -120,7 +120,7 @@ export function LasttrainFlow({
   return (
     <div className={`lasttrain-flow ${styles.flow}${low ? ' dim' : ''}`} data-screen={screen} data-battery={batt}>
       {low && <div className={`lasttrain-dim${blink ? ' blink' : ''}`} data-dim={blink ? 'blink' : 'steady'} />}
-      <img className={styles.scene} src={roomArt(room, screen === 'end')} alt="" />
+      
       <div className="radio-row">
         <button type="button" onClick={() => setRoom('counter')}><Mark name="counter" />카운터</button>
         <button type="button" onClick={() => setRoom('warehouse')} disabled={!solved.P4}><Mark name="warehouse" />창고</button>
@@ -250,13 +250,7 @@ function P2({ say }: { say: SayFn }) {
       <p>비밀번호 4자리. {line('p2.lock')}</p>
       <div className="lasttrain-phone">
         <div>
-          <img
-            className={styles.sticker}
-            src="/themes/neulbom-lasttrain/props/sticker.svg"
-            alt=""
-            data-clear={zoom >= 2 ? 'yes' : 'no'}
-            style={{ width: `${120 + zoom * 36}px` }}
-          />
+          
           <p>뒷면 스티커 {zoom < 2 ? '흐림' : line('p2.zoom')}</p>
           <div className="radio-row">
             <button type="button" onClick={() => setZoom((z) => Math.max(1, z - 1))}>축소</button>
@@ -389,7 +383,7 @@ function P4({ say }: { say: SayFn }) {
       />
       {photo === 'ledger' && (
         <div data-live="ledger">
-          <img className={styles.clue} src="/themes/neulbom-lasttrain/props/ledger.svg" alt="" />
+          
           <p>습득물 대장 2009.12.24 막차. 담당 곽.</p>
           {LEDGER.map((row) => (
             <button
@@ -412,12 +406,11 @@ function P4({ say }: { say: SayFn }) {
       )}
       {photo === 'time' && (
         <>
-          <img className={styles.clue} src="/themes/neulbom-lasttrain/props/timetable.svg" alt="" />
+          
           <p>{TIMETABLE}</p>
         </>
       )}
-      {photo === 'glass' && <img className={styles.clue} src="/themes/neulbom-lasttrain/props/glass.svg" alt="" />}
-    </section>
+          </section>
   );
 }
 
@@ -460,7 +453,7 @@ function P5({
               type="button"
               className="lasttrain-box"
               data-box={box.id}
-              style={{ left: frame.x, top: frame.y, width: frame.w, height: frame.h, backgroundImage: `url(${boxArt(box)})` }}
+              style={{ left: frame.x, top: frame.y, width: frame.w, height: frame.h, backgroundColor: '#2a241c' }}
               onPointerDown={(e) => e.stopPropagation()}
               onClick={() => {
                 const marked = markFound([{ id: box.id, found: false }], box.id);
@@ -511,7 +504,7 @@ function P6({ say }: { say: SayFn }) {
   return (
     <section className={styles.panel} data-puzzle="P6">
       <h2>P6 쇼핑백과 비밀 폴더</h2>
-      <img className={styles.clue} src="/themes/neulbom-lasttrain/props/bag.svg" alt="" />
+      
       <p>{line('p6.tag')}</p>
       <p><Mark name="card" />{line('p6.card')}</p>
       <button type="button" onClick={() => say(spoken('p6.glove'))}><Mark name="glove" />털장갑</button>
@@ -554,8 +547,7 @@ function P6({ say }: { say: SayFn }) {
               사진 {item.id}
             </button>
           ))}
-          {photo && <img className={styles.clue} src={`/themes/neulbom-lasttrain/props/photo-${photo}.svg`} alt="" />}
-          {photo && <p>{PHOTOS.find((item) => item.id === photo)?.text}</p>}
+                    {photo && <p>{PHOTOS.find((item) => item.id === photo)?.text}</p>}
           {photo === 'p4' && (
             <button
               type="button"
@@ -611,7 +603,7 @@ function P7({ say }: { say: SayFn }) {
       <p>{line('p7.missed')}</p>
       {shot && (
         <>
-          <img className={styles.clue} src="/themes/neulbom-lasttrain/props/timetable.svg" alt="" />
+          
           <p>{TIMETABLE}</p>
         </>
       )}
@@ -861,7 +853,7 @@ function FinderPad({
 }
 
 function Mark({ name }: { name: string }) {
-  return <img className={styles.mark} src={`/themes/neulbom-lasttrain/props/${name}.svg`} alt="" />;
+  return <span aria-hidden>{name}</span>;
 }
 
 function addNote(id: string, text: string) {

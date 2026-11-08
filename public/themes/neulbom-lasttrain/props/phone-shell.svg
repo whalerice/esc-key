@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
-
-<rect x="8" y="8" width="624" height="344" rx="28" fill="#2A3140" stroke="#8E98A4" stroke-width="4"/>
-<rect x="28" y="28" width="340" height="304" rx="8" fill="#161B24"/>
-<rect x="384" y="28" width="16" height="304" fill="#12141A"/>
-<rect x="416" y="28" width="196" height="304" rx="8" fill="#1A2030"/>
-<rect x="436" y="56" width="40" height="40" rx="6" fill="#2A3140"/><rect x="492" y="56" width="40" height="40" rx="6" fill="#2A3140"/><rect x="548" y="56" width="40" height="40" rx="6" fill="#2A3140"/><rect x="436" y="120" width="40" height="40" rx="6" fill="#2A3140"/><rect x="492" y="120" width="40" height="40" rx="6" fill="#2A3140"/><rect x="548" y="120" width="40" height="40" rx="6" fill="#2A3140"/><rect x="436" y="184" width="40" height="40" rx="6" fill="#2A3140"/><rect x="492" y="184" width="40" height="40" rx="6" fill="#2A3140"/><rect x="548" y="184" width="40" height="40" rx="6" fill="#2A3140"/><rect x="436" y="248" width="40" height="40" rx="6" fill="#2A3140"/><rect x="492" y="248" width="40" height="40" rx="6" fill="#2A3140"/><rect x="548" y="248" width="40" height="40" rx="6" fill="#2A3140"/>
-
-</svg>

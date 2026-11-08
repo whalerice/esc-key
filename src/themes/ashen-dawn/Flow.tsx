@@ -12,7 +12,7 @@ import { RotaryDial } from '@/engine/widgets/RotaryDial';
 import { SafeDial } from '@/engine/widgets/SafeDial';
 import { TuningKnob, stationSignal } from '@/engine/widgets/TuningKnob';
 import { longPressMs } from '@/engine/widgets/LongPress';
-import { propArt, roomArt } from './art';
+
 import styles from './art.module.css';
 import { duckBed, playClue, playSeat, stopBeds, stopNoise, syncBed, syncNoise } from './audio';
 import { line, spoken } from './data/script';
@@ -172,16 +172,7 @@ export function AshDawnFlow({
 
   return (
     <>
-    <img
-      className={styles.stage}
-      src={roomArt({
-        scene,
-        dark: scene === 'desk' && !solved.P1,
-        finaleA: !!flags.finaleA,
-        finaleB: !!flags.finaleB,
-      })}
-      alt=""
-    />
+    
     <div className={`ash-flow ${styles.flow}`} data-big={big ? 'yes' : 'no'} data-scene={scene} data-puzzle={solved.P9 ? 'clear' : 'play'}>
       {banner && (
         <div className="ash-banner" role="status">
@@ -246,8 +237,8 @@ export function AshDawnFlow({
   );
 }
 
-function Mark({ name }: { name: Parameters<typeof propArt>[0] }) {
-  return <img className={styles.mark} src={propArt(name)} alt="" />;
+function Mark({ name }: { name: string }) {
+  return <span aria-hidden>{name}</span>;
 }
 
 function inLight(event: ReactMouseEvent<HTMLButtonElement>, mask: DarknessMask): boolean {
@@ -348,7 +339,7 @@ function reveal(event: ReactMouseEvent<HTMLButtonElement>, run: () => void) {
 
   return (
     <section data-puzzle="P1">
-      <img className={styles.clue} src={propArt('headphones')} alt="" />
+      
       <div
         className="ash-dark"
         onPointerMove={move}
@@ -609,7 +600,7 @@ function Chess({
       >
         전문 집기
       </button>
-      <img className={styles.clue} src={propArt('cipher')} alt="" />
+      
       {look.paper && (
         <p className="ash-paper">
           {CIPHER.match(/.{1,7}/g)?.map((row, i) => (
@@ -739,8 +730,8 @@ function Station({ say, hearing }: { say: SayFn; hearing: boolean }) {
 
   return (
     <section data-puzzle="P4">
-      <img className={styles.clue} src={propArt('radio')} alt="" />
-      <img className={styles.mark} src={propArt('mug')} alt="" />
+      
+      
       <p>{line('p4.room')}</p>
       <div ref={el} className="ash-knob" aria-label="주파수 다이얼">
         {freq.toFixed(2)} MHz
@@ -984,7 +975,7 @@ function ChessBox({ say }: { say: SayFn }) {
             <button type="button" onClick={() => setFlipped(true)}>뒤집기</button>
           </div>
           <div className="ash-cuts" data-flip={flipped ? 'no' : 'yes'} style={{ fontSize: `${zoom}rem` }}>
-            <img className={styles.mark} src={propArt('microfilm')} alt="" />
+            
             <button type="button" onClick={() => read('1', line('p6.years'), 'confess', line('film.1'))}>
               {flipped ? line('film.1') : '컷 1'}
             </button>
@@ -1059,7 +1050,7 @@ function Archive({ say }: { say: SayFn }) {
       </div>
       {read && (
         <>
-          <img className={styles.clue} src={propArt('file')} alt="" />
+          
           <p>{line('file.card')}</p>
           <p>{line('file.key')}</p>
         </>
@@ -1082,7 +1073,7 @@ function Scarf({ say }: { say: SayFn }) {
 
   return (
     <section data-puzzle="P7">
-      <img className={styles.clue} src={propArt('scarf')} alt="" />
+      
       <p>{line('p7.room')}</p>
       <div className="radio-row">
         <button type="button" aria-label="축소" onClick={() => setZoom(stepZoom(zoom, -1, 1, 4))}>−</button>
@@ -1216,7 +1207,7 @@ function Safe({ say, stage }: { say: SayFn; stage: number }) {
 
   return (
     <section data-puzzle="P8">
-      <img className={styles.clue} src={propArt('safe')} alt="" />
+      
       <p>스티커 R-L-R · 눈금 {pos}</p>
       <div className="ash-safe" aria-label="금고 다이얼">{pos}</div>
       <div className="radio-row">
@@ -1243,7 +1234,7 @@ function MusicBox({ say, hearing }: { say: SayFn; hearing: boolean }) {
 
   return (
     <section data-puzzle="P9">
-      <img className={styles.clue} src={propArt('musicbox')} alt="" />
+      
       <p>{line('p9.lid')}</p>
       <p>오르골: 도 레 미 파 솔 솔 솔</p>
       <button type="button" onClick={() => setNames((v) => !v)}>계이름 자막</button>
@@ -1337,7 +1328,7 @@ function Send({ say }: { say: SayFn }) {
 
   return (
     <section data-puzzle="P9">
-      <img className={styles.clue} src={propArt('teletype')} alt="" />
+      
       <p>{line('safe.form')}</p>
       <div className="radio-row">
         {['A', 'B', 'C', 'D'].map((id) => (
@@ -1407,7 +1398,7 @@ function FinaleA({ say }: { say: SayFn }) {
 
   return (
     <section className={styles.finale} data-ending="A">
-      <img className={styles.clue} src={propArt('border')} alt="" />
+      
       <h2>새벽은 오지 않았다</h2>
       <p>국경 검문소. 눈 내리는 새벽. 두 사람의 뒷모습.</p>
       <p>내부 협력자: VOGEL3 (그레타 포겔) ____</p>
@@ -1431,7 +1422,7 @@ function FinaleB({ say }: { say: SayFn }) {
   return (
     <section className={styles.finale} data-ending="B">
       <h2>가로챈 새벽</h2>
-      <img className={styles.clue} src={propArt('file')} alt="" />
+      
       <button type="button" onClick={() => useAshStore.getState().setFlag('endingB')}>끝</button>
     </section>
   );

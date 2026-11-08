@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-<rect width="128" height="128" rx="8" fill="#1A1510"/>
-<rect x="36" y="36" width="56" height="56" fill="#C23B3B"/>
-<circle cx="52" cy="52" r="4" fill="#F3E6C8"/>
-<circle cx="76" cy="52" r="4" fill="#F3E6C8"/>
-<circle cx="52" cy="76" r="4" fill="#F3E6C8"/>
-<circle cx="76" cy="76" r="4" fill="#F3E6C8"/>
-<text x="64" y="112" text-anchor="middle" fill="#F3E6C8" font-size="13" font-family="WenQuanYi Micro Hei,sans-serif">블록</text>
-</svg>

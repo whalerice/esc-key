@@ -1,4 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-<rect width="128" height="128" rx="8" fill="#1A1510"/>
-<circle cx="64" cy="58" r="28" fill="#F3E6C8" stroke="#3A2E22" stroke-width="3"/><circle cx="64" cy="58" r="3" fill="#1A1814"/><line x1="64" y1="58" x2="81.4" y2="58.0" stroke="#1A1814" stroke-width="3"/><line x1="64" y1="58" x2="64" y2="48.2" stroke="#1A1814" stroke-width="2"/><text x="64" y="20" text-anchor="middle" fill="#F3E6C8" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">시</text><circle cx="28" cy="108" r="4" fill="#C23B3B"/><circle cx="42" cy="108" r="4" fill="#C23B3B"/>
-</svg>

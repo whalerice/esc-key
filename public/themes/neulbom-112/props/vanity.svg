@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-<rect width="128" height="128" rx="8" fill="#1A1510"/>
-<rect x="20" y="36" width="88" height="56" fill="#E7D7B8" stroke="#6B5344" stroke-width="3"/>
-<rect x="36" y="48" width="10" height="28" fill="#C4A07A"/>
-<circle cx="70" cy="60" r="10" fill="#F3E6C8" stroke="#C45B7A" stroke-width="2"/>
-<rect x="86" y="52" width="12" height="8" fill="#1E3A78"/>
-<text x="64" y="28" text-anchor="middle" fill="#F3E6C8" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">화장대</text>
-</svg>

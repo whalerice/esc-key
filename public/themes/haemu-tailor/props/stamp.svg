@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
-<circle cx="120" cy="120" r="100" fill="none" stroke="#C8463B" stroke-width="8"/>
-<circle cx="120" cy="120" r="78" fill="none" stroke="#C8463B" stroke-width="3"/>
-<circle cx="120" cy="108" r="16" fill="#6FAE8E" stroke="#23305A" stroke-width="3"/>
-<circle cx="114" cy="108" r="2" fill="#12191F"/><circle cx="126" cy="108" r="2" fill="#12191F"/>
-<text x="120" y="156" text-anchor="middle" fill="#C8463B" font-size="28" font-family="WenQuanYi Micro Hei,sans-serif">찾아가신 옷</text>
-<text x="120" y="184" text-anchor="middle" fill="#3B3A36" font-size="16" font-family="WenQuanYi Micro Hei,sans-serif">한 땀</text>
-</svg>

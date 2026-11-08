@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-<rect width="128" height="128" rx="8" fill="#1A1510"/>
-<path d="M36 36 l28 -8 28 8 v64 h-56 z" fill="#1E3A78"/>
-<path d="M50 36 l14 18 14 -18" fill="none" stroke="#E7EEF6" stroke-width="2"/>
-<circle cx="64" cy="62" r="3" fill="#E6C36A"/>
-<circle cx="64" cy="76" r="3" fill="#E6C36A"/>
-<circle cx="64" cy="90" r="3" fill="#E6C36A"/>
-<text x="64" y="24" text-anchor="middle" fill="#F3E6C8" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">남색</text>
-</svg>

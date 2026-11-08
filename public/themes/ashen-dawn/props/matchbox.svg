@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-<rect width="128" height="128" fill="#121418"/>
-<rect x="22" y="36" width="84" height="48" fill="#CDBFA6" stroke="#1C1916"/>
-<rect x="22" y="36" width="16" height="48" fill="#9B2C2C"/>
-<text x="72" y="66" text-anchor="middle" fill="#1C1916" font-size="14" font-family="WenQuanYi Micro Hei,sans-serif">14</text>
-<text x="64" y="110" text-anchor="middle" fill="#E4D7C3" font-size="13" font-family="WenQuanYi Micro Hei,sans-serif">성냥갑</text>
-</svg>

@@ -18,7 +18,7 @@ import { MorseInput } from '@/engine/widgets/MorseInput';
 import { RhythmPress, type RhythmSpan } from '@/engine/widgets/RhythmPress';
 import { SequenceTap } from '@/engine/widgets/SequenceTap';
 import { endingBeats, line, spoken, type ScriptKey } from './data/script';
-import { BED_SRC, CLUE_SRC, ROOM_SRC, SFX_SRC } from './art';
+import { BED_SRC, CLUE_SRC, SFX_SRC } from './art';
 import { themeHaemuLighthouse } from './index';
 import {
   BEAM_HOLD_MS,
@@ -146,7 +146,7 @@ function Prop({
   const cls = [nav ? 'lh-nav' : 'lh-prop', className].filter(Boolean).join(' ');
   return (
     <button type="button" {...rest} className={cls}>
-      {icon ? <img src={`/themes/haemu-lighthouse/props/${icon}.svg`} alt="" /> : null}
+      
       {children}
     </button>
   );
@@ -311,11 +311,10 @@ export function LighthouseFlow({
   const visited = ['1', '2', '3', '4', '5', '6'].filter((id) => flags[`v${id}`]);
   const floors = themeHaemuLighthouse.hud.floorNav?.floors ?? [];
   const next = ORDER.find((id) => !solved[id]) ?? '끝';
-  const roomSrc = scene === 'f6' && solved.P3 ? ROOM_SRC.f6main : (ROOM_SRC[scene] ?? ROOM_SRC.f1);
 
   return (
     <div className="lighthouse-flow" data-scene={scene} data-next={next} data-lamp={solved.P3 ? 'main' : 'spare'}>
-      <img className="lighthouse-scene" src={roomSrc} alt="" />
+      
       {solved.P3 && (scene === 'f6' || scene === 'rail') ? <div className="lighthouse-main-glow" aria-hidden /> : null}
       <p className="radio-room">
         {ROOM[scene] ?? scene} · {next} · {solved.P3 ? '주등' : '예비등'}
@@ -464,11 +463,7 @@ function Panel({ say }: { say: SayFn }) {
   };
   return (
     <section>
-      <img
-        className="lh-figure"
-        src="/themes/haemu-lighthouse/props/floors.svg"
-        alt="1 파랑 당직실, 2 초록 무적실, 3 흰색 창고, 4 검정 위 당직실, 5 노랑 기계실, 6 빨강 등실"
-      />
+      
       <div className="radio-row">
         <Prop
           icon="tube"
@@ -815,14 +810,12 @@ function BeamPlay({
           >
             덮개 카드
           </Prop>
-          {cardOpen ? (
-            <img className="lh-figure" src="/themes/haemu-lighthouse/props/card.svg" alt="국제신호 U. 짧게, 짧게, 길게." />
-          ) : null}
+          
           <p className="morse-read" data-code={code}>
             {code || '대기'} {code === MORSE_U ? '' : ''}
           </p>
           <button ref={shutterRef} type="button" className="lh-prop">
-            <img src="/themes/haemu-lighthouse/props/shutter.svg" alt="" />
+            
             셔터
           </button>
         </>
@@ -1228,7 +1221,7 @@ function RhythmPad({ onDone, onBad }: { onDone: () => void; onBad: () => void })
       </div>
       <p>━━ · ━━</p>
       <button ref={ref} type="button" className="lh-prop">
-        <img src="/themes/haemu-lighthouse/props/horn.svg" alt="" />
+        
         무적 손잡이
       </button>
     </div>

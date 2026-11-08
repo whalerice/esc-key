@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="440" height="220" viewBox="0 0 440 220">
-
-<rect width="440" height="220" fill="#162033"/>
-<rect x="40" y="40" width="160" height="80" fill="#6B5344" opacity="0.55"/>
-<rect x="220" y="70" width="120" height="50" fill="#4A382E" opacity="0.5"/>
-<text x="220" y="180" text-anchor="middle" fill="#E7EEF6" font-size="18" font-family="WenQuanYi Micro Hei,sans-serif">비친 것은 센터뿐</text>
-
-</svg>

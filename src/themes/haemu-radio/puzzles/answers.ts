@@ -46,19 +46,35 @@ export const CARTS: { id: CartId; label: string; sec: number; ad: boolean }[] = 
 
 export const P3_ANSWER: CartId[] = ['call', 'archive', 'fish', 'weather'];
 export const P3_TARGET_SEC = 150;
+/** Near-miss band for softer feedback (still need exact 150 to clear). */
+export const P3_CLOSE_SEC = 15;
 
 const cartById = new Map(CARTS.map((c) => [c.id, c]));
 
-export function judgeP3(queue: readonly (string | null)[]): 'ok' | 'short' | 'long' | 'rule' {
+export function cartQueueSecs(queue: readonly (string | null)[]): number {
+  return queue.reduce((n, id) => n + (id ? (cartById.get(id as CartId)?.sec ?? 0) : 0), 0);
+}
+
+export function formatCartClock(sec: number): string {
+  const s = Math.max(0, Math.round(sec));
+  const m = Math.floor(s / 60);
+  return `${m}:${String(s % 60).padStart(2, '0')}`;
+}
+
+export function judgeP3(
+  queue: readonly (string | null)[],
+): 'ok' | 'short' | 'long' | 'rule' | 'close' {
   const ids = queue.filter((id): id is string => !!id);
   if (ids.length === 0) return 'short';
-  const secs = ids.reduce((n, id) => n + (cartById.get(id as CartId)?.sec ?? 0), 0);
+  const secs = cartQueueSecs(ids);
   const second = ids[1];
   const rule =
     ids[0] !== 'call' ||
     ids[ids.length - 1] !== 'weather' ||
     (second != null && !!cartById.get(second as CartId)?.ad);
   if (rule) return 'rule';
+  if (ids.join() === P3_ANSWER.join() && secs === P3_TARGET_SEC) return 'ok';
+  if (secs !== P3_TARGET_SEC && Math.abs(secs - P3_TARGET_SEC) <= P3_CLOSE_SEC) return 'close';
   if (secs < P3_TARGET_SEC) return 'short';
   if (secs > P3_TARGET_SEC) return 'long';
   if (ids.join() !== P3_ANSWER.join()) return 'rule';
@@ -242,8 +258,12 @@ export function assertRadioAnswers(): void {
   }
   if (judgeP3(P3_ANSWER) !== 'ok') throw new Error('P3 ok');
   if (judgeP3(['call', 'weather']) !== 'short') throw new Error('P3 short');
-  if (judgeP3(['call', 'archive', 'campaign', 'weather']) !== 'long') throw new Error('P3 long');
+  if (judgeP3(['call', 'archive', 'campaign', 'fish', 'weather']) !== 'long') throw new Error('P3 long');
   if (judgeP3(['call', 'fish', 'archive', 'weather']) !== 'rule') throw new Error('P3 rule');
+  if (judgeP3(['call', 'archive', 'jingle', 'weather']) !== 'close') throw new Error('P3 close');
+  if (judgeP3(['call', 'archive', 'campaign', 'weather']) !== 'close') throw new Error('P3 close long');
+  if (formatCartClock(150) !== '2:30') throw new Error('P3 clock');
+  if (formatCartClock(80) !== '1:20') throw new Error('P3 clock 80');
   if (judgeP4(['C', null, 'B', 'A']) !== 'ok') throw new Error('P4');
   if (judgeP4(['E', null, 'B', 'A']) !== 'morning') throw new Error('P4 E');
   if (judgeP4(['C', null, 'B', 'D']) !== 'same') throw new Error('P4 same');

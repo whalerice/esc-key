@@ -20,6 +20,7 @@ export type ThemeStoreApi<TExtra> = ThemeSave<TExtra> & {
   setFlag: (key: string, value?: boolean) => void;
   patchTimer: (partial: Partial<ThemeSave['timer']>) => void;
   patchExtra: (partial: Partial<TExtra>) => void;
+  setCaptionQueue: (queue: NonNullable<ThemeSave['captionQueue']>) => void;
   reset: (initial: ThemeSave<TExtra>) => void;
 };
 
@@ -55,7 +56,12 @@ export function createThemeStore<TExtra>(
           set((s) => ({
             extra: withoutEphemeralExtra({ ...s.extra, ...partial } as TExtra),
           })),
-        reset: (next) => set({ ...next }),
+        setCaptionQueue: (captionQueue) => set({ captionQueue }),
+        reset: (next) =>
+          set({
+            ...next,
+            captionQueue: next.captionQueue ?? [],
+          }),
       }),
       {
         name: key,
@@ -69,6 +75,7 @@ export function createThemeStore<TExtra>(
             setFlag: _setFlag,
             patchTimer: _patchTimer,
             patchExtra: _patchExtra,
+            setCaptionQueue: _setCaptionQueue,
             reset: _reset,
             extra,
             ...data

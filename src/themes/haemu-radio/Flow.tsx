@@ -23,6 +23,8 @@ import {
   P2_HZ,
   P2_TOL,
   P3_TARGET_SEC,
+  cartQueueSecs,
+  formatCartClock,
   P5_HOLD_MS,
   P5_STATIONS,
   P6_BOXES,
@@ -724,7 +726,8 @@ function P3({
   onClose: () => void;
 }) {
   const [picked, setPicked] = useState<string | null>(null);
-  const secs = queue.reduce((n, id) => n + (CARTS.find((c) => c.id === id)?.sec ?? 0), 0);
+  const secs = cartQueueSecs(queue);
+  const ready = judgeP3(queue) === 'ok';
   const place = (index: number) => {
     if (!picked) return;
     const hit = nearestSnap(P3_SLOTS[index]!.x, P3_SLOTS[index]!.y, P3_SLOTS);
@@ -734,29 +737,42 @@ function P3({
     next[at] = picked;
     useRadioStore.getState().patchExtra({ cartQueue: next });
   };
+  const pct = Math.min(100, Math.round((secs / P3_TARGET_SEC) * 100));
   return (
     <section className="radio-sheet" data-sheet="cart">
       <p>{line('p3.manual')}</p>
-      <p>한 땀 광고: 찾아가지 않으신 옷, 아직 기다리고 있습니다.</p>
+      <p>목표 곡 시작 시각 02:03 · 채울 길이 2분 30초(150초).</p>
       <div className="radio-row">
         {CARTS.map((c) => (
           <Prop key={c.id} icon="cart" data-on={picked === c.id} onClick={() => setPicked(c.id)}>
-            {c.label} {c.sec}초
+            {c.label}
+            {c.ad ? ' ·광고' : ''} {formatCartClock(c.sec)}
           </Prop>
         ))}
       </div>
       <div className="radio-row radio-sheet-slots">
-        {queue.map((id, i) => (
-          <button key={i} type="button" onClick={() => place(i)}>
-            {i + 1}. {CARTS.find((c) => c.id === id)?.label ?? '빈 칸'}
-          </button>
-        ))}
+        {queue.map((id, i) => {
+          const cart = CARTS.find((c) => c.id === id);
+          return (
+            <button key={i} type="button" onClick={() => place(i)}>
+              {i + 1}. {cart ? `${cart.label}${cart.ad ? ' ·광고' : ''} ${formatCartClock(cart.sec)}` : '빈 칸'}
+            </button>
+          );
+        })}
       </div>
-      <p>
-        {secs}초 / {P3_TARGET_SEC}초
-      </p>
+      <div className="radio-cart-meter" data-ready={ready ? 'yes' : 'no'}>
+        <div className="radio-cart-meter-track" aria-hidden>
+          <span className="radio-cart-meter-fill" style={{ width: `${pct}%` }} />
+          <span className="radio-cart-meter-goal" />
+        </div>
+        <p>
+          {formatCartClock(secs)} / 2:30
+          {secs === P3_TARGET_SEC ? ' · 딱 맞음' : secs < P3_TARGET_SEC ? ` · 부족 ${P3_TARGET_SEC - secs}초` : ` · 초과 ${secs - P3_TARGET_SEC}초`}
+        </p>
+      </div>
       <button
         type="button"
+        data-ready={ready ? 'yes' : 'no'}
         onClick={() => {
           radioSfx(SFX_SRC.cart);
           const result = judgeP3(queue);
@@ -766,10 +782,20 @@ function P3({
             onClose();
             return;
           }
-          say(spoken(result === 'short' ? 'p3.short' : result === 'long' ? 'p3.long' : 'p3.rule'));
+          say(
+            spoken(
+              result === 'close'
+                ? 'p3.close'
+                : result === 'short'
+                  ? 'p3.short'
+                  : result === 'long'
+                    ? 'p3.long'
+                    : 'p3.rule',
+            ),
+          );
         }}
       >
-        송출
+        {ready ? '송출 · 2:30' : '송출'}
       </button>
     </section>
   );

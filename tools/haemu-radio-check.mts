@@ -12,6 +12,7 @@ import {
 import { withoutEphemeralExtra } from '../src/engine/types.ts';
 import { BED_SRC, CLUE_SRC, DJ_SRC, ROOM_SRC, SFX_SRC } from '../src/themes/haemu-radio/art.ts';
 import { initialExtra } from '../src/themes/haemu-radio/extra.ts';
+import { themeHaemuRadio } from '../src/themes/haemu-radio/index.ts';
 import { assertRadioAnswers } from '../src/themes/haemu-radio/puzzles/answers.ts';
 
 assertRadioAnswers();
@@ -61,3 +62,22 @@ for (const url of [...Object.values(ROOM_SRC), DJ_SRC, ...Object.values(BED_SRC)
   const file = new URL(`../public${url}`, import.meta.url);
   assert.ok(existsSync(file), url);
 }
+
+// Enter boom: no RadioBed cue at 02:00 / opening on control entry.
+assert.equal(
+  themeHaemuRadio.radioBed?.cues.some((c) => c.at === '02:00' || c.soundId === 'opening'),
+  false,
+);
+assert.ok(themeHaemuRadio.radioBed?.cues.some((c) => c.soundId === 'fog-stop'));
+
+// Resume captions: ThemePlay must persist/restore captionQueue (not always re-seed openings).
+const themePlay = readFileSync(new URL('../src/engine/ui/ThemePlay.tsx', import.meta.url), 'utf8');
+assert.equal(themePlay.includes('setCaptionQueue'), true);
+assert.equal(themePlay.includes('captionQueue'), true);
+
+// P3 ease: 2:30 cue in sheet + softer close band + clearer hints.
+const flow = readFileSync(new URL('../src/themes/haemu-radio/Flow.tsx', import.meta.url), 'utf8');
+assert.equal(flow.includes('2:30'), true);
+assert.equal(flow.includes('formatCartClock'), true);
+assert.equal(themeSrc.includes('2분 30초(150초)'), true);
+assert.equal(themeSrc.includes('80초짜리 + 20초짜리'), true);

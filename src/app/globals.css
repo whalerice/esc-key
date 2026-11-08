@@ -376,6 +376,29 @@ html[data-radio-hits='show'] .radio-hit {
   height: 28%;
 }
 
+/* Archive (rooms/archive.png) — left shelves + desk walkie */
+.radio-hit[data-hit='tape'] {
+  left: 6%;
+  top: 16%;
+  width: 34%;
+  height: 54%;
+}
+
+.radio-hit[data-hit='walkie'] {
+  left: 72%;
+  top: 54%;
+  width: 12%;
+  height: 26%;
+}
+
+/* Roof (rooms/roof.png) — center TX cabinet */
+.radio-hit[data-hit='tower'] {
+  left: 40%;
+  top: 42%;
+  width: 26%;
+  height: 32%;
+}
+
 .radio-flow > * {
   position: relative;
   z-index: 1;

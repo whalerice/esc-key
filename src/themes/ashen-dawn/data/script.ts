@@ -1,14 +1,16 @@
 /** Lines the theme speaks. Full VO: docs/단편/잿빛새벽/잿빛새벽_대본_v1.md */
 
-export const openingLines = [
-  '1983년 11월 · 서베를린. 신호분석국 오르겔 분소. 02:58.',
-  '야간 당직 첫날. 교본 3장, 당직자는 자리를 비우지 않는다.',
-  '렌츠 선배가 오늘 같이 서기로 했다. 선배는 보이지 않는다.',
-  '04:00 전에 취소. 작전명은 전문 안에. 나는 못 한다. — L',
-  '… 서측 조기경보 오판 유도 … 04:00 개시 …',
-  '핵 경보 오판. 04:00에 시작된다. 지금은 03:00.',
-  '형광등이 깜빡이다 꺼진다.',
-] as const;
+import { dialogue, narration, type CaptionLine } from '@/engine/ui/caption';
+
+export const openingLines: CaptionLine[] = [
+  narration('1983년 11월 · 서베를린. 신호분석국 오르겔 분소. 02:58.'),
+  narration('야간 당직 첫날. 교본 3장, 당직자는 자리를 비우지 않는다.'),
+  narration('렌츠 선배가 오늘 같이 서기로 했다. 선배는 보이지 않는다.'),
+  narration('04:00 전에 취소. 작전명은 전문 안에. 나는 못 한다. — L'),
+  narration('… 서측 조기경보 오판 유도 … 04:00 개시 …'),
+  narration('핵 경보 오판. 04:00에 시작된다. 지금은 03:00.'),
+  narration('형광등이 깜빡이다 꺼진다.'),
+];
 
 export const script = {
   'p1.dark': '정전. 예비 전원은 텔레타이프만 살린다.',
@@ -150,6 +152,25 @@ export const script = {
   'safe.half': '5208 — 후반부는 담당 해독관 렌츠가 보관',
 } as const;
 
-export function line(id: keyof typeof script): string {
+export type ScriptKey = keyof typeof script;
+
+export function line(id: ScriptKey): string {
   return script[id];
+}
+
+const SPEAKER: Partial<Record<ScriptKey, string>> = {
+  'p2.hans': '한스',
+  'p2.otto': '교환',
+  'p2.josef1': '요제프',
+  'p2.josef2': '요제프',
+  'p2.josef3': '요제프',
+  'p2.josef4': '요제프',
+  'greta.1': '그레타',
+  'greta.2': '그레타',
+  'greta.3': '그레타',
+};
+
+export function spoken(id: ScriptKey): CaptionLine {
+  const speaker = SPEAKER[id];
+  return speaker !== undefined ? dialogue(script[id], speaker) : narration(script[id]);
 }

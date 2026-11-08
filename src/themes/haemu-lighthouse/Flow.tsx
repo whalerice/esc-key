@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type ComponentProps, type MutableRefObject, type ReactNode } from 'react';
+import type { SayFn } from '@/engine/ui/caption';
 import { Howl } from 'howler';
 import { DISTANCE, RadioBed } from '@/engine/audio/RadioBed';
 import { playHtml5Clip } from '@/engine/audio/html5Clip';
@@ -16,7 +17,7 @@ import { longPressMs } from '@/engine/widgets/LongPress';
 import { MorseInput } from '@/engine/widgets/MorseInput';
 import { RhythmPress, type RhythmSpan } from '@/engine/widgets/RhythmPress';
 import { SequenceTap } from '@/engine/widgets/SequenceTap';
-import { endingBeats, line, type ScriptKey } from './data/script';
+import { endingBeats, line, spoken, type ScriptKey } from './data/script';
 import { BED_SRC, CLUE_SRC, ROOM_SRC, SFX_SRC } from './art';
 import { themeHaemuLighthouse } from './index';
 import {
@@ -159,7 +160,7 @@ export function LighthouseFlow({
   selectedItem,
   onUseRef,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   clockRef: MutableRefObject<(ms: number) => void>;
   selectedItem: string | null;
   onUseRef: MutableRefObject<(itemId: string | null, targetId: string) => void>;
@@ -192,22 +193,22 @@ export function LighthouseFlow({
     if (floor && !s.flags[`v${floor}`]) s.setFlag(`v${floor}`);
     if (scene === 'f3' && !useLighthouseStore.getState().flags.said3) {
       useLighthouseStore.getState().setFlag('said3');
-      sayRef.current(line('f3.line'));
+      sayRef.current(spoken('f3.line'));
     }
     if (scene === 'f5' && !useLighthouseStore.getState().flags.said5) {
       useLighthouseStore.getState().setFlag('said5');
-      sayRef.current(line('f5.line'));
+      sayRef.current(spoken('f5.line'));
     }
     if (scene === 'f4' && !useLighthouseStore.getState().flags.p5hello) {
       useLighthouseStore.getState().setFlag('p5hello');
       hear('tube');
-      sayRef.current(line('p5.tube'));
+      sayRef.current(spoken('p5.tube'));
     }
     if (scene === 'f4' && s.solved.P7 && !s.solved.P8 && !useLighthouseStore.getState().flags.p8ask) {
       useLighthouseStore.getState().setFlag('p8ask');
       hear('tube');
-      sayRef.current(line('p8.go1'));
-      sayRef.current(line('p8.go2'));
+      sayRef.current(spoken('p8.go1'));
+      sayRef.current(spoken('p8.go2'));
     }
   }, [scene]);
 
@@ -257,10 +258,10 @@ export function LighthouseFlow({
       if (live.solved.P6 && ms >= live.extra.solvedAt.P6 + 10_000) {
         once('redLight', true, () => {
           hear('captain');
-          sayRef.current(line('p7.warn'));
+          sayRef.current(spoken('p7.warn'));
           hear('tube');
-          sayRef.current(line('p7.tube1'));
-          sayRef.current(line('p7.tube2'));
+          sayRef.current(spoken('p7.tube1'));
+          sayRef.current(spoken('p7.tube2'));
         });
       }
     };
@@ -282,14 +283,14 @@ export function LighthouseFlow({
       stamp('P6');
       useLighthouseStore.getState().markSolved('P6');
       hear('captain');
-      say(line('p6.solved'));
+      say(spoken('p6.solved'));
       hear('tube');
-      say(line('p6.tube'));
-      say(line('horn.loop'));
+      say(spoken('p6.tube'));
+      say(spoken('horn.loop'));
       return;
     }
     const key = result === 'early' ? 'p6.early' : result === 'wrong' ? 'p6.wrong' : 'p6.need';
-    say(line(key));
+    say(spoken(key));
   };
   onUseRef.current = (itemId, targetId) => {
     if (targetId && targetId !== HORN_TARGET) return;
@@ -301,9 +302,9 @@ export function LighthouseFlow({
     const index = CLIMB.indexOf(s.scene);
     const to = CLIMB[index + dir];
     if (!to) return;
-    if (dir > 0 && s.scene === 'f1' && !s.solved.P1) return say(line('need.door'));
-    if (dir > 0 && s.scene === 'panel' && !s.solved.P2) return say(line('need.power'));
-    if (dir > 0 && s.scene === 'f6' && !s.solved.P3) return say(line('need.lamp'));
+    if (dir > 0 && s.scene === 'f1' && !s.solved.P1) return say(spoken('need.door'));
+    if (dir > 0 && s.scene === 'panel' && !s.solved.P2) return say(spoken('need.power'));
+    if (dir > 0 && s.scene === 'f6' && !s.solved.P3) return say(spoken('need.lamp'));
     s.setScene(to);
   };
 
@@ -391,11 +392,11 @@ function addNote(id: string, text: string) {
   useLighthouseStore.setState({ notebook: [...s.notebook, { id, text }] });
 }
 
-function Duty({ say }: { say: (text: string) => void }) {
+function Duty({ say }: { say: SayFn }) {
   const solved = useLighthouseStore((s) => !!s.solved.P1);
   const [code, setCode] = useState('');
   const clue = (key: ScriptKey, note?: string) => {
-    say(line(key));
+    say(spoken(key));
     if (note) addNote(key, line(key));
   };
   return (
@@ -420,15 +421,15 @@ function Duty({ say }: { say: (text: string) => void }) {
             if (result === 'ok') {
               lhSfx(SFX_SRC.door);
               useLighthouseStore.getState().markSolved('P1');
-              say(line('p1.solved'));
+              say(spoken('p1.solved'));
               return;
             }
             if (result === 'chart') {
               useLighthouseStore.getState().patchExtra({ trapOldChart: true });
-              say(line('p1.chartWrong'));
+              say(spoken('p1.chartWrong'));
               return;
             }
-            say(line('p1.no'));
+            say(spoken('p1.no'));
           }}
         />
       )}
@@ -436,13 +437,13 @@ function Duty({ say }: { say: (text: string) => void }) {
   );
 }
 
-function Panel({ say }: { say: (text: string) => void }) {
+function Panel({ say }: { say: SayFn }) {
   const order = useLighthouseStore((s) => s.extra.breakerUp);
   const solved = useLighthouseStore((s) => !!s.solved.P2);
   const downAt = useRef(0);
   const pull = (id: string) => {
     const lever = LEVERS.find((item) => item.id === id);
-    if (!lever?.down) return say(line('p2.up'));
+    if (!lever?.down) return say(spoken('p2.up'));
     const s = useLighthouseStore.getState();
     if (s.extra.breakerUp.includes(id) || s.solved.P2) return;
     lhSfx(SFX_SRC.lever);
@@ -451,14 +452,14 @@ function Panel({ say }: { say: (text: string) => void }) {
     if (verdict === 'ok' && !new SequenceTap([...P2_ORDER]).check(next)) return;
     if (verdict === 'reset') {
       s.patchExtra({ breakerUp: [] });
-      say(line('p2.drop'));
+      say(spoken('p2.drop'));
       return;
     }
     s.patchExtra({ breakerUp: next });
     if (verdict === 'ok') {
       s.markSolved('P2');
-      say(line('p2.solved'));
-      say(line('p2.tubeSilent'));
+      say(spoken('p2.solved'));
+      say(spoken('p2.tubeSilent'));
     }
   };
   return (
@@ -476,22 +477,22 @@ function Panel({ say }: { say: (text: string) => void }) {
           }}
           onPointerUp={() => {
             if (performance.now() - downAt.current < longPressMs()) {
-              say(line('p2.short'));
+              say(spoken('p2.short'));
               return;
             }
             useLighthouseStore.getState().setFlag('tube');
             hear('tube');
-            say(line('p2.tube'));
+            say(spoken('p2.tube'));
           }}
         >
           전성관 구멍
         </Prop>
-        <Prop icon="note" onClick={() => say(line('p2.note'))}>쪽지</Prop>
+        <Prop icon="note" onClick={() => say(spoken('p2.note'))}>쪽지</Prop>
         <Prop
           icon="floors"
           onClick={() => {
             addNote('floors', line('p2.floors'));
-            say(line('p2.floors'));
+            say(spoken('p2.floors'));
           }}
         >
           층 안내판
@@ -512,7 +513,7 @@ function Panel({ say }: { say: (text: string) => void }) {
   );
 }
 
-function Lamp({ say, stamp }: { say: (text: string) => void; stamp: Stamp }) {
+function Lamp({ say, stamp }: { say: SayFn; stamp: Stamp }) {
   const slot = useLighthouseStore((s) => s.extra.changerSlot);
   const focus = useLighthouseStore((s) => s.extra.focus);
   const solved = useLighthouseStore((s) => !!s.solved.P3);
@@ -530,12 +531,12 @@ function Lamp({ say, stamp }: { say: (text: string) => void; stamp: Stamp }) {
       if (s.solved.P3 || !focusAligned(s.extra.focus)) return;
       stampRef.current('P3');
       useLighthouseStore.getState().markSolved('P3');
-      say(line('p3.solved'));
+      say(spoken('p3.solved'));
       hear('captain');
-      say(line('p3.cap1'));
-      say(line('p3.cap2'));
+      say(spoken('p3.cap1'));
+      say(spoken('p3.cap2'));
       hear('tube');
-      say(line('p3.tube'));
+      say(spoken('p3.tube'));
     }, FOCUS_HOLD_MS);
     return () => window.clearTimeout(timer);
   }, [focus, lit, solved, say]);
@@ -543,7 +544,7 @@ function Lamp({ say, stamp }: { say: (text: string) => void; stamp: Stamp }) {
   const setFocus = (axis: 'x' | 'y', raw: number) => {
     if (!flipped.current) {
       flipped.current = true;
-      say(line('p3.flip'));
+      say(spoken('p3.flip'));
     }
     const s = useLighthouseStore.getState();
     s.patchExtra({ focus: { ...s.extra.focus, [axis]: raw / 100 } });
@@ -553,8 +554,8 @@ function Lamp({ say, stamp }: { say: (text: string) => void; stamp: Stamp }) {
     <section>
       <p>{line('p3.room')}</p>
       <div className="radio-row">
-        <Prop icon="note" onClick={() => say(line('p3.note'))}>교환기 쪽지</Prop>
-        <Prop icon="plaque" onClick={() => say(line('p3.plate'))}>확인창 명판</Prop>
+        <Prop icon="note" onClick={() => say(spoken('p3.note'))}>교환기 쪽지</Prop>
+        <Prop icon="plaque" onClick={() => say(spoken('p3.plate'))}>확인창 명판</Prop>
       </div>
       {!solved && (
         <>
@@ -579,8 +580,8 @@ function Lamp({ say, stamp }: { say: (text: string) => void; stamp: Stamp }) {
                 key={n}
                 icon={(['bulb-dead', 'bulb-soot', 'bulb-ok', 'bulb-loose'] as const)[n - 1]}
                 onClick={() => {
-                  if (n === 4 && tapped4) say(line('p3.b4b'));
-                  else say(line(`p3.b${n}` as ScriptKey));
+                  if (n === 4 && tapped4) say(spoken('p3.b4b'));
+                  else say(spoken(`p3.b${n}` as ScriptKey));
                   if (n === 4) setTapped4(true);
                 }}
               >
@@ -594,11 +595,11 @@ function Lamp({ say, stamp }: { say: (text: string) => void; stamp: Stamp }) {
                 if (result === 'ok') {
                   lhSfx(SFX_SRC.lamp);
                   setLit(true);
-                  say(line('p3.spread'));
+                  say(spoken('p3.spread'));
                   return;
                 }
                 setLit(false);
-                say(line(result === 'dead' ? 'p3.dead' : result === 'dim' ? 'p3.dim' : 'p3.flash'));
+                say(spoken(result === 'dead' ? 'p3.dead' : result === 'dim' ? 'p3.dim' : 'p3.flash'));
               }}
             >
               점등
@@ -651,7 +652,7 @@ function BeamPlay({
   mode,
   stamp,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   mode: 'p4' | 'p7';
   stamp: Stamp;
 }) {
@@ -674,17 +675,17 @@ function BeamPlay({
     const s = useLighthouseStore.getState();
     if (!s.flags.beamGuide) {
       s.setFlag('beamGuide');
-      say(line('p4.guide'));
+      say(spoken('p4.guide'));
     }
     if (!s.flags.p4brief) {
       s.setFlag('p4brief');
       hear('captain');
-      say(line('p4.cap'));
+      say(spoken('p4.cap'));
     }
     if (mode === 'p7' && !useLighthouseStore.getState().flags.p7moved) {
       useLighthouseStore.getState().setFlag('p7moved');
       hear('captain');
-      say(line('p7.moved'));
+      say(spoken('p7.moved'));
     }
   }, [mode, say]);
 
@@ -703,7 +704,7 @@ function BeamPlay({
         if (said.has(id)) return;
         said.add(id);
         const key = LOOK[id];
-        if (key) sayRef.current(line(key));
+        if (key) sayRef.current(spoken(key));
       },
       onHeld: (id) => {
         if (modeRef.current !== 'p4') return;
@@ -713,15 +714,15 @@ function BeamPlay({
           s.markSolved('P4');
           addNote('ship', line('p4.solved'));
           hear('captain');
-          sayRef.current(line('p4.solved'));
-          sayRef.current(line('p4.fog'));
+          sayRef.current(spoken('p4.solved'));
+          sayRef.current(spoken('p4.fog'));
           hear('tube');
-          sayRef.current(line('p4.tube'));
+          sayRef.current(spoken('p4.tube'));
         }
         if (verdict === 'trap') {
           s.patchExtra({ trapBoat8: true });
           hear('captain');
-          sayRef.current(line('p4.trap'));
+          sayRef.current(spoken('p4.trap'));
         }
       },
     });
@@ -758,20 +759,20 @@ function BeamPlay({
           stampRef.current('P7');
           useLighthouseStore.getState().markSolved('P7');
           hear('captain');
-          sayRef.current(line('p7.solved'));
-          sayRef.current(line('p7.chart'));
+          sayRef.current(spoken('p7.solved'));
+          sayRef.current(spoken('p7.chart'));
           hear('tube');
-          sayRef.current(line('p7.tube'));
+          sayRef.current(spoken('p7.tube'));
           return;
         }
         if (verdict === 'red') {
           useLighthouseStore.getState().patchExtra({ trapRedSignal: true });
           hear('tube');
-          sayRef.current(line('p7.red'));
+          sayRef.current(spoken('p7.red'));
           return;
         }
         if (verdict === 'no') hear('captain');
-        sayRef.current(line(verdict === 'miss' ? 'p7.miss' : 'p7.no'));
+        sayRef.current(spoken(verdict === 'miss' ? 'p7.miss' : 'p7.no'));
       },
     });
     const off = morse.attach(el);
@@ -809,7 +810,7 @@ function BeamPlay({
             icon="card"
             onClick={() => {
               setCardOpen(true);
-              say(line('p7.card'));
+              say(spoken('p7.card'));
             }}
           >
             덮개 카드
@@ -834,7 +835,7 @@ function elapsedNow(): number {
   return fairMs;
 }
 
-function Logs({ say, onSign }: { say: (text: string) => void; onSign: () => void }) {
+function Logs({ say, onSign }: { say: SayFn; onSign: () => void }) {
   const solved = useLighthouseStore((s) => s.solved);
   const items = useLighthouseStore((s) => s.items);
   const [page, setPage] = useState<LogTab | null>(null);
@@ -855,32 +856,32 @@ function Logs({ say, onSign }: { say: (text: string) => void; onSign: () => void
         s.markSolved('P5');
         addNote('procedure', '무적 수동 기동. 압축기, 압력 7, 배수, 공기, 2초·2초·2초, 쐐기.');
         addNote('blues', '파란 띠지 287장');
-        say(line('p5.solved'));
-        say(line('p5.flip'));
+        say(spoken('p5.solved'));
+        say(spoken('p5.flip'));
         hear('tube');
-        say(line('p5.reason'));
+        say(spoken('p5.reason'));
       }
       return;
     }
     if (!first) {
-      if (tab.color === 'blue') say(line('p5.short'));
+      if (tab.color === 'blue') say(spoken('p5.short'));
       return;
     }
-    if (tab.color === 'red') say(line('p5.red'));
-    if (tab.id === 'y-2009') say(line('p5.yellow'));
-    if (tab.id === 'y-2026') say(line('p5.blank'));
-    if (tab.color === 'blue') say(line(seenBlue ? 'p5.short' : 'p5.blue'));
+    if (tab.color === 'red') say(spoken('p5.red'));
+    if (tab.id === 'y-2009') say(spoken('p5.yellow'));
+    if (tab.id === 'y-2026') say(spoken('p5.blank'));
+    if (tab.color === 'blue') say(spoken(seenBlue ? 'p5.short' : 'p5.blue'));
   };
   return (
     <section>
       <p>{line('p5.room')}</p>
       <div className="radio-row">
-        <Prop icon="manual" onClick={() => say(line('p5.manual'))}>매뉴얼</Prop>
+        <Prop icon="manual" onClick={() => say(spoken('p5.manual'))}>매뉴얼</Prop>
         <Prop
           icon="plaque"
           onClick={() => {
             addNote('plate', line('p5.plate'));
-            say(line('p5.plate'));
+            say(spoken('p5.plate'));
           }}
         >
           준공 명판
@@ -891,7 +892,7 @@ function Logs({ say, onSign }: { say: (text: string) => void; onSign: () => void
             onClick={() => {
               lhSfx(SFX_SRC.wedge);
               useLighthouseStore.getState().addItem(WEDGE_ID);
-              say(line('p5.wedge'));
+              say(spoken('p5.wedge'));
             }}
           >
             선반 서랍
@@ -922,7 +923,7 @@ function Logs({ say, onSign }: { say: (text: string) => void; onSign: () => void
   );
 }
 
-function LogBoard({ say, onSign }: { say: (text: string) => void; onSign: () => void }) {
+function LogBoard({ say, onSign }: { say: SayFn; onSign: () => void }) {
   const blanks = useLighthouseStore((s) => s.extra.logBlanks);
   const solvedAt = useLighthouseStore((s) => s.extra.solvedAt);
   const notes = useLighthouseStore((s) => s.notebook);
@@ -941,7 +942,7 @@ function LogBoard({ say, onSign }: { say: (text: string) => void; onSign: () => 
     const s = useLighthouseStore.getState();
     if (s.extra.logBlanks[index]) return;
     if (judgeBlank(index, label) !== 'ok') {
-      say(line('p8.no'));
+      say(spoken('p8.no'));
       return;
     }
     const next = [...s.extra.logBlanks];
@@ -949,9 +950,9 @@ function LogBoard({ say, onSign }: { say: (text: string) => void; onSign: () => 
     s.patchExtra({ logBlanks: next });
     if (!told.current) {
       told.current = true;
-      say(line('p8.time'));
+      say(spoken('p8.time'));
     }
-    if (logComplete(next)) say(line('p8.sum'));
+    if (logComplete(next)) say(spoken('p8.sum'));
   };
   return (
     <section>
@@ -983,8 +984,8 @@ function LogBoard({ say, onSign }: { say: (text: string) => void; onSign: () => 
           icon="sign"
           onClick={() => {
             hear('tube');
-            say(line('p8.sign'));
-            say(line('p8.tube'));
+            say(spoken('p8.sign'));
+            say(spoken('p8.tube'));
             onSign();
           }}
         >
@@ -1027,7 +1028,7 @@ function Horn({
   selectedItem,
   onWedge,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   selectedItem: string | null;
   onWedge: (itemId: string | null) => void;
 }) {
@@ -1062,7 +1063,7 @@ function Horn({
     return (
       <section>
         <p>{line('p6.room')}</p>
-        <Prop icon="horn" onClick={() => say(line('p6.unknown'))}>
+        <Prop icon="horn" onClick={() => say(spoken('p6.unknown'))}>
           무적 손잡이
         </Prop>
       </section>
@@ -1080,11 +1081,11 @@ function Horn({
     const s = useLighthouseStore.getState();
     const verdict = judgeHorn(s.extra.hornStep, action, needle);
     if (verdict.step !== s.extra.hornStep) s.patchExtra({ hornStep: verdict.step });
-    if (verdict.result === 'water') say(line('p6.water'));
-    if (verdict.result === 'weak') say(line('p6.weak'));
-    if (verdict.result === 'wait') say(line('p6.wait'));
-    if (verdict.result === 'advance' && action === 'compressor') say(line('p6.comp'));
-    if (verdict.result === 'ready' && action === 'air') say(line('p6.air'));
+    if (verdict.result === 'water') say(spoken('p6.water'));
+    if (verdict.result === 'weak') say(spoken('p6.weak'));
+    if (verdict.result === 'wait') say(spoken('p6.wait'));
+    if (verdict.result === 'advance' && action === 'compressor') say(spoken('p6.comp'));
+    if (verdict.result === 'ready' && action === 'air') say(spoken('p6.air'));
   };
 
   return (
@@ -1145,7 +1146,7 @@ function Horn({
           }}
           onBad={() => {
             hear('tube');
-            say(line('p6.miss'));
+            say(spoken('p6.miss'));
           }}
         />
       )}
@@ -1166,7 +1167,7 @@ function Horn({
             icon="horn"
             onClick={() => {
               useLighthouseStore.getState().patchExtra({ hornStep: 4 });
-              say(line('p6.letgo'));
+              say(spoken('p6.letgo'));
             }}
           >
             손 뗌

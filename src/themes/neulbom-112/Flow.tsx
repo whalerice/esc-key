@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import type { SayFn } from '@/engine/ui/caption';
 import { LetterDial } from '@/engine/widgets/LetterDial';
 import { NumberDial } from '@/engine/widgets/NumberDial';
 import { DragSort } from '@/engine/widgets/DragSort';
 import { coatArt, magnetArt, MEMO_SRC, PHOTO_SRC, roomArt } from './art';
 import { playClue, playSeat, stopBeds, syncBed } from './audio';
 import styles from './art.module.css';
-import { line } from './data/script';
+import { line, spoken } from './data/script';
 import {
   COATS,
   HEIGHTS,
@@ -39,7 +40,7 @@ import {
 import { use112Store } from './store';
 import { use112Ui } from './ui';
 
-export function Neulbom112Flow({ say }: { say: (text: string) => void }) {
+export function Neulbom112Flow({ say }: { say: SayFn }) {
   const solved = use112Store((s) => s.solved);
   const items = use112Store((s) => s.items);
   const pieces = use112Store((s) => s.extra.pieces);
@@ -54,7 +55,7 @@ export function Neulbom112Flow({ say }: { say: (text: string) => void }) {
   useEffect(() => {
     if (zoom < ZOOM.p8 || use112Store.getState().flags.x12) return;
     use112Store.getState().setFlag('x12');
-    sayRef.current(line('narration.x12'));
+    sayRef.current(spoken('narration.x12'));
   }, [zoom]);
 
   useEffect(() => {
@@ -110,7 +111,7 @@ export function Neulbom112Flow({ say }: { say: (text: string) => void }) {
         </button>
       )}
       {solved.P1 && (
-        <button type="button" onClick={() => say(line('inspect.pot'))}>
+        <button type="button" onClick={() => say(spoken('inspect.pot'))}>
           <Mark name="pot" />
           창가 화분
         </button>
@@ -132,9 +133,9 @@ export function Neulbom112Flow({ say }: { say: (text: string) => void }) {
           type="button"
           onClick={() => {
             playClue('mom');
-            if (has('편지①')) say(line('letter.1'));
-            if (has('편지②')) say(line('letter.2'));
-            if (has('편지③')) say(line('letter.3'));
+            if (has('편지①')) say(spoken('letter.1'));
+            if (has('편지②')) say(spoken('letter.2'));
+            if (has('편지③')) say(spoken('letter.3'));
           }}
         >
           편지 다시 읽기
@@ -179,7 +180,7 @@ function Mark({ name }: { name: string }) {
   return <img className={styles.mark} src={`/themes/neulbom-112/props/${name}.svg`} alt="" />;
 }
 
-function gain(id: string, say: (text: string) => void, keys: Parameters<typeof line>[0][]) {
+function gain(id: string, say: SayFn, keys: Parameters<typeof line>[0][]) {
   const store = use112Store.getState();
   if (!store.items.includes(id)) store.addItem(id);
   if (id.startsWith('편지')) {
@@ -187,10 +188,10 @@ function gain(id: string, say: (text: string) => void, keys: Parameters<typeof l
     playClue('mom');
   } else if (id.startsWith('사진') || id === '쪽지' || id === '그림' || id === '봉투') playSeat('paper');
   else if (id === '줄자') playSeat('drawer');
-  for (const key of keys) say(line(key));
+  for (const key of keys) say(spoken(key));
 }
 
-function Mailbox({ zoom, say }: { zoom: number; say: (text: string) => void }) {
+function Mailbox({ zoom, say }: { zoom: number; say: SayFn }) {
   const [open, setOpen] = useState(false);
   return (
     <section data-puzzle="P1">
@@ -198,10 +199,10 @@ function Mailbox({ zoom, say }: { zoom: number; say: (text: string) => void }) {
         type="button"
         onClick={() => {
           if (judgeZoom(zoom, ZOOM.p1) === 'far') {
-            say(line('inspect.mailbox.far'));
+            say(spoken('inspect.mailbox.far'));
             return;
           }
-          say(line('inspect.mailbox.near'));
+          say(spoken('inspect.mailbox.near'));
           setOpen(true);
         }}
       >
@@ -221,17 +222,17 @@ function Mailbox({ zoom, say }: { zoom: number; say: (text: string) => void }) {
             s.markSolved('P1');
             playSeat('lock');
             playSeat('paper');
-            say(line('acquire.envelope'));
-            say(line('narration.p1.solved'));
+            say(spoken('acquire.envelope'));
+            say(spoken('narration.p1.solved'));
           }}
-          onNo={() => say(line('system.wrong'))}
+          onNo={() => say(spoken('system.wrong'))}
         />
       )}
     </section>
   );
 }
 
-function Door({ zoom, say, hasTape }: { zoom: number; say: (text: string) => void; hasTape: boolean }) {
+function Door({ zoom, say, hasTape }: { zoom: number; say: SayFn; hasTape: boolean }) {
   const [tape, setTape] = useState(false);
   return (
     <section data-puzzle="P2">
@@ -243,18 +244,18 @@ function Door({ zoom, say, hasTape }: { zoom: number; say: (text: string) => voi
         data-target="frame"
         onPointerUp={(event) => {
           if (!hasTape) {
-            say(line('inspect.desk'));
+            say(spoken('inspect.desk'));
             return;
           }
           const rect = event.currentTarget.getBoundingClientRect();
           const x = ((event.clientX - rect.left) / rect.width) * TAPE_PAD.w;
           const y = ((event.clientY - rect.top) / rect.height) * TAPE_PAD.h;
           const verdict = judgeTape(x, y, zoom);
-          if (verdict === 'miss') say(line('tape.miss'));
-          else if (verdict === 'far') say(line('tape.far'));
+          if (verdict === 'miss') say(spoken('tape.miss'));
+          else if (verdict === 'far') say(spoken('tape.far'));
           else {
             setTape(true);
-            say(line('tape.ok'));
+            say(spoken('tape.ok'));
           }
         }}
       >
@@ -275,9 +276,9 @@ function Door({ zoom, say, hasTape }: { zoom: number; say: (text: string) => voi
               playSeat('lock');
               playSeat('paper');
               playClue('mom');
-              say(line('letter.2'));
+              say(spoken('letter.2'));
             }}
-            onNo={() => say(line('system.wrong'))}
+            onNo={() => say(spoken('system.wrong'))}
           />
         </>
       )}
@@ -285,10 +286,10 @@ function Door({ zoom, say, hasTape }: { zoom: number; say: (text: string) => voi
   );
 }
 
-function Calendar({ zoom, say }: { zoom: number; say: (text: string) => void }) {
+function Calendar({ zoom, say }: { zoom: number; say: SayFn }) {
   if (judgeZoom(zoom, ZOOM.p3) === 'far') {
     return (
-      <button type="button" data-puzzle="P3" onClick={() => say(line('calendar.far'))}>
+      <button type="button" data-puzzle="P3" onClick={() => say(spoken('calendar.far'))}>
         <Mark name="calendar" />
         달력
       </button>
@@ -305,16 +306,16 @@ function Calendar({ zoom, say }: { zoom: number; say: (text: string) => void }) 
           playSeat('drawer');
           playSeat('paper');
           playClue('mom');
-          say(line('narration.p3'));
-          say(line('letter.3'));
+          say(spoken('narration.p3'));
+          say(spoken('letter.3'));
         }}
-        onNo={() => say(line('system.wrong'))}
+        onNo={() => say(spoken('system.wrong'))}
       />
     </section>
   );
 }
 
-function Magnets({ zoom, say }: { zoom: number; say: (text: string) => void }) {
+function Magnets({ zoom, say }: { zoom: number; say: SayFn }) {
   const [taps, setTaps] = useState<string[]>([]);
   const far = judgeZoom(zoom, ZOOM.p4) === 'far';
   return (
@@ -328,26 +329,26 @@ function Magnets({ zoom, say }: { zoom: number; say: (text: string) => void }) {
             type="button"
             onClick={() => {
               if (far) {
-                say(line('magnet.far'));
+                say(spoken('magnet.far'));
                 return;
               }
               if ('route' in magnet && magnet.route && !use112Store.getState().flags.route) {
                 use112Store.getState().setFlag('route');
-                say(line('inspect.route'));
+                say(spoken('inspect.route'));
               }
               const next = [...taps, magnet.id];
               const verdict = judgeP4(next);
               if (verdict === 'reset') {
                 setTaps([]);
                 playSeat('magnets');
-                say(line('p4.wrong'));
+                say(spoken('p4.wrong'));
                 return;
               }
               setTaps(next);
               if (verdict === 'ok') {
                 use112Store.getState().markSolved('P4');
                 playSeat('tick');
-                say(line('narration.p4'));
+                say(spoken('narration.p4'));
               }
             }}
           >
@@ -361,7 +362,7 @@ function Magnets({ zoom, say }: { zoom: number; say: (text: string) => void }) {
   );
 }
 
-function Clock({ zoom, say }: { zoom: number; say: (text: string) => void }) {
+function Clock({ zoom, say }: { zoom: number; say: SayFn }) {
   const far = judgeZoom(zoom, ZOOM.p5) === 'far';
   return (
     <section data-puzzle="P5">
@@ -387,9 +388,9 @@ function Clock({ zoom, say }: { zoom: number; say: (text: string) => void }) {
               s.markSolved('P5');
               playSeat('lock');
               playSeat('tick');
-              say(line('narration.p5'));
+              say(spoken('narration.p5'));
             }}
-            onNo={() => say(line('system.wrong'))}
+            onNo={() => say(spoken('system.wrong'))}
           />
         </>
       )}
@@ -397,7 +398,7 @@ function Clock({ zoom, say }: { zoom: number; say: (text: string) => void }) {
   );
 }
 
-function Bed({ zoom, say }: { zoom: number; say: (text: string) => void }) {
+function Bed({ zoom, say }: { zoom: number; say: SayFn }) {
   return (
     <section data-puzzle="P6">
       <p>{line('inspect.bed')}</p>
@@ -406,15 +407,15 @@ function Bed({ zoom, say }: { zoom: number; say: (text: string) => void }) {
         type="button"
         onClick={() => {
           if (judgeZoom(zoom, ZOOM.p6) === 'far') {
-            say(line('bed.far'));
+            say(spoken('bed.far'));
             return;
           }
           const s = use112Store.getState();
           s.addItem('쪽지');
           s.markSolved('P6');
           playSeat('paper');
-          say(line('acquire.note'));
-          say(line('note.back'));
+          say(spoken('acquire.note'));
+          say(spoken('note.back'));
         }}
       >
         <Mark name="bed" />
@@ -430,13 +431,13 @@ function Wardrobe({
   letters,
 }: {
   zoom: number;
-  say: (text: string) => void;
+  say: SayFn;
   letters: boolean;
 }) {
   const far = judgeZoom(zoom, ZOOM.p7) === 'far';
   return (
     <section data-puzzle="P7">
-      <button type="button" onClick={() => say(line('inspect.vanity'))}>
+      <button type="button" onClick={() => say(spoken('inspect.vanity'))}>
         <Mark name="vanity" />
         화장대
       </button>
@@ -453,15 +454,15 @@ function Wardrobe({
                 return;
               }
               if (judgeCoat(coat.id) === 'no') {
-                say(line('coat.wrong'));
+                say(spoken('coat.wrong'));
                 return;
               }
               const s = use112Store.getState();
               s.addItem('다락 열쇠');
               s.markSolved('P7');
               playSeat('drawer');
-              say(line('coat.ok'));
-              say(line('narration.attic'));
+              say(spoken('coat.ok'));
+              say(spoken('narration.attic'));
             }}
           >
             <img className={styles.mark} src={coatArt(coat.id, far)} alt="" />
@@ -473,7 +474,7 @@ function Wardrobe({
   );
 }
 
-function Attic({ zoom, say, read }: { zoom: number; say: (text: string) => void; read: boolean }) {
+function Attic({ zoom, say, read }: { zoom: number; say: SayFn; read: boolean }) {
   const far = judgeZoom(zoom, ZOOM.p8) === 'far';
   return (
     <section data-puzzle="P8">
@@ -483,7 +484,7 @@ function Attic({ zoom, say, read }: { zoom: number; say: (text: string) => void;
         type="button"
         onClick={() => {
           if (far) {
-            say(line('drawing.far'));
+            say(spoken('drawing.far'));
             return;
           }
           const s = use112Store.getState();
@@ -491,8 +492,8 @@ function Attic({ zoom, say, read }: { zoom: number; say: (text: string) => void;
             s.addItem('그림');
             playSeat('paper');
           }
-          say(line('drawing.near'));
-          say(line('drawing.back'));
+          say(spoken('drawing.near'));
+          say(spoken('drawing.back'));
         }}
       >
         <img className={styles.mark} data-clear={far ? 'no' : 'yes'} src={far ? '/themes/neulbom-112/props/drawing.svg' : '/themes/neulbom-112/props/drawing-near.svg'} alt="" />
@@ -507,12 +508,12 @@ function Attic({ zoom, say, read }: { zoom: number; say: (text: string) => void;
               use112Store.getState().markSolved('P8');
               playSeat('lock');
               playSeat('drawer');
-              say(line('narration.p8.solved'));
-              say(line('narration.dolls'));
-              say(line('memo.author'));
-              say(line('guide.stand'));
+              say(spoken('narration.p8.solved'));
+              say(spoken('narration.dolls'));
+              say(spoken('memo.author'));
+              say(spoken('guide.stand'));
             }}
-            onNo={() => say(line('system.wrong'))}
+            onNo={() => say(spoken('system.wrong'))}
           />
         </>
       )}
@@ -520,13 +521,13 @@ function Attic({ zoom, say, read }: { zoom: number; say: (text: string) => void;
   );
 }
 
-function placeDoll(say: (text: string) => void, openLetter: (open: boolean) => void) {
+function placeDoll(say: SayFn, openLetter: (open: boolean) => void) {
   const s = use112Store.getState();
   if (!s.flags.doll) {
     s.setFlag('doll');
     playSeat('wood');
-    say(line('narration.doll'));
-    say(line('narration.home'));
+    say(spoken('narration.doll'));
+    say(spoken('narration.home'));
   }
   if (piecesComplete(s.extra.pieces)) {
     openLetter(true);
@@ -534,9 +535,9 @@ function placeDoll(say: (text: string) => void, openLetter: (open: boolean) => v
   } else s.setFlag('endingA');
 }
 
-function onPiece(id: string, need: number, text: string, zoom: number, say: (text: string) => void) {
+function onPiece(id: string, need: number, text: string, zoom: number, say: SayFn) {
   if (judgeZoom(zoom, need) === 'far') {
-    say(line('system.wrong'));
+    say(spoken('system.wrong'));
     return;
   }
   const s = use112Store.getState();

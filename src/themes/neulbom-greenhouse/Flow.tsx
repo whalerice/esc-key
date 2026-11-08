@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type MutableRefObject } from 'react';
+import type { SayFn } from '@/engine/ui/caption';
 import { unlockAudio } from '@/engine/audio/SoundManager';
 import { useAppStore } from '@/engine/save/appStore';
 import { DarknessMask } from '@/engine/fx/DarknessMask';
@@ -15,7 +16,7 @@ import { BreathDetector, BREATH_NEED_MS } from '@/engine/sensors/BreathDetector'
 import { StrokePad, type Stroke } from '@/engine/widgets/StrokePad';
 import { thermometerC } from '@/engine/systems/Timer';
 import type { ThemeTimerApi } from '@/engine/ui/ThemePlay';
-import { JOURNAL, line } from './data/script';
+import { JOURNAL, line, spoken } from './data/script';
 import { roomArt } from './art';
 import { playClue, playSeat, stopBeds, syncBed } from './audio';
 import styles from './art.module.css';
@@ -68,7 +69,7 @@ export function GreenhouseFlow({
   timerRef,
   notebookRef,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   clockRef: MutableRefObject<(ms: number) => void>;
   selectedItem: string | null;
   onUseRef: MutableRefObject<(itemId: string | null, targetId: string) => void>;
@@ -111,7 +112,7 @@ export function GreenhouseFlow({
   const plugRef = useRef<(itemId: string | null) => void>(() => undefined);
   plugRef.current = (itemId) => {
     if (!gapOpen || gapPlugged) {
-      sayRef.current(line('p8.wind'));
+      sayRef.current(spoken('p8.wind'));
       return;
     }
     if (itemId && itemId !== '신문') {
@@ -123,7 +124,7 @@ export function GreenhouseFlow({
       return;
     }
     setGapPlugged(true);
-    sayRef.current(line('p8.paper'));
+    sayRef.current(spoken('p8.paper'));
   };
 
   useEffect(() => {
@@ -134,7 +135,7 @@ export function GreenhouseFlow({
       s.markSolved('P8');
       s.patchExtra({ bloomStage: 4 });
       playSeat('bloom');
-      sayRef.current(line('p8.solved'));
+      sayRef.current(spoken('p8.solved'));
     });
   }, [gapPlugged, lightOff, notches, solved.P7, solved.P8]);
 
@@ -159,8 +160,8 @@ export function GreenhouseFlow({
       const c = thermometerC(rem, DURATION_MS);
       setTemp((prev) => (prev === c ? prev : c));
       frost.current.set(c <= 7 ? 'frost' : 'none');
-      if (c <= 7 && c > 3) once('frost7', () => sayRef.current(line('frost.7')));
-      if (c > 0 && c <= 3) once('frost3', () => sayRef.current(line('frost.3')));
+      if (c <= 7 && c > 3) once('frost7', () => sayRef.current(spoken('frost.7')));
+      if (c > 0 && c <= 3) once('frost3', () => sayRef.current(spoken('frost.3')));
       if (s.solved.P1 && origin.current == null) origin.current = elapsed;
       const heater = s.flags.heaterPause ? HEATER_PAUSE_MS : 0;
       const game = origin.current == null ? 0 : Math.max(0, elapsed - origin.current - heater);
@@ -250,13 +251,13 @@ export function GreenhouseFlow({
             onLight={() => {
               setLightOff(true);
               setLamp(false);
-              say(line('p8.dark'));
+              say(spoken('p8.dark'));
             }}
             onLamp={() => setLamp((on) => !on)}
             onPlug={(itemId) => plugRef.current(itemId)}
             onGap={() => {
               setGapOpen(true);
-              say(line('p8.gap'));
+              say(spoken('p8.gap'));
             }}
             onNotch={setNotches}
           />
@@ -344,7 +345,7 @@ function Foyer({
   onGap,
   onNotch,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   selectedItem: string | null;
   lightOff: boolean;
   lamp: boolean;
@@ -370,7 +371,7 @@ function Foyer({
         <h2>P1 하룻밤 꽃</h2>
         <p>{line('p1.pot')}</p>
         <div className="radio-row">
-          <button type="button" onClick={() => { setMat(true); say(line('p1.cold')); }}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/mat.svg" alt="" />
+          <button type="button" onClick={() => { setMat(true); say(spoken('p1.cold')); }}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/mat.svg" alt="" />
             매트 펼치기
           </button>
           <button
@@ -378,7 +379,7 @@ function Foyer({
             onClick={() => {
               const slots = [{ id: 'mat', x: 40, y: 40, r: 30 }];
               if (!mat || !nearestSnap(40, 40, slots)) {
-                say(line('p1.pot'));
+                say(spoken('p1.pot'));
                 return;
               }
               setPot(true);
@@ -419,7 +420,7 @@ function Foyer({
             label="유리문 후—"
             disabled={blocked}
             onReveal={onGap}
-            onFallback={() => say(line('p4.fail'))}
+            onFallback={() => say(spoken('p4.fail'))}
           />
           <LongHold label="유리문 길게" disabled={blocked} onReveal={onGap} />
           <button
@@ -437,7 +438,7 @@ function Foyer({
             onClick={() => {
               dial.current.set(notches + 1);
               onNotch(dial.current.position);
-              if (judgeMat(dial.current.position) === 'hot') say(line('p8.hot'));
+              if (judgeMat(dial.current.position) === 'hot') say(spoken('p8.hot'));
             }}
           >
             <img className={styles.mark} src="/themes/neulbom-greenhouse/props/dial.svg" alt="" />
@@ -475,7 +476,7 @@ function Foyer({
   );
 }
 
-function plug(outlet: string, mat: boolean, pot: boolean, say: (text: string) => void) {
+function plug(outlet: string, mat: boolean, pot: boolean, say: SayFn) {
   const slots = [
     { id: 'grey', x: 10, y: 10, r: 20 },
     { id: 'yellow', x: 80, y: 10, r: 20 },
@@ -483,25 +484,25 @@ function plug(outlet: string, mat: boolean, pot: boolean, say: (text: string) =>
   const hit = nearestSnap(outlet === 'yellow' ? 80 : 10, 10, slots);
   const result = judgeP1(mat, pot, hit?.id ?? null);
   if (result === 'wait') {
-    say(line('p1.pot'));
+    say(spoken('p1.pot'));
     return;
   }
   if (result === 'dead') {
-    say(line('p1.dead'));
+    say(spoken('p1.dead'));
     return;
   }
   const s = useGreenhouseStore.getState();
   s.markSolved('P1');
   playSeat('heater-on');
-  say(line('p1.solved'));
-  say(line('p1.locked'));
+  say(spoken('p1.solved'));
+  say(spoken('p1.locked'));
 }
 
 function Boiler({
   say,
   timerRef,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   timerRef: MutableRefObject<ThemeTimerApi | null>;
 }) {
   const solved = useGreenhouseStore((s) => s.solved);
@@ -515,7 +516,7 @@ function Boiler({
       {!solved.P2 && (
         <>
           <p>{line('p2.note')}</p>
-          <button type="button" onClick={() => { setOpenGauge(true); say(line('p2.floor')); }}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/gauge.svg" alt="" />
+          <button type="button" onClick={() => { setOpenGauge(true); say(spoken('p2.floor')); }}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/gauge.svg" alt="" />
             계기판 확대
           </button>
           <div className="radio-row">
@@ -530,7 +531,7 @@ function Boiler({
                   if (result === 'back') {
                     setTaps([]);
                     playSeat('valve-fail');
-                    say(line('p2.back'));
+                    say(spoken('p2.back'));
                     return;
                   }
                   setTaps(next);
@@ -543,7 +544,7 @@ function Boiler({
                       timerRef.current?.pause(HEATER_PAUSE_MS);
                     }
                     playSeat('heater-on');
-                    say(line('p2.solved'));
+                    say(spoken('p2.solved'));
                   }
                 }}
               >
@@ -561,7 +562,7 @@ function Boiler({
           type="button"
           onClick={() => {
             useGreenhouseStore.getState().setFlag('waterFilled');
-            say(line('p7.water'));
+            say(spoken('p7.water'));
           }}
         >
           <img className={styles.mark} src="/themes/neulbom-greenhouse/props/water.svg" alt="" />
@@ -572,7 +573,7 @@ function Boiler({
   );
 }
 
-function Hall({ say }: { say: (text: string) => void }) {
+function Hall({ say }: { say: SayFn }) {
   const solved = useGreenhouseStore((s) => s.solved);
   const [code, setCode] = useState('');
   const [flip, setFlip] = useState(false);
@@ -584,14 +585,14 @@ function Hall({ say }: { say: (text: string) => void }) {
       <h2>P3 난초 유리장</h2>
       <p>{line('p3.look')}</p>
       <div className="radio-row">
-        <button type="button" onClick={() => { setShot('thesis'); say(line('p3.paper')); }}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/thesis.svg" alt="" />논문 확대</button>
+        <button type="button" onClick={() => { setShot('thesis'); say(spoken('p3.paper')); }}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/thesis.svg" alt="" />논문 확대</button>
         <button type="button" onClick={() => { setShot('photo'); say(flip ? line('p3.stamp') : line('p3.family')); }}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/photo.svg" alt="" />
           가족사진
         </button>
         <button type="button" onClick={() => setFlip((v) => !v)}>
           {flip ? '앞면' : '뒷면'}
         </button>
-        <button type="button" onClick={() => { setShot('poster'); say(line('p3.poster')); }}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/poster.svg" alt="" />나눔 포스터</button>
+        <button type="button" onClick={() => { setShot('poster'); say(spoken('p3.poster')); }}><img className={styles.mark} src="/themes/neulbom-greenhouse/props/poster.svg" alt="" />나눔 포스터</button>
       </div>
       {!solved.P3 && (
         <Keypad
@@ -600,7 +601,7 @@ function Hall({ say }: { say: (text: string) => void }) {
           onChange={(value) => setCode(value.replace(/[^A-Za-z]/g, '').slice(0, 7).toUpperCase())}
           onSubmit={() => {
             if (judgeSpecies(code) !== 'ok') {
-              say(line('p3.no'));
+              say(spoken('p3.no'));
               return;
             }
             const s = useGreenhouseStore.getState();
@@ -608,10 +609,10 @@ function Hall({ say }: { say: (text: string) => void }) {
             s.addItem('노트');
             addNote('nursery-door', line('p3.note'));
             playSeat('lock');
-            say(line('p3.solved'));
-            say(line('p3.note'));
+            say(spoken('p3.solved'));
+            say(spoken('p3.note'));
             playClue('guard');
-            say(line('p3.radio'));
+            say(spoken('p3.radio'));
           }}
         />
       )}
@@ -620,7 +621,7 @@ function Hall({ say }: { say: (text: string) => void }) {
   );
 }
 
-function Glass({ say }: { say: (text: string) => void }) {
+function Glass({ say }: { say: SayFn }) {
   const solved = useGreenhouseStore((s) => s.solved);
   const [marks, setMarks] = useState(false);
   const [code, setCode] = useState('');
@@ -629,11 +630,11 @@ function Glass({ say }: { say: (text: string) => void }) {
   function reveal() {
     setMarks(true);
     addNote('breath-mark', line('p4.mark'));
-    say(line('p4.mark'));
+    say(spoken('p4.mark'));
     window.clearTimeout(fade.current);
     fade.current = window.setTimeout(() => {
       setMarks(false);
-      say(line('p4.fade'));
+      say(spoken('p4.fade'));
     }, 5000);
   }
 
@@ -644,7 +645,7 @@ function Glass({ say }: { say: (text: string) => void }) {
       {!solved.P4 && (
         <>
           <div className="radio-row">
-            <BreathHold label="유리에 후—" onReveal={reveal} onFallback={() => say(line('p4.fail'))} />
+            <BreathHold label="유리에 후—" onReveal={reveal} onFallback={() => say(spoken('p4.fail'))} />
             <LongHold label="유리 길게 누르기" onReveal={reveal} />
           </div>
           {marks && <img className={styles.clue} src="/themes/neulbom-greenhouse/props/breath.svg" alt="" />}
@@ -655,12 +656,12 @@ function Glass({ say }: { say: (text: string) => void }) {
             onChange={(value) => setCode(value.replace(/\D/g, '').slice(0, 4))}
             onSubmit={() => {
               const result = judgeDate(code);
-              if (result === 'year') return say(line('p4.year'));
-              if (result === 'height') return say(line('p4.height'));
-              if (result !== 'ok') return say(line('p4.no'));
+              if (result === 'year') return say(spoken('p4.year'));
+              if (result === 'height') return say(spoken('p4.height'));
+              if (result !== 'ok') return say(spoken('p4.no'));
               useGreenhouseStore.getState().markSolved('P4');
               playSeat('lock');
-              say(line('p4.solved'));
+              say(spoken('p4.solved'));
             }}
           />
         </>
@@ -670,7 +671,7 @@ function Glass({ say }: { say: (text: string) => void }) {
   );
 }
 
-function Nursery({ say }: { say: (text: string) => void }) {
+function Nursery({ say }: { say: SayFn }) {
   const solved = useGreenhouseStore((s) => s.solved);
   return (
     <>
@@ -690,7 +691,7 @@ function Nursery({ say }: { say: (text: string) => void }) {
   );
 }
 
-function Stickers({ say }: { say: (text: string) => void }) {
+function Stickers({ say }: { say: SayFn }) {
   const [picked, setPicked] = useState<string | null>(null);
   const [poured, setPoured] = useState<Record<string, boolean>>({});
   const [placed, setPlaced] = useState<Record<string, string>>({});
@@ -733,7 +734,7 @@ function Stickers({ say }: { say: (text: string) => void }) {
                 const s = useGreenhouseStore.getState();
                 s.markSolved('P5');
                 s.addItem('안경');
-                say(line('p5.solved'));
+                say(spoken('p5.solved'));
               }
             }}
           >
@@ -747,7 +748,7 @@ function Stickers({ say }: { say: (text: string) => void }) {
   );
 }
 
-function Shelf({ say }: { say: (text: string) => void }) {
+function Shelf({ say }: { say: SayFn }) {
   const [pot, setPot] = useState<PlantId | null>(null);
   const [slots, setSlots] = useState<Record<number, string>>({});
   const targets = monthSlots();
@@ -775,7 +776,7 @@ function Shelf({ say }: { say: (text: string) => void }) {
                 if (!pot) return;
                 if (!nearestSnap(slot.x, slot.y, targets)) return;
                 if (MONTH[pot] !== month) {
-                  say(line('p6.miss'));
+                  say(spoken('p6.miss'));
                   return;
                 }
                 const next = { ...slots, [month]: pot };
@@ -785,10 +786,10 @@ function Shelf({ say }: { say: (text: string) => void }) {
                   s.markSolved('P6');
                   s.addItem('신문');
                   playSeat('crayons');
-                  say(line('p6.solved'));
+                  say(spoken('p6.solved'));
                   playClue('recall');
-                  say(line('p6.recall'));
-                  say(line('p6.ol'));
+                  say(spoken('p6.recall'));
+                  say(spoken('p6.ol'));
                 }
               }}
             >
@@ -801,7 +802,7 @@ function Shelf({ say }: { say: (text: string) => void }) {
   );
 }
 
-function Wrap({ say }: { say: (text: string) => void }) {
+function Wrap({ say }: { say: SayFn }) {
   const [order, setOrder] = useState<string[]>(['paper', 'coat', 'sides', 'water']);
   const [bright, setBright] = useState(false);
   const filled = useGreenhouseStore((s) => !!s.flags.waterFilled);
@@ -815,8 +816,8 @@ function Wrap({ say }: { say: (text: string) => void }) {
           addNote('night-three', line('p7.memo'));
           playSeat('page');
           playClue('guard');
-          say(line('p7.memo'));
-          say(line('p7.radio'));
+          say(spoken('p7.memo'));
+          say(spoken('p7.radio'));
         }}
       >
         <img className={styles.mark} src="/themes/neulbom-greenhouse/props/journal.svg" alt="" />
@@ -836,16 +837,16 @@ function Wrap({ say }: { say: (text: string) => void }) {
         type="button"
         onClick={() => {
           const result = judgeWrap(order, filled);
-          if (result === 'dry') return say(line('p7.dry'));
+          if (result === 'dry') return say(spoken('p7.dry'));
           if (result !== 'ok') {
             setBright(true);
-            return say(line('p7.miss'));
+            return say(spoken('p7.miss'));
           }
           const s = useGreenhouseStore.getState();
           s.markSolved('P7');
           s.addItem('상자');
-          say(line('p7.coat'));
-          say(line('p7.solved'));
+          say(spoken('p7.coat'));
+          say(spoken('p7.solved'));
         }}
       >
         이 순서로 싼다
@@ -855,7 +856,7 @@ function Wrap({ say }: { say: (text: string) => void }) {
   );
 }
 
-function Finale({ say }: { say: (text: string) => void }) {
+function Finale({ say }: { say: SayFn }) {
   const padRef = useRef<HTMLDivElement>(null);
   const [strokes, setStrokes] = useState<Stroke[]>([]);
   const [text, setText] = useState('');
@@ -872,14 +873,14 @@ function Finale({ say }: { say: (text: string) => void }) {
 
   function commit() {
     const result = judgeFinale(text, strokes.length);
-    if (result === 'empty') return say(line('end.empty'));
-    if (result === 'long') return say(line('end.long'));
+    if (result === 'empty') return say(spoken('end.empty'));
+    if (result === 'long') return say(spoken('end.long'));
     useGreenhouseStore.getState().patchExtra({
       nameTag: text.trim(),
       finaleStrokes: strokes.map((stroke) => stroke.map((point) => ({ ...point }))),
     });
     setReady(true);
-    say(line('end.wrote'));
+    say(spoken('end.wrote'));
   }
 
   return (
@@ -1036,10 +1037,10 @@ function LongHold({
   );
 }
 
-function leave(say: (text: string) => void) {
+function leave(say: SayFn) {
   const s = useGreenhouseStore.getState();
   if (!s.extra.nameTag && !(s.extra.finaleStrokes && s.extra.finaleStrokes.length > 0)) {
-    say(line('end.empty'));
+    say(spoken('end.empty'));
     return;
   }
   if (!s.items.includes('상자')) {
@@ -1050,7 +1051,7 @@ function leave(say: (text: string) => void) {
   s.setFlag('finale');
   playSeat('bloom');
   playClue('ending');
-  say(line('end.door'));
+  say(spoken('end.door'));
 }
 
 function move(order: string[], index: number, dir: number): string[] {

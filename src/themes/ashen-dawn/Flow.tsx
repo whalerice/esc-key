@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type MutableRefObject, type PointerEvent as ReactPointerEvent } from 'react';
+import type { SayFn } from '@/engine/ui/caption';
 import { useAppStore } from '@/engine/save/appStore';
 import { DarknessMask } from '@/engine/fx/DarknessMask';
 import { nearestSnap, type SnapTarget } from '@/engine/widgets/DragSnap';
@@ -14,7 +15,7 @@ import { longPressMs } from '@/engine/widgets/LongPress';
 import { propArt, roomArt } from './art';
 import styles from './art.module.css';
 import { duckBed, playClue, playSeat, stopBeds, stopNoise, syncBed, syncNoise } from './audio';
-import { line } from './data/script';
+import { line, spoken } from './data/script';
 import {
   CANCEL_CODE,
   FILM_TARGET,
@@ -59,7 +60,7 @@ export function AshDawnFlow({
   onUseRef,
   notebookRef,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   selectedItem: string | null;
   onUseRef: MutableRefObject<(itemId: string, targetId: string) => void>;
   notebookRef: MutableRefObject<() => void>;
@@ -87,7 +88,7 @@ export function AshDawnFlow({
     onUseRef.current = (itemId, targetId) => {
       if (itemId === '전문' && targetId === 'board') {
         useAshStore.getState().setFlag('board');
-        sayRef.current(line('p3.lay'));
+        sayRef.current(spoken('p3.lay'));
       }
       if (itemId === '투명 필름' && targetId === 'cross') filmDrop.current();
     };
@@ -289,7 +290,7 @@ function gain(id: string) {
   useAshStore.getState().addItem(id);
 }
 
-function DeskDark({ say }: { say: (text: string) => void }) {
+function DeskDark({ say }: { say: SayFn }) {
   const mask = useRef(new DarknessMask());
   const dial = useRef(new NumberDial(3));
   const [vals, setVals] = useState<number[]>([0, 0, 0]);
@@ -322,8 +323,8 @@ function reveal(event: ReactMouseEvent<HTMLButtonElement>, run: () => void) {
   useEffect(() => {
     if (said.current) return;
     said.current = true;
-    say(line('p1.dark'));
-    say(line('p1.how'));
+    say(spoken('p1.dark'));
+    say(spoken('p1.how'));
   }, [say]);
 
   function move(event: ReactPointerEvent<HTMLDivElement>) {
@@ -365,7 +366,7 @@ function reveal(event: ReactMouseEvent<HTMLButtonElement>, run: () => void) {
           onClick={(event) =>
             reveal(event, () => {
               setSeen((s) => ({ ...s, note: true }));
-              say(line('p1.note'));
+              say(spoken('p1.note'));
             })
           }
         >
@@ -377,7 +378,7 @@ function reveal(event: ReactMouseEvent<HTMLButtonElement>, run: () => void) {
           onClick={(event) =>
             reveal(event, () => {
               setSeen((s) => ({ ...s, clock: true }));
-              say(line('p1.clock'));
+              say(spoken('p1.clock'));
               say('9시 26분. 시침이 9, 분침이 5와 6 사이.');
             })
           }
@@ -390,14 +391,14 @@ function reveal(event: ReactMouseEvent<HTMLButtonElement>, run: () => void) {
           onClick={(event) =>
             reveal(event, () => {
               setSeen((s) => ({ ...s, drawer: true }));
-              say(line('p1.drawer'));
+              say(spoken('p1.drawer'));
             })
           }
         >
           <Mark name="drawer" />
           서랍
         </button>
-        <button type="button" onClick={(event) => reveal(event, () => say(line('p1.wall')))}>
+        <button type="button" onClick={(event) => reveal(event, () => say(spoken('p1.wall')))}>
           <Mark name="wallclock" />
           벽시계
         </button>
@@ -419,11 +420,11 @@ function reveal(event: ReactMouseEvent<HTMLButtonElement>, run: () => void) {
             onClick={() => {
               const hit = judgeDrawer(dial.current.values);
               if (hit === 'swap') {
-                say(line('p1.swap'));
+                say(spoken('p1.swap'));
                 return;
               }
               if (hit !== 'ok') {
-                say(line('p1.no'));
+                say(spoken('p1.no'));
                 return;
               }
               const s = useAshStore.getState();
@@ -435,10 +436,10 @@ function reveal(event: ReactMouseEvent<HTMLButtonElement>, run: () => void) {
               s.markSolved('P1');
               playSeat('lock');
               playSeat('drawer');
-              say(line('p1.photo'));
-              say(line('p1.match'));
-              say(line('p1.power'));
-              say(line('p1.next'));
+              say(spoken('p1.photo'));
+              say(spoken('p1.match'));
+              say(spoken('p1.power'));
+              say(spoken('p1.next'));
             }}
           >
             열기
@@ -451,7 +452,7 @@ function reveal(event: ReactMouseEvent<HTMLButtonElement>, run: () => void) {
   );
 }
 
-function PhoneDial({ say }: { say: (text: string) => void }) {
+function PhoneDial({ say }: { say: SayFn }) {
   const phone = useRef(new RotaryDial());
   const [digits, setDigits] = useState('');
   const heard = useRef({ hans: false, otto: false });
@@ -490,37 +491,37 @@ function PhoneDial({ say }: { say: (text: string) => void }) {
             const hit = judgeCall(digits);
             if (hit === 'hans') {
               playClue('hans');
-              say(line('p2.hans'));
+              say(spoken('p2.hans'));
               if (!heard.current.hans) {
                 heard.current.hans = true;
-                say(line('p2.hans.me'));
+                say(spoken('p2.hans.me'));
               }
               return;
             }
             if (hit === 'otto') {
               playClue('otto');
-              say(line('p2.otto'));
+              say(spoken('p2.otto'));
               if (!heard.current.otto) {
                 heard.current.otto = true;
-                say(line('p2.otto.me'));
+                say(spoken('p2.otto.me'));
               }
               return;
             }
             if (hit !== 'josef') {
               playSeat('busy');
-              say(line('p2.none'));
+              say(spoken('p2.none'));
               return;
             }
             playClue('josef');
             const s = useAshStore.getState();
             s.markSolved('P2');
             addNote('josef', '경비실 요제프 56733 · 라디오는 사진 뒤에 적힌 그대로');
-            say(line('p2.josef1'));
-            say(line('p2.josef2'));
-            say(line('p2.josef3'));
-            say(line('p2.josef4'));
-            say(line('p2.back'));
-            say(line('p2.freq'));
+            say(spoken('p2.josef1'));
+            say(spoken('p2.josef2'));
+            say(spoken('p2.josef3'));
+            say(spoken('p2.josef4'));
+            say(spoken('p2.back'));
+            say(spoken('p2.freq'));
           }}
         >
           걸기
@@ -535,7 +536,7 @@ function Chess({
   selectedItem,
   board,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   selectedItem: string | null;
   board: boolean;
 }) {
@@ -545,17 +546,17 @@ function Chess({
 
   function place() {
     useAshStore.getState().setFlag('board');
-    say(line('p3.lay'));
+    say(spoken('p3.lay'));
   }
 
   function drop(file: number, rank: number) {
     if (!useAshStore.getState().flags.board) {
-      say(line('p3.empty'));
+      say(spoken('p3.empty'));
       return;
     }
     if (file !== 5) {
       playSeat('chess');
-      say(line('p3.back'));
+      say(spoken('p3.back'));
       return;
     }
     if (rank === 1) {
@@ -564,13 +565,13 @@ function Chess({
       addNote('op', '작전명 GLASHAUS');
       playSeat('chess');
       say(fFileLetters().split('').join(' · '));
-      say(line('p3.name'));
-      say(line('p3.need'));
+      say(spoken('p3.name'));
+      say(spoken('p3.need'));
       return;
     }
     const count = 8 - rank;
     say(fFileLetters().slice(0, count).split('').join(' · '));
-    say(line('p3.back'));
+    say(spoken('p3.back'));
   }
 
   function onGridUp(event: ReactPointerEvent<HTMLDivElement>) {
@@ -602,8 +603,8 @@ function Chess({
           playSeat('paper');
           addNote('empf', 'EMPF = 수신자, ORGEL-INNEN = 오르겔(우리 분소) 내부');
           setLook((s) => ({ ...s, paper: true }));
-          say(line('p3.head'));
-          if (look.board) say(line('p3.sixty'));
+          say(spoken('p3.head'));
+          if (look.board) say(spoken('p3.sixty'));
         }}
       >
         전문 집기
@@ -639,7 +640,7 @@ function Chess({
           onClick={() => {
             setLook((s) => ({ ...s, corner: true }));
             say('체스판처럼 읽어라');
-            say(line('p3.corner'));
+            say(spoken('p3.corner'));
           }}
         >
           모서리
@@ -671,9 +672,9 @@ function Chess({
         onClick={() => {
           setLook((s) => ({ ...s, board: true }));
           say('32. … Tf8–f1');
-          say(line('p3.board'));
-          say(line('p3.last'));
-          if (look.paper) say(line('p3.sixty'));
+          say(spoken('p3.board'));
+          say(spoken('p3.last'));
+          if (look.paper) say(spoken('p3.sixty'));
         }}
       >
         기보
@@ -683,7 +684,7 @@ function Chess({
   );
 }
 
-function Station({ say, hearing }: { say: (text: string) => void; hearing: boolean }) {
+function Station({ say, hearing }: { say: SayFn; hearing: boolean }) {
   const knob = useRef<TuningKnob | null>(null);
   const el = useRef<HTMLDivElement>(null);
   const [freq, setFreq] = useState(3);
@@ -719,13 +720,13 @@ function Station({ say, hearing }: { say: (text: string) => void; hearing: boole
   useEffect(() => {
     if (band === 'trap' && !trapSaid.current) {
       trapSaid.current = true;
-      say(line('p4.trap'));
+      say(spoken('p4.trap'));
     }
     if (band === 'hit' && !hitSaid.current) {
       hitSaid.current = true;
       playClue('station');
-      say(line('p4.page'));
-      say(line('p4.nums'));
+      say(spoken('p4.page'));
+      say(spoken('p4.nums'));
     }
   }, [band, say]);
 
@@ -758,7 +759,7 @@ function Station({ say, hearing }: { say: (text: string) => void; hearing: boole
             type="button"
             onClick={() => {
               playClue('station');
-              say(line('p4.cap'));
+              say(spoken('p4.cap'));
             }}
           >
             다시 듣기
@@ -770,7 +771,7 @@ function Station({ say, hearing }: { say: (text: string) => void; hearing: boole
   );
 }
 
-function StationPad({ say }: { say: (text: string) => void }) {
+function StationPad({ say }: { say: SayFn }) {
   const [value, setValue] = useState('');
   return (
     <div>
@@ -779,23 +780,23 @@ function StationPad({ say }: { say: (text: string) => void }) {
   );
 }
 
-function submit(value: string, say: (text: string) => void) {
+function submit(value: string, say: SayFn) {
   if (!judgeStation(value)) {
-    say(line('p4.no'));
+    say(spoken('p4.no'));
     return;
   }
   useAshStore.getState().markSolved('P4');
   addNote('station', '방송: 14페이지 / 40271 16947');
-  say(line('p4.book'));
-  say(line('p4.same'));
-  say(line('p4.why'));
+  say(spoken('p4.book'));
+  say(spoken('p4.same'));
+  say(spoken('p4.why'));
 }
 
 function Matchbook({
   say,
   filmDrop,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   filmDrop: MutableRefObject<() => void>;
 }) {
   const [open, setOpen] = useState(false);
@@ -813,14 +814,14 @@ function Matchbook({
     if (hit === 'miss') return;
     if (hit === 'notch') {
       setAt({ x: 16, y: 24 });
-      say(line('p5.notch'));
+      say(spoken('p5.notch'));
       return;
     }
     setShown(true);
     addNote('pad', '14페이지 표 숫자 47291 65038');
     playSeat('lock');
     playSeat('paper');
-    say(line('p5.rule'));
+    say(spoken('p5.rule'));
   }
 
   useEffect(() => {
@@ -836,9 +837,9 @@ function Matchbook({
             const box = event.currentTarget.getBoundingClientRect();
             if (event.clientX - box.left > box.width * 0.55) {
               setOpen(true);
-              say(line('p5.box'));
-              say(line('p5.pad'));
-              say(line('p5.page'));
+              say(spoken('p5.box'));
+              say(spoken('p5.pad'));
+              say(spoken('p5.page'));
             }
           }}
         >
@@ -893,11 +894,11 @@ function Matchbook({
                 onClick={() => {
                   const hit = judgePairs(digits);
                   if (hit === 'range') {
-                    say(line('p5.range'));
+                    say(spoken('p5.range'));
                     return;
                   }
                   if (hit !== 'ok') {
-                    say(line('p5.no'));
+                    say(spoken('p5.no'));
                     return;
                   }
                   solveChess(say);
@@ -907,7 +908,7 @@ function Matchbook({
               </button>
               <Keypad mode="alpha" value={word} onChange={setWord} onSubmit={() => {
                 if (!judgeWord(word)) {
-                  say(line('p5.no'));
+                  say(spoken('p5.no'));
                   return;
                 }
                 solveChess(say);
@@ -916,25 +917,25 @@ function Matchbook({
           )}
         </>
       )}
-      <button type="button" onClick={() => { setOpen(true); say(line('p5.box')); }}>
+      <button type="button" onClick={() => { setOpen(true); say(spoken('p5.box')); }}>
         열기
       </button>
     </section>
   );
 }
 
-function solveChess(say: (text: string) => void) {
+function solveChess(say: SayFn) {
   if (useAshStore.getState().solved.P5) return;
   useAshStore.getState().markSolved('P5');
   addNote('chess', '03 08 05 19 19 → CHESS');
-  say(line('p5.word'));
-  say(line('p5.order'));
-  say(line('p5.spy'));
-  say(line('p5.still'));
-  say(line('p5.box2'));
+  say(spoken('p5.word'));
+  say(spoken('p5.order'));
+  say(spoken('p5.spy'));
+  say(spoken('p5.still'));
+  say(spoken('p5.box2'));
 }
 
-function ChessBox({ say }: { say: (text: string) => void }) {
+function ChessBox({ say }: { say: SayFn }) {
   const [open, setOpen] = useState(false);
   const [flipped, setFlipped] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -946,7 +947,7 @@ function ChessBox({ say }: { say: (text: string) => void }) {
 
   function read(id: string, text: string, noteId: string, note: string) {
     if (!flipped) {
-      say(line('p6.read'));
+      say(spoken('p6.read'));
       return;
     }
     const next = markFound(cuts, id);
@@ -966,8 +967,8 @@ function ChessBox({ say }: { say: (text: string) => void }) {
           type="button"
           onClick={() => {
             setOpen(true);
-            say(line('p6.take'));
-            say(line('p6.mirror'));
+            say(spoken('p6.take'));
+            say(spoken('p6.mirror'));
           }}
         >
           <Mark name="rook" />
@@ -1000,7 +1001,7 @@ function ChessBox({ say }: { say: (text: string) => void }) {
   );
 }
 
-function Archive({ say }: { say: (text: string) => void }) {
+function Archive({ say }: { say: SayFn }) {
   const mask = useRef(new DarknessMask());
   const [light, setLight] = useState<{ x: number; y: number; r: number } | null>(null);
   const read = useAshStore((s) => !!s.flags.v17);
@@ -1047,10 +1048,10 @@ function Archive({ say }: { say: (text: string) => void }) {
             if (read) return;
             useAshStore.getState().setFlag('v17');
             addNote('legend', '뜨개 범례: 1코 = · / 3코 = — / 안뜨기 줄 = 글자 끝');
-            say(line('file.card'));
-            say(line('file.key'));
-            say(line('p6.file'));
-            say(line('p6.morse'));
+            say(spoken('file.card'));
+            say(spoken('file.key'));
+            say(spoken('p6.file'));
+            say(spoken('p6.morse'));
           }}
         >
           V-17
@@ -1067,7 +1068,7 @@ function Archive({ say }: { say: (text: string) => void }) {
   );
 }
 
-function Scarf({ say }: { say: (text: string) => void }) {
+function Scarf({ say }: { say: SayFn }) {
   const [zoom, setZoom] = useState(1);
   const [buf, setBuf] = useState('');
   const [text, setText] = useState('');
@@ -1113,17 +1114,17 @@ function Scarf({ say }: { say: (text: string) => void }) {
         onClick={() => {
           if (!judgeCallsign(text)) {
             say('조회 결과 없음');
-            say(line('p7.none'));
+            say(spoken('p7.none'));
             return;
           }
           useAshStore.getState().markSolved('P7');
           addNote('vogel', 'VOGEL3 = 매일 03:00 채널 B 송신');
           playSeat('teletype');
-          say(line('p7.hit'));
-          say(line('p7.name'));
-          say(line('p7.time'));
-          say(line('p7.who'));
-          say(line('p7.phone'));
+          say(spoken('p7.hit'));
+          say(spoken('p7.name'));
+          say(spoken('p7.time'));
+          say(spoken('p7.who'));
+          say(spoken('p7.phone'));
         }}
       >
         송신 기록 조회
@@ -1132,13 +1133,13 @@ function Scarf({ say }: { say: (text: string) => void }) {
   );
 }
 
-function Josef({ say }: { say: (text: string) => void }) {
+function Josef({ say }: { say: SayFn }) {
   return (
     <section data-puzzle="josef">
       <p>{line('p8.need')}</p>
       <p>{line('p8.word')}</p>
       <div className="radio-row">
-        <button type="button" onClick={() => { playClue('josef'); say(line('p8.where')); }}>렌츠 선배 어디 계세요?</button>
+        <button type="button" onClick={() => { playClue('josef'); say(spoken('p8.where')); }}>렌츠 선배 어디 계세요?</button>
         <button
           type="button"
           onClick={() => {
@@ -1146,20 +1147,20 @@ function Josef({ say }: { say: (text: string) => void }) {
             gain('분소장실 열쇠');
             playSeat('key');
             playClue('josef');
-            say(line('p8.key1'));
-            say(line('p8.key2'));
-            say(line('p8.slide'));
+            say(spoken('p8.key1'));
+            say(spoken('p8.key2'));
+            say(spoken('p8.slide'));
           }}
         >
           검은 비숍
         </button>
-        <button type="button" onClick={() => { playClue('josef'); say(line('p8.keyno')); }}>분소장실 열쇠 주세요.</button>
+        <button type="button" onClick={() => { playClue('josef'); say(spoken('p8.keyno')); }}>분소장실 열쇠 주세요.</button>
       </div>
     </section>
   );
 }
 
-function Safe({ say, stage }: { say: (text: string) => void; stage: number }) {
+function Safe({ say, stage }: { say: SayFn; stage: number }) {
   const dial = useRef(new SafeDial(40));
   const [pos, setPos] = useState(0);
   const [dir, setDir] = useState<SafeDir>('R');
@@ -1169,8 +1170,8 @@ function Safe({ say, stage }: { say: (text: string) => void; stage: number }) {
   useEffect(() => {
     if (said.current) return;
     said.current = true;
-    say(line('p8.miss'));
-    say(line('p8.ear'));
+    say(spoken('p8.miss'));
+    say(spoken('p8.ear'));
   }, [say]);
 
   function turn(nextDir: SafeDir) {
@@ -1187,7 +1188,7 @@ function Safe({ say, stage }: { say: (text: string) => void; stage: number }) {
     if (hit === 'reset') {
       useAshStore.getState().patchExtra({ lockStage: 0 });
       setGauge(false);
-      say(line('p8.reset'));
+      say(spoken('p8.reset'));
       return;
     }
     if (hit === 'advance') {
@@ -1202,13 +1203,13 @@ function Safe({ say, stage }: { say: (text: string) => void; stage: number }) {
     s.markSolved('P8');
     addNote('code', '취소 코드 앞 4자리 5208 · 송신 형식');
     addNote('form', line('safe.form'));
-    say(line('safe.report'));
-    say(line('safe.form'));
-    say(line('safe.half'));
-    say(line('p8.knew'));
-    say(line('p8.left'));
-    say(line('p8.alone'));
-    say(line('p8.rest'));
+    say(spoken('safe.report'));
+    say(spoken('safe.form'));
+    say(spoken('safe.half'));
+    say(spoken('p8.knew'));
+    say(spoken('p8.left'));
+    say(spoken('p8.alone'));
+    say(spoken('p8.rest'));
   }
 
   const lamps = Math.min(3, stage);
@@ -1229,7 +1230,7 @@ function Safe({ say, stage }: { say: (text: string) => void; stage: number }) {
   );
 }
 
-function MusicBox({ say, hearing }: { say: (text: string) => void; hearing: boolean }) {
+function MusicBox({ say, hearing }: { say: SayFn; hearing: boolean }) {
   const [pins, setPins] = useState<number[]>([...PIN_BASE]);
   const [show, setShow] = useState(false);
   const [names, setNames] = useState(false);
@@ -1284,15 +1285,15 @@ function MusicBox({ say, hearing }: { say: (text: string) => void; hearing: bool
         onClick={() => {
           if (!pinsMatch(pins)) {
             playClue('box');
-            say(line('p9.no'));
+            say(spoken('p9.no'));
             return;
           }
           setShow(true);
           useAshStore.getState().setFlag('pins');
           addNote('tail', `취소 코드 뒤 4자리 6172 → ${CANCEL_CODE}`);
           playClue('hum');
-          say(line('p9.tail'));
-          say(line('p9.hide'));
+          say(spoken('p9.tail'));
+          say(spoken('p9.hide'));
         }}
       >
         태엽
@@ -1301,7 +1302,7 @@ function MusicBox({ say, hearing }: { say: (text: string) => void; hearing: bool
   );
 }
 
-function Send({ say }: { say: (text: string) => void }) {
+function Send({ say }: { say: SayFn }) {
   const [lines, setLines] = useState(['', '', '']);
   const [row, setRow] = useState(0);
   const [channel, setChannel] = useState<string | null>(null);
@@ -1310,17 +1311,17 @@ function Send({ say }: { say: (text: string) => void }) {
   function transmit() {
     const hit = judgeSend(lines, channel);
     if (hit === 'channel') {
-      say(line('p9.channel'));
+      say(spoken('p9.channel'));
       return;
     }
     if (hit === 'bad') {
       say('인증 불일치 — 재확인하라');
-      say(line('p9.bad'));
+      say(spoken('p9.bad'));
       return;
     }
     if (hit === 'dead') {
       say('수신처 응답 없음 — 채널 확인');
-      say(line('p9.dead'));
+      say(spoken('p9.dead'));
       return;
     }
     const s = useAshStore.getState();
@@ -1379,28 +1380,28 @@ function Send({ say }: { say: (text: string) => void }) {
   );
 }
 
-function FinaleA({ say }: { say: (text: string) => void }) {
+function FinaleA({ say }: { say: SayFn }) {
   const said = useRef(false);
   useEffect(() => {
     if (said.current) return;
     said.current = true;
     playSeat('chime');
     playClue('danke');
-    say(line('endA.1'));
-    say(line('endA.2'));
-    say(line('endA.3'));
-    say(line('endA.4'));
-    say(line('endA.5'));
-    say(line('endA.6'));
-    say(line('endA.7'));
-    say(line('endA.ask'));
+    say(spoken('endA.1'));
+    say(spoken('endA.2'));
+    say(spoken('endA.3'));
+    say(spoken('endA.4'));
+    say(spoken('endA.5'));
+    say(spoken('endA.6'));
+    say(spoken('endA.7'));
+    say(spoken('endA.ask'));
   }, [say]);
 
   function choose(choice: 'write' | 'blank') {
     const s = useAshStore.getState();
     s.patchExtra({ epilogueChoice: choice });
     say(choice === 'write' ? line('endA.write') : line('endA.blank'));
-    say(line('endA.done'));
+    say(spoken('endA.done'));
     s.setFlag('endingA');
   }
 
@@ -1416,16 +1417,16 @@ function FinaleA({ say }: { say: (text: string) => void }) {
   );
 }
 
-function FinaleB({ say }: { say: (text: string) => void }) {
+function FinaleB({ say }: { say: SayFn }) {
   const said = useRef(false);
   useEffect(() => {
     if (said.current) return;
     said.current = true;
-    say(line('endB.1'));
-    say(line('endB.2'));
-    say(line('endB.3'));
-    say(line('endB.4'));
-    say(line('endB.5'));
+    say(spoken('endB.1'));
+    say(spoken('endB.2'));
+    say(spoken('endB.3'));
+    say(spoken('endB.4'));
+    say(spoken('endB.5'));
   }, [say]);
   return (
     <section className={styles.finale} data-ending="B">

@@ -1,5 +1,7 @@
 /** Lines the gray box speaks. Full VO: docs/시리즈/늘봄/02_붉은방_대본_v1.md */
 
+import { dialogue, narration, type CaptionLine } from '@/engine/ui/caption';
+
 export const script = {
   'open.date': '1994년 11월 28일 새벽 4시 50분. 도래동.',
   'open.closed': '셔터에 임시 휴업. 맞은편 최 시계방도 불이 꺼져 있다. 선생님이 안 나오신 지 사흘째다.',
@@ -81,16 +83,27 @@ export function line(key: ScriptKey): string {
   return script[key];
 }
 
-export const openingLines = [
-  script['open.date'],
-  script['open.closed'],
-  script['open.door'],
-  script['open.ledger'],
-  script['open.sign'],
-  script['open.note'],
-  script['open.timer'],
-  script['open.go'],
-] as const;
+const SPEAKER: Partial<Record<ScriptKey, string>> = {
+  'p7.call': '최 영감',
+  'end.a3': '최 영감',
+  'end.b3': '선생님',
+};
+
+export function spoken(key: ScriptKey): CaptionLine {
+  const speaker = SPEAKER[key];
+  return speaker !== undefined ? dialogue(script[key], speaker) : narration(script[key]);
+}
+
+export const openingLines: CaptionLine[] = [
+  narration(script['open.date']),
+  narration(script['open.closed']),
+  narration(script['open.door']),
+  narration(script['open.ledger']),
+  narration(script['open.sign']),
+  narration(script['open.note']),
+  narration(script['open.timer']),
+  narration(script['open.go']),
+];
 
 export const NOTEBOOK_PAGES = `명화사진관. 1972.
 간판 글씨 — 정희.

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
+import type { SayFn } from '@/engine/ui/caption';
 import { useAppStore } from '@/engine/save/appStore';
 import { suppress } from '@/engine/boot/orientation';
 import { DarknessMask } from '@/engine/fx/DarknessMask';
@@ -18,7 +19,7 @@ import type { ThemeTimerApi } from '@/engine/ui/ThemePlay';
 import styles from './art.module.css';
 import { roomArt } from './art';
 import { playClue, playSeat, stopBeds, syncBed, syncSteps } from './audio';
-import { line, NOTEBOOK_PAGES } from './data/script';
+import { line, spoken, NOTEBOOK_PAGES } from './data/script';
 import {
   BANDS,
   CONFIRM_MS,
@@ -68,7 +69,7 @@ export function DarkroomFlow({
   timerRef,
   notebookRef,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   clockRef: MutableRefObject<(ms: number) => void>;
   timerRef: MutableRefObject<ThemeTimerApi | null>;
   notebookRef: MutableRefObject<() => void>;
@@ -108,11 +109,11 @@ export function DarkroomFlow({
       const rem = Math.max(0, DURATION_MS - (elapsed + s.timer.penaltyMs - s.timer.bonusPausedMs));
       if (rem <= 10 * 60_000 && rem > 5 * 60_000) once('tick10', () => {
         playSeat('tick');
-        sayRef.current(line('tick.10'));
+        sayRef.current(spoken('tick.10'));
       });
       if (rem > 0 && rem <= 5 * 60_000) once('tick5', () => {
         playSeat('tick');
-        sayRef.current(line('tick.5'));
+        sayRef.current(spoken('tick.5'));
       });
     };
     return () => {
@@ -129,13 +130,13 @@ export function DarkroomFlow({
     const on = !useDarkroomStore.getState().extra.safelightOn;
     useDarkroomStore.getState().patchExtra({ safelightOn: on });
     playSeat('safelight');
-    if (on) say(line('safe.on'));
+    if (on) say(spoken('safe.on'));
     onSafeRef.current(on);
   }
 
   function useFallback(on: boolean) {
     useDarkroomStore.getState().patchExtra({ faceDownFallback: on });
-    if (on) say(line('hand.ok'));
+    if (on) say(spoken('hand.ok'));
   }
 
   return (
@@ -207,7 +208,7 @@ function puzzleId(solved: Record<string, boolean>): string {
   return order.find((id) => !solved[id]) ?? 'end';
 }
 
-function P1({ safelight, say }: { safelight: boolean; say: (text: string) => void }) {
+function P1({ safelight, say }: { safelight: boolean; say: SayFn }) {
   const dial = useRef(new NumberDial(3));
   const [vals, setVals] = useState<number[]>([0, 0, 0]);
 
@@ -232,7 +233,7 @@ function P1({ safelight, say }: { safelight: boolean; say: (text: string) => voi
           type="button"
           onClick={() => {
             if (!judgeLock(vals)) {
-              say(line('p1.no'));
+              say(spoken('p1.no'));
               return;
             }
             const s = useDarkroomStore.getState();
@@ -241,14 +242,14 @@ function P1({ safelight, say }: { safelight: boolean; say: (text: string) => voi
             s.addItem('노트');
             addNote('rules', line('p1.rules'));
             playSeat('lock');
-            say(line('p1.solved'));
+            say(spoken('p1.solved'));
           }}
         >
           <Mark name="cabinet" />약품장
         </button>
       </div>
-      <button type="button" onClick={() => say(line('open.ledger'))}><Mark name="ledger" />접수 장부</button>
-      <button type="button" onClick={() => say(line('open.note'))}><Mark name="camera" />수리 카메라</button>
+      <button type="button" onClick={() => say(spoken('open.ledger'))}><Mark name="ledger" />접수 장부</button>
+      <button type="button" onClick={() => say(spoken('open.note'))}><Mark name="camera" />수리 카메라</button>
     </section>
   );
 }
@@ -260,7 +261,7 @@ function P2({
   onSafeRef,
 }: {
   safelight: boolean;
-  say: (text: string) => void;
+  say: SayFn;
   timerRef: MutableRefObject<ThemeTimerApi | null>;
   onSafeRef: MutableRefObject<(on: boolean) => void>;
 }) {
@@ -288,7 +289,7 @@ function P2({
       setProgress(0);
       penalize(timerRef);
       playSeat('burn');
-      say(line('p2.burn'));
+      say(spoken('p2.burn'));
     };
     return () => {
       onSafeRef.current = () => undefined;
@@ -309,15 +310,15 @@ function P2({
       onChange: (next) => setProgress(next),
       onStray: () => {
         playSeat('tangle');
-        say(line('p2.tangle'));
+        say(spoken('p2.tangle'));
       },
       onComplete: () => {
         const s = useDarkroomStore.getState();
         if (s.solved.P2) return;
         s.markSolved('P2');
         playSeat('lock');
-        say(line('p2.solved'));
-        say(line('p2.sound'));
+        say(spoken('p2.solved'));
+        say(spoken('p2.sound'));
       },
     });
     pathRef.current = path;
@@ -345,7 +346,7 @@ function P2({
               if (judgeCrank(next)) {
                 setPhase('lid');
                 playSeat('crank');
-                say(line('p2.full'));
+                say(spoken('p2.full'));
               }
             }}
           >
@@ -362,12 +363,12 @@ function P2({
               if (safelight) {
                 penalize(timerRef);
                 playSeat('burn');
-                say(line('p2.burn'));
+                say(spoken('p2.burn'));
                 return;
               }
               setPhase('spiral');
               playSeat('drag');
-              say(line('p2.dark'));
+              say(spoken('p2.dark'));
             }}
           >
             <Mark name="lid" />뒷덮개
@@ -411,7 +412,7 @@ function P3({
   say,
   timerRef,
 }: {
-  say: (text: string) => void;
+  say: SayFn;
   timerRef: MutableRefObject<ThemeTimerApi | null>;
 }) {
   const knob = useRef(new TuningKnob({ min: 20, max: 50, perTurn: 10, snap: 0.5, inertiaMs: 0 }));
@@ -442,18 +443,18 @@ function P3({
         useDarkroomStore.getState().markSolved('P3');
         addNote('chem', line('p3.note'));
         playSeat('splash');
-        say(line('p3.solved'));
+        say(spoken('p3.solved'));
         return;
       }
       if (result === 'shake') {
-        say(line('p3.shake'));
+        say(spoken('p3.shake'));
         return;
       }
       penalize(timerRef);
-      if (result === 'bw') say(line('p3.clear'));
-      if (result === 'cold') say(line('p3.cold'));
-      if (result === 'hot') say(line('p3.hot'));
-      say(line('p3.again'));
+      if (result === 'bw') say(spoken('p3.clear'));
+      if (result === 'cold') say(spoken('p3.cold'));
+      if (result === 'hot') say(spoken('p3.hot'));
+      say(spoken('p3.again'));
       setShook(false);
     }, 100);
     return () => window.clearInterval(id);
@@ -471,7 +472,7 @@ function P3({
       <p>{line('p3.label')}</p>
       <p>{line('p3.note')}</p>
       <div className="radio-row">
-        <button type="button" onClick={() => { setKit('bw'); say(line('p3.bw')); }}><Mark name="kit-bw" />흑백 키트</button>
+        <button type="button" onClick={() => { setKit('bw'); say(spoken('p3.bw')); }}><Mark name="kit-bw" />흑백 키트</button>
         <button type="button" onClick={() => setKit('color')}><Mark name="kit-color" />컬러 키트</button>
         <button type="button" onClick={() => nudge(-0.5)}>온도 −</button>
         <button type="button" onClick={() => nudge(0.5)}>온도 +</button>
@@ -497,7 +498,7 @@ function P3({
             playSeat('water');
             if (!said.current) {
               said.current = true;
-              say(line('p3.shake'));
+              say(spoken('p3.shake'));
             }
           }}
         >
@@ -508,7 +509,7 @@ function P3({
   );
 }
 
-function P4({ say }: { say: (text: string) => void }) {
+function P4({ say }: { say: SayFn }) {
   const cells = useMemo(() => sleeveCells(), []);
   const loupe = useRef(new Loupe());
   const [place, setPlace] = useState<LoupePlace | null>(null);
@@ -531,14 +532,14 @@ function P4({ say }: { say: (text: string) => void }) {
     const next = markFound(found, id);
     setFound(next);
     const n = next.filter((item) => item.found).length;
-    if (n === 1) say(line('p4.person'));
-    else if (n < 4) say(line('p4.again'));
+    if (n === 1) say(spoken('p4.person'));
+    else if (n < 4) say(spoken('p4.again'));
     if (!allFound(next)) return;
     const s = useDarkroomStore.getState();
     s.markSolved('P4');
     addNote('cuts', line('p4.solved'));
     playSeat('lock');
-    say(line('p4.solved'));
+    say(spoken('p4.solved'));
   }
 
   return (
@@ -591,7 +592,7 @@ function P5({
 }: {
   safelight: boolean;
   fallback: boolean;
-  say: (text: string) => void;
+  say: SayFn;
   timerRef: MutableRefObject<ThemeTimerApi | null>;
 }) {
   const knob = useRef(new TuningKnob({ min: 5, max: 25, perTurn: 20, snap: 5, inertiaMs: 0 }));
@@ -617,11 +618,11 @@ function P5({
               if (safelight) {
                 penalize(timerRef);
                 playSeat('burn');
-                say(line('p5.burn'));
+                say(spoken('p5.burn'));
                 return;
               }
               setPhase('dunk');
-              say(line('p5.dunk'));
+              say(spoken('p5.dunk'));
             }}
           >
             <Mark name="enlarger" />확대기 {sec}초
@@ -643,7 +644,7 @@ function P5({
             s.addItem('사진');
             addNote('expose', `${EXPOSE_OK}초`);
             playSeat('splash');
-            say(line('p5.solved'));
+            say(spoken('p5.solved'));
           }}
           onFail={(why) => {
             say(why === 'light' ? line('p5.light') : line('p5.early'));
@@ -655,7 +656,7 @@ function P5({
   );
 }
 
-function P6({ say }: { say: (text: string) => void }) {
+function P6({ say }: { say: SayFn }) {
   const saved = useDarkroomStore((s) => s.extra.clotheslineOrder);
   const slots = lineOf(saved);
   const [picked, setPicked] = useState<PhotoId | null>(null);
@@ -681,8 +682,8 @@ function P6({ say }: { say: (text: string) => void }) {
     s.markSolved('P6');
     if (!s.items.includes('사진')) s.addItem('사진');
     playSeat('door');
-    say(line('p6.solved'));
-    say(line('p6.door'));
+    say(spoken('p6.solved'));
+    say(spoken('p6.door'));
   }
 
   return (
@@ -713,7 +714,7 @@ function P6({ say }: { say: (text: string) => void }) {
   );
 }
 
-function AfterLine({ safelight, say }: { safelight: boolean; say: (text: string) => void }) {
+function AfterLine({ safelight, say }: { safelight: boolean; say: SayFn }) {
   const solved = useDarkroomStore((s) => s.solved);
   return (
     <section className={styles.panel}>
@@ -725,7 +726,7 @@ function AfterLine({ safelight, say }: { safelight: boolean; say: (text: string)
           mark="door"
           onHold={() => {
             playSeat('door');
-            say(line('p7.door'));
+            say(spoken('p7.door'));
             useDarkroomStore.getState().setScene('shop');
           }}
         />
@@ -734,7 +735,7 @@ function AfterLine({ safelight, say }: { safelight: boolean; say: (text: string)
   );
 }
 
-function Receipt({ safelight, say }: { safelight: boolean; say: (text: string) => void }) {
+function Receipt({ safelight, say }: { safelight: boolean; say: SayFn }) {
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -744,9 +745,9 @@ function Receipt({ safelight, say }: { safelight: boolean; say: (text: string) =
           setOpen(true);
           if (safelight) {
             addNote('0741', line('p7.num'));
-            say(line('p7.num'));
+            say(spoken('p7.num'));
           } else {
-            say(line('p7.slip'));
+            say(spoken('p7.slip'));
           }
         }}
       >
@@ -758,7 +759,7 @@ function Receipt({ safelight, say }: { safelight: boolean; say: (text: string) =
   );
 }
 
-function P7({ safelight, say }: { safelight: boolean; say: (text: string) => void }) {
+function P7({ safelight, say }: { safelight: boolean; say: SayFn }) {
   const [band, setBand] = useState<number | null>(null);
   const packs = band == null ? [] : envelopesIn(band);
   return (
@@ -779,7 +780,7 @@ function P7({ safelight, say }: { safelight: boolean; say: (text: string) => voi
             type="button"
             onClick={() => {
               if (judgeEnvelope(n) !== 'ok') {
-                say(line('p7.other'));
+                say(spoken('p7.other'));
                 return;
               }
               const s = useDarkroomStore.getState();
@@ -787,9 +788,9 @@ function P7({ safelight, say }: { safelight: boolean; say: (text: string) => voi
               s.addItem('봉투');
               addNote('jeonghee', line('p7.solved'));
               playClue('phone');
-              say(line('p7.solved'));
-              say(line('p7.call'));
-              say(line('p7.wait'));
+              say(spoken('p7.solved'));
+              say(spoken('p7.call'));
+              say(spoken('p7.wait'));
             }}
           >
             <Mark name="envelope" />{String(n).padStart(4, '0')}
@@ -800,7 +801,7 @@ function P7({ safelight, say }: { safelight: boolean; say: (text: string) => voi
   );
 }
 
-function P8({ fallback, say }: { fallback: boolean; say: (text: string) => void }) {
+function P8({ fallback, say }: { fallback: boolean; say: SayFn }) {
   const saved = useDarkroomStore((s) => s.extra.dodgeMask);
   const ready = judgeDodge(saved?.left ?? 0, saved?.right ?? 0) === 'ok';
   const [step, setStep] = useState<'dodge' | 'develop' | 'choice' | 'fog'>(ready ? 'develop' : 'dodge');
@@ -822,8 +823,8 @@ function P8({ fallback, say }: { fallback: boolean; say: (text: string) => void 
           <DevelopHold
             fallback={fallback}
             onDone={() => {
-              say(line('p8.together'));
-              say(line('p8.choice'));
+              say(spoken('p8.together'));
+              say(spoken('p8.choice'));
               setStep('choice');
             }}
             onFail={(why) => say(why === 'light' ? line('p5.light') : line('p5.early'))}
@@ -1051,11 +1052,11 @@ function Fog({ onEnd }: { onEnd: () => void }) {
   );
 }
 
-function Choice({ say, onFog }: { say: (text: string) => void; onFog: () => void }) {
+function Choice({ say, onFog }: { say: SayFn; onFog: () => void }) {
   const [held, setHeld] = useState(false);
   return (
     <div className="radio-row">
-      <button type="button" onClick={() => { setHeld(true); say(line('p8.hand')); }}>
+      <button type="button" onClick={() => { setHeld(true); say(spoken('p8.hand')); }}>
         <Mark name="photo" />젖은 사진
       </button>
       <LongHold
@@ -1063,7 +1064,7 @@ function Choice({ say, onFog }: { say: (text: string) => void; onFog: () => void
         label="정착액 대야"
         onHold={() => {
           if (!held) {
-            say(line('p8.hand'));
+            say(spoken('p8.hand'));
             return;
           }
           const tray = [{ id: 'tray', x: 40, y: 40, r: 30 }];
@@ -1082,9 +1083,9 @@ function Choice({ say, onFog }: { say: (text: string) => void; onFog: () => void
           const s = useDarkroomStore.getState();
           if (s.flags.endingA || s.flags.endingB) return;
           playSeat('burn');
-          say(line('end.b1'));
-          say(line('end.b2'));
-          say(line('end.b3'));
+          say(spoken('end.b1'));
+          say(spoken('end.b2'));
+          say(spoken('end.b3'));
           onFog();
         }}
       />

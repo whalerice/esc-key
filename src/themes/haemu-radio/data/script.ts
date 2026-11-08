@@ -1,5 +1,7 @@
 /** Lines that move the night forward. Full VO stays in the script doc. */
 
+import { dialogue, narration, type CaptionLine } from '@/engine/ui/caption';
+
 export const script = {
   'open.date': '2026년 11월 12일 목요일. 새벽 1시 55분. 해무.',
   'open.job': '첫 출근이 마지막 방송 날이다. 오늘은 보고 배우라고 하셨다.',
@@ -74,7 +76,29 @@ export function line(key: ScriptKey): string {
   return script[key];
 }
 
-export const openingLines = [script['open.date'], script['open.job'], script['open.air']];
+const SPEAKER: Partial<Record<ScriptKey, string>> = {
+  'p2.tease': '방송',
+  'p3.short': '채 선배',
+  'p3.solved': '채 선배',
+  'p3.alarm': '채 선배',
+  'p6.call1': '도윤',
+  'p6.call2': '도윤',
+  'p6.call3': '도윤',
+  'p7.1': '도윤',
+  'p7.2': '도윤',
+  'p7.3': '도윤',
+};
+
+export function spoken(key: ScriptKey): CaptionLine {
+  const speaker = SPEAKER[key];
+  return speaker !== undefined ? dialogue(script[key], speaker) : narration(script[key]);
+}
+
+export const openingLines: CaptionLine[] = [
+  narration(script['open.date']),
+  narration(script['open.job']),
+  narration(script['open.air']),
+];
 
 export const P6_CALL = [script['p6.call1'], script['p6.call2'], script['p6.call3']];
 

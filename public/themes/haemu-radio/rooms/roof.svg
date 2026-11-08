@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <!-- Placeholder wash  painted pass is control-only this PR -->
+  <rect width="1920" height="1080" fill="#0e1418"/>
+  <rect x="120" y="160" width="1680" height="760" fill="#12181c" opacity="0.85"/>
+</svg>

@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420">
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0%" stop-color="#F4EBD0"/>
+      <stop offset="55%" stop-color="#E9E2D2"/>
+      <stop offset="100%" stop-color="#DCCFB8"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#B08D4F"/>
+      <stop offset="100%" stop-color="#7A6232"/>
+    </linearGradient>
+    <filter id="soft" x="-2%" y="-2%" width="104%" height="104%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#12191F" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+  <rect width="640" height="420" rx="6" fill="url(#paper)" filter="url(#soft)"/>
+  <rect x="10" y="10" width="620" height="400" rx="3" fill="none" stroke="url(#edge)" stroke-width="3"/>
+  <rect x="18" y="18" width="604" height="384" rx="2" fill="none" stroke="#CDB892" stroke-width="1" opacity="0.55"/>
+
+  <!-- binder holes -->
+  <circle cx="36" cy="70" r="6" fill="#E9E2D2" stroke="#B08D4F" stroke-width="1.5"/>
+  <circle cx="36" cy="210" r="6" fill="#E9E2D2" stroke="#B08D4F" stroke-width="1.5"/>
+  <circle cx="36" cy="350" r="6" fill="#E9E2D2" stroke="#B08D4F" stroke-width="1.5"/>
+  <circle cx="36" cy="70" r="2.5" fill="#5D6668" opacity="0.35"/>
+  <circle cx="36" cy="210" r="2.5" fill="#5D6668" opacity="0.35"/>
+  <circle cx="36" cy="350" r="2.5" fill="#5D6668" opacity="0.35"/>
+
+  <text x="64" y="52" fill="#3B3A36" font-family="sans-serif" font-size="26" font-weight="700" letter-spacing="1">큐시트 · 해무 FM 87.9</text>
+  <text x="64" y="78" fill="#5D6668" font-family="sans-serif" font-size="14">목요일 · 〈두 시의 우편함〉</text>
+  <path d="M64 88 H600" stroke="#B08D4F" stroke-width="1.5" opacity="0.55"/>
+
+  <!-- rows -->
+  <g font-family="sans-serif">
+    <rect x="60" y="100" width="360" height="56" rx="4" fill="#F4EBD0" opacity="0.45"/>
+    <text x="72" y="126" fill="#3B3A36" font-size="22" font-weight="700">02:03</text>
+    <text x="160" y="126" fill="#3B3A36" font-size="20">안개 정류장</text>
+    <text x="160" y="146" fill="#5D6668" font-size="12">곡 · 비상 송출 이후</text>
+
+    <rect x="60" y="172" width="360" height="56" rx="4" fill="#E4D7BE" opacity="0.35"/>
+    <text x="72" y="198" fill="#3B3A36" font-size="22" font-weight="700">02:14</text>
+    <text x="160" y="198" fill="#3B3A36" font-size="20">먼 바다</text>
+    <text x="160" y="218" fill="#5D6668" font-size="12">곡</text>
+
+    <rect x="60" y="244" width="360" height="56" rx="4" fill="#F4EBD0" opacity="0.45"/>
+    <text x="72" y="270" fill="#3B3A36" font-size="22" font-weight="700">02:18</text>
+    <text x="160" y="270" fill="#3B3A36" font-size="20">바람이 지나간 자리</text>
+    <text x="160" y="290" fill="#5D6668" font-size="12">곡</text>
+
+    <rect x="60" y="316" width="360" height="56" rx="4" fill="#E4D7BE" opacity="0.35"/>
+    <text x="72" y="342" fill="#3B3A36" font-size="22" font-weight="700">02:25</text>
+    <text x="160" y="342" fill="#3B3A36" font-size="20">방파제</text>
+    <text x="160" y="362" fill="#5D6668" font-size="12">곡 · 마지막 코너 직전</text>
+  </g>
+
+  <!-- Doyun doodles (P1 clues) -->
+  <!-- buoy @ 02:03 -->
+  <g transform="translate(470 98)" stroke="#3B3A36" fill="none" stroke-width="3" stroke-linecap="round">
+    <ellipse cx="18" cy="28" rx="12" ry="14"/>
+    <rect x="14" y="28" width="8" height="16" fill="#3B3A36" stroke="none"/>
+    <circle cx="18" cy="18" r="3" fill="#3B3A36" stroke="none"/>
+    <path d="M18 44 v10" opacity="0.7"/>
+    <text x="40" y="34" fill="#3B3A36" stroke="none" font-family="sans-serif" font-size="18">부표</text>
+  </g>
+
+  <!-- boat @ 02:14 -->
+  <g transform="translate(470 174)" stroke="#3B3A36" fill="none" stroke-width="3" stroke-linejoin="round">
+    <path d="M4 32 l20 -10 28 10 -8 8 H12 z" fill="#3B3A36" fill-opacity="0.12"/>
+    <path d="M24 22 v-16"/>
+    <path d="M24 10 l16 6"/>
+    <text x="62" y="34" fill="#3B3A36" stroke="none" font-family="sans-serif" font-size="18">배</text>
+  </g>
+
+  <!-- gull @ 02:18 -->
+  <g transform="translate(470 250)" stroke="#3B3A36" fill="none" stroke-width="3" stroke-linecap="round">
+    <path d="M4 22 q18 14 40 0 q-16 8 -40 3"/>
+    <path d="M12 18 q10 6 20 0" opacity="0.55"/>
+    <text x="56" y="28" fill="#3B3A36" stroke="none" font-family="sans-serif" font-size="18">갈매기</text>
+  </g>
+
+  <!-- red lighthouse @ 02:25: bold + double circle (style guide a11y) -->
+  <g transform="translate(448 318)">
+    <rect x="28" y="26" width="12" height="30" fill="#5D6668"/>
+    <rect x="30" y="34" width="8" height="4" fill="#3B3A36" opacity="0.35"/>
+    <circle cx="34" cy="18" r="11" fill="none" stroke="#C8463B" stroke-width="5"/>
+    <circle cx="34" cy="18" r="20" fill="none" stroke="#C8463B" stroke-width="3.5"/>
+    <rect x="30" y="14" width="8" height="6" fill="#C8463B"/>
+    <text x="66" y="40" fill="#C8463B" font-family="sans-serif" font-size="18" font-weight="700">빨간 등대</text>
+  </g>
+
+  <!-- coffee ring stain -->
+  <ellipse cx="520" cy="80" rx="36" ry="14" fill="none" stroke="#6B4E3A" stroke-width="2" opacity="0.22"/>
+  <ellipse cx="522" cy="82" rx="28" ry="10" fill="none" stroke="#6B4E3A" stroke-width="1.2" opacity="0.15"/>
+</svg>

@@ -390,29 +390,131 @@ export function RadioFlow({
         </div>
       </div>
     )}
-    {/* Above .radio-hits-layer (26): booth cart / other scene hits must not steal room nav taps. */}
+    {/* Above .radio-hits-layer (26): edge exits must not sit under scene hits. */}
     <div className="radio-nav-layer" data-scene={scene} data-next={next}>
       <p className="radio-room">
         {ROOM[scene] ?? scene} · {next}
       </p>
-      <div className="radio-row">
-        {scene !== 'control' && <Prop nav onClick={() => go('control')}>부조정실</Prop>}
-        {scene !== 'desk' && <Prop nav onClick={() => go('desk')}>작가석</Prop>}
-        {solved.P5 && scene !== 'archive' && <Prop nav onClick={() => go('archive')}>아카이브실</Prop>}
-        {solved.P4 && !solved.P5 && <Prop nav icon="door" onClick={() => setMode('lock')}>아카이브 문</Prop>}
-        {solved.P7 && scene !== 'roof' && <Prop nav onClick={() => go('roof')}>옥상</Prop>}
-      </div>
-      {(showRoofKey || showRoofHint) && (
-        <div className="radio-row">
-          {showRoofKey && (
-            <Prop icon="door" data-use-target={ROOF_LOCK_ID} onClick={() => setMode('keys')}>
-              옥상 문
-            </Prop>
-          )}
-          {showRoofHint && (
-            <Prop icon="door" onClick={() => say(spoken('p7.door'))}>옥상 문</Prop>
-          )}
-        </div>
+      {controlHits && (
+        <button
+          type="button"
+          className="radio-exit"
+          data-dir="left"
+          aria-label="작가방 가기"
+          onClick={() => go('desk')}
+        >
+          <span aria-hidden>‹</span>
+          작가방
+        </button>
+      )}
+      {boothHits && (
+        <button
+          type="button"
+          className="radio-exit"
+          data-dir="left"
+          aria-label="부조정실 가기"
+          onClick={() => go('control')}
+        >
+          <span aria-hidden>‹</span>
+          부조정실
+        </button>
+      )}
+      {boothHits && solved.P4 && !solved.P5 && (
+        <button
+          type="button"
+          className="radio-exit"
+          data-dir="right"
+          aria-label="아카이브 문"
+          onClick={() => setMode('lock')}
+        >
+          아카이브 문
+          <span aria-hidden>›</span>
+        </button>
+      )}
+      {boothHits && solved.P5 && (
+        <button
+          type="button"
+          className="radio-exit"
+          data-dir="right"
+          aria-label="아카이브실 가기"
+          onClick={() => go('archive')}
+        >
+          아카이브
+          <span aria-hidden>›</span>
+        </button>
+      )}
+      {deskHits && (
+        <button
+          type="button"
+          className="radio-exit"
+          data-dir="right"
+          aria-label="부조정실 가기"
+          onClick={() => go('control')}
+        >
+          부조정실
+          <span aria-hidden>›</span>
+        </button>
+      )}
+      {archiveHits && (
+        <button
+          type="button"
+          className="radio-exit"
+          data-dir="left"
+          aria-label="부스 가기"
+          onClick={() => go('booth')}
+        >
+          <span aria-hidden>‹</span>
+          부스
+        </button>
+      )}
+      {roofHits && (
+        <button
+          type="button"
+          className="radio-exit"
+          data-dir="back"
+          aria-label="부조정실 가기"
+          onClick={() => go('control')}
+        >
+          <span aria-hidden>∨</span>
+          부조정실
+        </button>
+      )}
+      {controlHits && solved.P7 && (
+        <button
+          type="button"
+          className="radio-exit"
+          data-dir="up"
+          aria-label="옥상 가기"
+          onClick={() => go('roof')}
+        >
+          <span aria-hidden>∧</span>
+          옥상
+        </button>
+      )}
+      {showRoofKey && (
+        <button
+          type="button"
+          className="radio-exit"
+          data-dir="up"
+          data-use-target={ROOF_LOCK_ID}
+          aria-label="옥상 문"
+          onClick={() => setMode('keys')}
+        >
+          <span aria-hidden>∧</span>
+          옥상 문
+        </button>
+      )}
+      {showRoofHint && (
+        <button
+          type="button"
+          className="radio-exit"
+          data-dir="up"
+          aria-label="옥상 문"
+          onClick={() => say(spoken('p7.door'))}
+        >
+          <span aria-hidden>∧</span>
+          옥상 문
+        </button>
       )}
     </div>
     <div

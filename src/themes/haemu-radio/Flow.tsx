@@ -416,138 +416,164 @@ export function RadioFlow({
         </div>
       )}
     </div>
-    <div className="radio-flow" data-scene={scene} data-next={next}>
-      {mode === 'p1' && <P1 say={say} />}
-      {mode === 'p2' && (
-        <TunePanel
-          start={87}
-          perTurn={1}
-          stations={P2_STATIONS}
-          holdMs={P2_HOLD_MS}
-          match={(freq) => (inBand(freq, P2_HZ, P2_TOL) ? 'air' : null)}
-          onFreq={(freq, sig) => {
-            signal.current = sig;
-            tuning.current = true;
-            if (!tease.current && isP2Tease(freq)) {
-              tease.current = true;
-              const url = clips.current.tease;
-              if (url) playHtml5Clip(url);
-              say(spoken('p2.tease'));
-            }
-          }}
-          onStop={() => {
-            tuning.current = false;
-          }}
-          onHold={() => {
-            const s = useRadioStore.getState();
-            if (s.solved.P2) return;
-            s.markSolved('P2');
-            radioSfx(SFX_SRC.beep);
-            say(spoken('p2.solved'));
-            setMode(null);
-          }}
-          note={line('p2.guide')}
-        />
-      )}
-      {mode === 'p3' && <P3 say={say} queue={extra.cartQueue} onClose={() => setMode(null)} />}
-      {mode === 'p4' && <P4 say={say} board={extra.scriptBoard} onClose={() => setMode(null)} />}
-      {mode === 'p5' && (
-        <TunePanel
-          start={87.9}
-          perTurn={1}
-          stations={P5_KNOB}
-          holdMs={P5_HOLD_MS}
-          match={(freq) => {
-            const hit = stationAt(freq, p5Tol(useAppStore.getState().settings.hearingAssist));
-            if (!hit) return null;
-            if (useRadioStore.getState().extra.heardFragments.includes(hit.id)) return null;
-            return hit.id;
-          }}
-          onFreq={(_freq, sig) => {
-            signal.current = sig;
-            tuning.current = true;
-          }}
-          onStop={() => {
-            tuning.current = false;
-          }}
-          onHold={(id) => {
-            const s = useRadioStore.getState();
-            if (s.extra.heardFragments.includes(id)) return;
-            const station = P5_STATIONS.find((st) => st.id === id);
-            if (!station) return;
-            const heard = [...s.extra.heardFragments, id];
-            s.patchExtra({ heardFragments: heard });
-            const url = clips.current[id];
-            if (url) playHtml5Clip(url);
-            say(station.caption);
-            if (heard.length === 1) say(spoken('p5.first'));
-            if (heard.length === P5_STATIONS.length) say(spoken('p5.all'));
-          }}
-          note={line('p5.memo')}
-        />
-      )}
-      {mode === 'p5' && extra.heardFragments.length > 0 && (
-        <ul className="radio-notes" data-sheet="board">
-          {extra.heardFragments.map((id) => {
-            const station = P5_STATIONS.find((s) => s.id === id);
-            return <li key={id}>{station?.caption}</li>;
-          })}
-        </ul>
-      )}
-      {mode === 'lock' && <Lock say={say} onClose={() => setMode(null)} />}
-      {mode === 'p6' && (
-        <P6
-          say={say}
-          counter={scrub ?? extra.tapeCounter}
-          stopped={extra.deckStopped}
-          onScrub={setScrub}
-          rewind={rewind}
-          onCall={() => setCall(P6_CALL)}
-          onClose={() => setMode(null)}
-        />
-      )}
-      {mode === 'keys' && (
-        <Keys
-          say={say}
-          postit={extra.trapPostit}
-          armed={armed}
-          selectedItem={selectedItem}
-          onUse={(itemId) => onUseRef.current(itemId, ROOF_LOCK_ID)}
-        />
-      )}
-      {mode === 'tx' && (
-        <TunePanel
-          start={88.4}
-          perTurn={P8_PER_TURN}
-          stations={P8_STATIONS}
-          holdMs={P8_HOLD_MS}
-          match={(freq) => (inBand(freq, P8_HZ, P8_TOL) ? 'tx' : null)}
-          onFreq={(freq, sig) => {
-            signal.current = sig;
-            tuning.current = true;
-            if (!other.current && freq >= 88.5) {
-              other.current = true;
-              say(spoken('p8.other'));
-            }
-          }}
-          onStop={() => {
-            tuning.current = false;
-          }}
-          onHold={() => {
-            const s = useRadioStore.getState();
-            if (s.extra.txLocked) return;
-            s.patchExtra({ txLocked: true });
-            say(spoken('p8.locked'));
-            setMode(null);
-          }}
-          note={line('p8.guide')}
-        />
-      )}
-      {mode === 'fader' && <Fader say={say} />}
+    <div
+      className="radio-flow"
+      data-scene={scene}
+      data-next={next}
+      data-open={mode ? 'yes' : undefined}
+    >
       {mode && (
-        <Prop nav onClick={() => setMode(null)}>
-          닫기
-        </Prop>
+        <>
+          <button
+            type="button"
+            className="radio-popup-scrim"
+            aria-label="닫기"
+            onClick={() => setMode(null)}
+          />
+          <div className="radio-popup" role="dialog" aria-modal="true" aria-label="퍼즐">
+            <div className="radio-popup-panel">
+              <header className="radio-popup-head">
+                <span className="radio-popup-title">조작반</span>
+                <button
+                  type="button"
+                  className="radio-popup-close"
+                  onClick={() => setMode(null)}
+                >
+                  닫기
+                </button>
+              </header>
+              <div className="radio-popup-scroll">
+                {mode === 'p1' && <P1 say={say} />}
+                {mode === 'p2' && (
+                  <TunePanel
+                    start={87}
+                    perTurn={1}
+                    stations={P2_STATIONS}
+                    holdMs={P2_HOLD_MS}
+                    match={(freq) => (inBand(freq, P2_HZ, P2_TOL) ? 'air' : null)}
+                    onFreq={(freq, sig) => {
+                      signal.current = sig;
+                      tuning.current = true;
+                      if (!tease.current && isP2Tease(freq)) {
+                        tease.current = true;
+                        const url = clips.current.tease;
+                        if (url) playHtml5Clip(url);
+                        say(spoken('p2.tease'));
+                      }
+                    }}
+                    onStop={() => {
+                      tuning.current = false;
+                    }}
+                    onHold={() => {
+                      const s = useRadioStore.getState();
+                      if (s.solved.P2) return;
+                      s.markSolved('P2');
+                      radioSfx(SFX_SRC.beep);
+                      say(spoken('p2.solved'));
+                      setMode(null);
+                    }}
+                    note={line('p2.guide')}
+                  />
+                )}
+                {mode === 'p3' && <P3 say={say} queue={extra.cartQueue} onClose={() => setMode(null)} />}
+                {mode === 'p4' && <P4 say={say} board={extra.scriptBoard} onClose={() => setMode(null)} />}
+                {mode === 'p5' && (
+                  <TunePanel
+                    start={87.9}
+                    perTurn={1}
+                    stations={P5_KNOB}
+                    holdMs={P5_HOLD_MS}
+                    match={(freq) => {
+                      const hit = stationAt(freq, p5Tol(useAppStore.getState().settings.hearingAssist));
+                      if (!hit) return null;
+                      if (useRadioStore.getState().extra.heardFragments.includes(hit.id)) return null;
+                      return hit.id;
+                    }}
+                    onFreq={(_freq, sig) => {
+                      signal.current = sig;
+                      tuning.current = true;
+                    }}
+                    onStop={() => {
+                      tuning.current = false;
+                    }}
+                    onHold={(id) => {
+                      const s = useRadioStore.getState();
+                      if (s.extra.heardFragments.includes(id)) return;
+                      const station = P5_STATIONS.find((st) => st.id === id);
+                      if (!station) return;
+                      const heard = [...s.extra.heardFragments, id];
+                      s.patchExtra({ heardFragments: heard });
+                      const url = clips.current[id];
+                      if (url) playHtml5Clip(url);
+                      say(station.caption);
+                      if (heard.length === 1) say(spoken('p5.first'));
+                      if (heard.length === P5_STATIONS.length) say(spoken('p5.all'));
+                    }}
+                    note={line('p5.memo')}
+                  />
+                )}
+                {mode === 'p5' && extra.heardFragments.length > 0 && (
+                  <ul className="radio-notes" data-sheet="board">
+                    {extra.heardFragments.map((id) => {
+                      const station = P5_STATIONS.find((s) => s.id === id);
+                      return <li key={id}>{station?.caption}</li>;
+                    })}
+                  </ul>
+                )}
+                {mode === 'lock' && <Lock say={say} onClose={() => setMode(null)} />}
+                {mode === 'p6' && (
+                  <P6
+                    say={say}
+                    counter={scrub ?? extra.tapeCounter}
+                    stopped={extra.deckStopped}
+                    onScrub={setScrub}
+                    rewind={rewind}
+                    onCall={() => setCall(P6_CALL)}
+                    onClose={() => setMode(null)}
+                  />
+                )}
+                {mode === 'keys' && (
+                  <Keys
+                    say={say}
+                    postit={extra.trapPostit}
+                    armed={armed}
+                    selectedItem={selectedItem}
+                    onUse={(itemId) => onUseRef.current(itemId, ROOF_LOCK_ID)}
+                  />
+                )}
+                {mode === 'tx' && (
+                  <TunePanel
+                    start={88.4}
+                    perTurn={P8_PER_TURN}
+                    stations={P8_STATIONS}
+                    holdMs={P8_HOLD_MS}
+                    match={(freq) => (inBand(freq, P8_HZ, P8_TOL) ? 'tx' : null)}
+                    onFreq={(freq, sig) => {
+                      signal.current = sig;
+                      tuning.current = true;
+                      if (!other.current && freq >= 88.5) {
+                        other.current = true;
+                        say(spoken('p8.other'));
+                      }
+                    }}
+                    onStop={() => {
+                      tuning.current = false;
+                    }}
+                    onHold={() => {
+                      const s = useRadioStore.getState();
+                      if (s.extra.txLocked) return;
+                      s.patchExtra({ txLocked: true });
+                      say(spoken('p8.locked'));
+                      setMode(null);
+                    }}
+                    note={line('p8.guide')}
+                  />
+                )}
+                {mode === 'fader' && <Fader say={say} />}
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
       {call && (

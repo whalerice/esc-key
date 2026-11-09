@@ -9,6 +9,8 @@ export type HintMemoProps = {
   stepLabel?: string;
   body: string | null;
   onClose: () => void;
+  /** After one hint is open — open the next without hunting the HUD again. */
+  onNextHint?: () => void;
 };
 
 export function HintMemo({
@@ -18,6 +20,7 @@ export function HintMemo({
   stepLabel,
   body,
   onClose,
+  onNextHint,
 }: HintMemoProps) {
   if (!open || body == null) return null;
   return (
@@ -31,6 +34,13 @@ export function HintMemo({
       </header>
       {intro && <p className="hint-memo-intro">{intro}</p>}
       <p className="hint-memo-body">{body}</p>
+      {onNextHint && (
+        <div className="hint-memo-actions">
+          <button type="button" className="hud-btn hint-memo-next" onClick={onNextHint}>
+            다음 힌트
+          </button>
+        </div>
+      )}
     </div>
   );
 }

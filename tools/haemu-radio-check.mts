@@ -81,3 +81,20 @@ assert.equal(flow.includes('2:30'), true);
 assert.equal(flow.includes('formatCartClock'), true);
 assert.equal(themeSrc.includes('2분 30초(150초)'), true);
 assert.equal(themeSrc.includes('80초짜리 + 20초짜리'), true);
+
+// Popup UX: contained sheet scroll + next-hint control (no page scrollbar).
+assert.equal(flow.includes('radio-popup'), true);
+assert.equal(flow.includes('radio-popup-scroll'), true);
+assert.equal(flow.includes('radio-popup-scrim'), true);
+assert.equal(flow.includes('radio-popup-panel'), true);
+assert.equal(flow.includes("data-open={mode ? 'yes' : undefined}"), true);
+assert.equal(themePlay.includes('onNextHint'), true);
+assert.equal(themePlay.includes('canNextHint'), true);
+const hintMemo = readFileSync(new URL('../src/engine/ui/HintMemo.tsx', import.meta.url), 'utf8');
+assert.equal(hintMemo.includes('다음 힌트'), true);
+const css = readFileSync(new URL('../src/app/globals.css', import.meta.url), 'utf8');
+assert.equal(css.includes("html:has(.theme-play)"), true);
+assert.equal(css.includes(".radio-flow[data-open='yes']"), true);
+assert.equal(css.includes('radio-popup-scroll'), true);
+assert.equal(css.includes('radio-popup-scrim'), true);
+assert.equal(css.includes('radio-popup-panel'), true);

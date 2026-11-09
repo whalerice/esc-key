@@ -369,10 +369,11 @@ export function ThemePlay({
       const lines = theme.smallTalk?.[hintChannel];
       const at = talkRef.current[hintChannel] ?? 0;
       const chat = smallTalkLine(lines, at);
-      if (chat) {
-        talkRef.current[hintChannel] = nextSmallTalkIndex(lines?.length ?? 0, at);
+      if (chat && lines?.length) {
+        const shown = Math.min(at, lines.length - 1) + 1;
+        talkRef.current[hintChannel] = nextSmallTalkIndex(lines.length, at);
         setHintBody(chat);
-        setHintStepLabel('잡담');
+        setHintStepLabel(`잡담 ${shown}/${lines.length}`);
         setHintIntro(undefined);
         setHintOpen(true);
         return;
@@ -390,6 +391,21 @@ export function ThemePlay({
     setHintIntro(theme.hints[activePuzzle]?.intro);
     setHintOpen(true);
   }, [activePuzzle, hintChannel, hintsUsed, theme.hints, theme.smallTalk, useStore]);
+
+  const canNextHint = useMemo(() => {
+    if (!hintOpen || !activePuzzle || hintBody == null) return false;
+    if (hintBody === '더 이상 열 힌트가 없어요.') return false;
+    const used = (hintsUsed[activePuzzle] ?? 0) as 0 | 1 | 2 | 3;
+    if (used < 3) return true;
+    const lines = theme.smallTalk?.[hintChannel];
+    if (!lines?.length) return false;
+    if (hintStepLabel?.startsWith('잡담')) {
+      const m = /^잡담 (\d+)\/(\d+)$/.exec(hintStepLabel);
+      if (!m) return false;
+      return Number(m[1]) < Number(m[2]);
+    }
+    return true;
+  }, [hintOpen, activePuzzle, hintBody, hintsUsed, theme.smallTalk, hintChannel, hintStepLabel]);
 
   return (
     <div className="theme-play" data-theme={theme.id}>
@@ -468,6 +484,7 @@ export function ThemePlay({
           stepLabel={hintStepLabel}
           body={hintBody}
           onClose={() => setHintOpen(false)}
+          onNextHint={canNextHint ? onHint : undefined}
         />
       )}
 

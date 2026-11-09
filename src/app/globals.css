@@ -29,6 +29,13 @@ body {
   -webkit-touch-callout: none;
 }
 
+/* Play shell fills the viewport — no document scrollbar beside the stage. */
+html:has(.theme-play),
+body:has(.theme-play) {
+  height: 100%;
+  overflow: hidden;
+}
+
 a {
   color: var(--accent);
   text-decoration: none;
@@ -152,12 +159,75 @@ button {
   align-items: flex-start;
   /* Scene hit targets sit under the flow; empty flow area must not swallow taps. */
   pointer-events: none;
+  /* Never scroll the stage — sheets scroll inside .radio-popup-scroll. */
+  overflow: hidden;
   /* Clear .radio-nav-layer (room label + one nav row) now that nav is a sibling. */
   padding-top: 5.25rem;
 }
 
 .radio-flow > * {
   pointer-events: auto;
+}
+
+/* Contained puzzle popup: dim stage, scroll only inside the panel. */
+.radio-flow[data-open='yes'] {
+  inset: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 36;
+  padding: calc(52px + var(--safe-top)) calc(88px + var(--safe-right))
+    calc(22% + var(--safe-bottom)) calc(12px + var(--safe-left));
+  align-items: center;
+  justify-content: flex-start;
+  background: rgba(8, 12, 16, 0.55);
+  pointer-events: auto;
+  overflow: hidden;
+}
+
+.radio-flow[data-open='yes'] .radio-popup {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.45rem;
+  width: min(100%, 46rem);
+  max-height: 100%;
+  min-height: 0;
+  pointer-events: auto;
+}
+
+.radio-flow[data-open='yes'] .radio-popup-close {
+  align-self: flex-end;
+  flex: none;
+  min-height: 44px;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #6a7378;
+  border-radius: 4px;
+  color: #f0ebe3;
+  background:
+    radial-gradient(circle at 40% 28%, rgba(255, 255, 255, 0.1), transparent 55%),
+    linear-gradient(180deg, #4a555c 0%, #2a333a 48%, #151c22 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(220, 230, 235, 0.25),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65);
+}
+
+.radio-flow[data-open='yes'] .radio-popup-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  padding-right: 0.15rem;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Room nav above scene hits (26) so cart/door targets cannot cover 작가석 etc. */
@@ -180,8 +250,8 @@ button {
   pointer-events: auto;
 }
 
-/* Extra roof-door row under the main nav. */
-.radio-nav-layer:has(> .radio-row:nth-child(3)) + .radio-flow {
+/* Extra roof-door row under the main nav (idle only — open popup owns its padding). */
+.radio-nav-layer:has(> .radio-row:nth-child(3)) + .radio-flow:not([data-open='yes']) {
   padding-top: 8rem;
 }
 
@@ -1387,6 +1457,17 @@ html[data-radio-hits='show'] .radio-hit {
     0 16px 36px rgba(0, 0, 0, 0.5);
 }
 
+.theme-play[data-theme='haemu-radio'] .hint-memo-next {
+  border-color: rgba(176, 141, 79, 0.65);
+  color: #f0ebe3;
+  background:
+    radial-gradient(circle at 40% 28%, rgba(255, 255, 255, 0.1), transparent 55%),
+    linear-gradient(180deg, #4a555c 0%, #2a333a 48%, #151c22 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(220, 230, 235, 0.2),
+    0 0 0 1px rgba(176, 141, 79, 0.35);
+}
+
 .banner {
   position: absolute;
   top: calc(8px + var(--safe-top));
@@ -1436,6 +1517,20 @@ html[data-radio-hits='show'] .radio-hit {
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 0.75rem;
+}
+
+.hint-memo-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.hint-memo-next {
+  min-height: 44px;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid rgba(196, 165, 116, 0.55);
+  background: rgba(196, 165, 116, 0.18);
 }
 
 .hint-memo-step {

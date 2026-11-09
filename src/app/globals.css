@@ -169,7 +169,9 @@ button {
   pointer-events: auto;
 }
 
-/* Contained puzzle popup: full-stage scrim + dense machine panel (hint-like). */
+/* Contained puzzle popup: full-stage scrim + dense machine panel (hint-like).
+   Open padding clears HUD / caption chrome only — not the full 22% narration band —
+   so P1 cue + keypad can fit on a 1920×1080 stage with little/no inner scroll. */
 .radio-flow[data-open='yes'] {
   inset: 0;
   left: 0;
@@ -177,8 +179,8 @@ button {
   top: 0;
   bottom: 0;
   z-index: 36;
-  padding: calc(52px + var(--safe-top)) calc(88px + var(--safe-right))
-    calc(22% + var(--safe-bottom)) calc(12px + var(--safe-left));
+  padding: calc(48px + var(--safe-top)) calc(88px + var(--safe-right))
+    calc(4.5rem + var(--safe-bottom)) calc(12px + var(--safe-left));
   align-items: center;
   justify-content: center;
   background: transparent;
@@ -216,6 +218,8 @@ button {
   align-items: center;
   justify-content: center;
   width: 100%;
+  /* Fill the padded slot so panel max-height % resolves against full available height. */
+  height: 100%;
   max-height: 100%;
   min-height: 0;
   pointer-events: none;
@@ -229,6 +233,7 @@ button {
   align-items: stretch;
   gap: 0.45rem;
   width: min(100%, 46rem);
+  /* Grow with content up to the full open-flow slot (was visually capped by 22% pad). */
   max-height: 100%;
   min-height: 0;
   padding: 0.55rem 0.65rem 0.7rem;

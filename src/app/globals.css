@@ -161,8 +161,8 @@ button {
   pointer-events: none;
   /* Never scroll the stage — sheets scroll inside .radio-popup-scroll. */
   overflow: hidden;
-  /* Clear .radio-nav-layer (room label + one nav row) now that nav is a sibling. */
-  padding-top: 5.25rem;
+  /* Clear room label only — exits sit on scene edges. */
+  padding-top: 3.25rem;
 }
 
 .radio-flow > * {
@@ -372,17 +372,11 @@ button {
     0 6px 14px rgba(18, 25, 31, 0.28);
 }
 
-/* Room nav above scene hits (26) so cart/door targets cannot cover 작가석 etc. */
+/* Room label + edge exits above scene hits (26). */
 .radio-nav-layer {
   position: absolute;
   z-index: 28;
-  left: 64px;
-  right: 108px;
-  top: 64px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.45rem;
+  inset: 0;
   pointer-events: none;
   color: #f2efe8;
   text-shadow: 0 1px 2px #000;
@@ -392,14 +386,77 @@ button {
   pointer-events: auto;
 }
 
-/* Extra roof-door row under the main nav (idle only — open popup owns its padding). */
-.radio-nav-layer:has(> .radio-row:nth-child(3)) + .radio-flow:not([data-open='yes']) {
-  padding-top: 8rem;
+.radio-nav-layer .radio-room {
+  position: absolute;
+  left: 64px;
+  top: 64px;
+}
+
+/* Spatial exit arrows — edge-anchored, not labeled room chrome. */
+.radio-exit {
+  position: absolute;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid #6a7378;
+  border-radius: 4px;
+  color: #f0ebe3;
+  background:
+    radial-gradient(circle at 40% 28%, rgba(255, 255, 255, 0.1), transparent 55%),
+    linear-gradient(180deg, #4a555c 0%, #2a333a 48%, #151c22 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(220, 230, 235, 0.25),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.radio-exit > span {
+  font-size: 1.15rem;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+.radio-exit[data-dir='left'] {
+  left: max(12px, env(safe-area-inset-left, 0px));
+  top: 44%;
+}
+
+.radio-exit[data-dir='right'] {
+  right: max(12px, calc(env(safe-area-inset-right, 0px) + 72px));
+  top: 44%;
+}
+
+.radio-exit[data-dir='up'] {
+  left: 50%;
+  top: max(56px, calc(env(safe-area-inset-top, 0px) + 52px));
+  transform: translateX(-50%);
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.radio-exit[data-dir='back'] {
+  left: 50%;
+  bottom: max(72px, calc(env(safe-area-inset-bottom, 0px) + 64px));
+  transform: translateX(-50%);
+  flex-direction: column-reverse;
+  gap: 0.15rem;
+}
+
+/* Puzzle popup owns the stage — hide edge exits while open. */
+.radio-nav-layer:has(+ .radio-flow[data-open='yes']) .radio-exit {
+  display: none;
 }
 
 .radio-flow button,
 .radio-flow input[type='range'],
-.radio-nav-layer button,
+.radio-nav-layer button:not(.radio-exit),
 .lighthouse-flow button,
 .lighthouse-flow input[type='range'],
 .tailor-flow button,
@@ -585,11 +642,12 @@ html[data-radio-hits='show'] .radio-hit {
   height: 12%;
 }
 
+/* Booth door (glass shows recording booth) — slightly wider for mic/console view. */
 .radio-hit[data-hit='door'] {
-  left: 70%;
-  top: 12%;
-  width: 14%;
-  height: 66%;
+  left: 68%;
+  top: 10%;
+  width: 18%;
+  height: 70%;
 }
 
 /* Booth (rooms/booth.png) */
@@ -658,9 +716,7 @@ html[data-radio-hits='show'] .radio-hit {
 }
 
 .radio-flow .radio-nav,
-.radio-flow .radio-prop,
-.radio-nav-layer .radio-nav,
-.radio-nav-layer .radio-prop {
+.radio-flow .radio-prop {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -668,8 +724,7 @@ html[data-radio-hits='show'] .radio-hit {
   color: #e9e2d2;
 }
 
-.radio-flow .radio-nav,
-.radio-nav-layer .radio-nav {
+.radio-flow .radio-nav {
   border-color: #6a7378;
   border-radius: 4px;
   color: #f0ebe3;
@@ -683,16 +738,13 @@ html[data-radio-hits='show'] .radio-hit {
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65);
 }
 
-.radio-flow .radio-prop,
-.radio-nav-layer .radio-prop {
+.radio-flow .radio-prop {
   background: rgba(18, 25, 31, 0.82);
   border-color: #b08d4f;
 }
 
 .radio-flow .radio-nav img,
-.radio-flow .radio-prop img,
-.radio-nav-layer .radio-nav img,
-.radio-nav-layer .radio-prop img {
+.radio-flow .radio-prop img {
   width: 36px;
   height: 36px;
   flex: none;

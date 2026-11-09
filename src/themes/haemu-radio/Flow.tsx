@@ -204,7 +204,6 @@ export function RadioFlow({
   const next = ORDER.find((id) => !solved[id]) ?? '끝';
   const go = (to: string) => {
     const s = useRadioStore.getState();
-    if (to === 'booth' && !s.solved.P1) return say(spoken('need.booth'));
     if (to === 'desk' && !s.solved.P3) return say(spoken('need.desk'));
     if (to === 'archive' && !s.solved.P5) return say(spoken('p5.locked'));
     if (to === 'roof' && !s.solved.P7) return say(spoken('p7.door'));
@@ -269,15 +268,16 @@ export function RadioFlow({
       <div className="radio-hits-layer">
         <div className="radio-frame">
           <div className="radio-hits">
-            {!solved.P1 && (
-              <button
-                type="button"
-                className="radio-hit"
-                data-hit="door"
-                aria-label="부스 문"
-                onClick={() => setMode('p1')}
-              />
-            )}
+            <button
+              type="button"
+              className="radio-hit"
+              data-hit="door"
+              aria-label="부스 문"
+              onClick={() => {
+                if (!solved.P1) return setMode('p1');
+                useRadioStore.getState().setScene('booth');
+              }}
+            />
             <button
               type="button"
               className="radio-hit"
@@ -397,7 +397,6 @@ export function RadioFlow({
       </p>
       <div className="radio-row">
         {scene !== 'control' && <Prop nav onClick={() => go('control')}>부조정실</Prop>}
-        {scene !== 'booth' && <Prop nav onClick={() => go('booth')}>부스</Prop>}
         {scene !== 'desk' && <Prop nav onClick={() => go('desk')}>작가석</Prop>}
         {solved.P5 && scene !== 'archive' && <Prop nav onClick={() => go('archive')}>아카이브실</Prop>}
         {solved.P4 && !solved.P5 && <Prop nav icon="door" onClick={() => setMode('lock')}>아카이브 문</Prop>}

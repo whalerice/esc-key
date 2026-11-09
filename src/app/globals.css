@@ -614,42 +614,42 @@ html[data-radio-hits='show'] .radio-hit {
   height: 22%;
 }
 
-/* Writer's desk (rooms/desk.png) */
+/* Writer's desk (rooms/desk.png) — 4-panel cue board + letter slot 2 */
 .radio-hit[data-hit='board'] {
-  left: 34%;
-  top: 40%;
-  width: 34%;
-  height: 34%;
+  left: 36%;
+  top: 42%;
+  width: 30%;
+  height: 32%;
 }
 
 .radio-hit[data-hit='letter'] {
   left: 42%;
-  top: 46%;
-  width: 12%;
-  height: 28%;
-}
-
-/* Archive (rooms/archive.png) — left shelves + desk walkie */
-.radio-hit[data-hit='tape'] {
-  left: 6%;
-  top: 16%;
-  width: 34%;
-  height: 54%;
-}
-
-.radio-hit[data-hit='walkie'] {
-  left: 72%;
-  top: 54%;
+  top: 48%;
   width: 12%;
   height: 26%;
 }
 
-/* Roof (rooms/roof.png) — center TX cabinet */
+/* Archive (rooms/archive.png) — left shelves + desk walkie */
+.radio-hit[data-hit='tape'] {
+  left: 4%;
+  top: 14%;
+  width: 36%;
+  height: 56%;
+}
+
+.radio-hit[data-hit='walkie'] {
+  left: 70%;
+  top: 52%;
+  width: 12%;
+  height: 28%;
+}
+
+/* Roof (rooms/roof.png) — center-right TX cabinet */
 .radio-hit[data-hit='tower'] {
-  left: 40%;
-  top: 42%;
-  width: 26%;
-  height: 32%;
+  left: 44%;
+  top: 38%;
+  width: 30%;
+  height: 34%;
 }
 
 .radio-flow > * {

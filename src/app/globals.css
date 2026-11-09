@@ -169,7 +169,7 @@ button {
   pointer-events: auto;
 }
 
-/* Contained puzzle popup: dim stage, scroll only inside the panel. */
+/* Contained puzzle popup: full-stage scrim + dense machine panel (hint-like). */
 .radio-flow[data-open='yes'] {
   inset: 0;
   left: 0;
@@ -180,13 +180,50 @@ button {
   padding: calc(52px + var(--safe-top)) calc(88px + var(--safe-right))
     calc(22% + var(--safe-bottom)) calc(12px + var(--safe-left));
   align-items: center;
-  justify-content: flex-start;
-  background: rgba(8, 12, 16, 0.55);
+  justify-content: center;
+  background: transparent;
   pointer-events: auto;
   overflow: hidden;
 }
 
+.radio-flow[data-open='yes'] .radio-popup-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  margin: 0;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 0;
+  min-width: 0;
+  min-height: 0;
+  width: auto;
+  height: auto;
+  cursor: pointer;
+  pointer-events: auto;
+  background:
+    radial-gradient(ellipse 62% 48% at 50% 40%, rgba(24, 32, 40, 0.35), transparent 70%),
+    rgba(2, 4, 6, 0.88) !important;
+  box-shadow: none !important;
+  text-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .radio-flow[data-open='yes'] .radio-popup {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-height: 100%;
+  min-height: 0;
+  pointer-events: none;
+}
+
+.radio-flow[data-open='yes'] .radio-popup-panel {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -194,11 +231,63 @@ button {
   width: min(100%, 46rem);
   max-height: 100%;
   min-height: 0;
+  padding: 0.55rem 0.65rem 0.7rem;
   pointer-events: auto;
+  color: #e8e2d6;
+  text-shadow: none;
+  border: 2px solid #0c1014;
+  border-radius: 3px;
+  background-color: #1a2228;
+  background-image:
+    radial-gradient(circle at 10px 10px, #5a646a 0 2px, transparent 2.5px),
+    radial-gradient(circle at calc(100% - 10px) 10px, #5a646a 0 2px, transparent 2.5px),
+    radial-gradient(circle at 10px calc(100% - 10px), #5a646a 0 2px, transparent 2.5px),
+    radial-gradient(circle at calc(100% - 10px) calc(100% - 10px), #5a646a 0 2px, transparent 2.5px),
+    radial-gradient(ellipse 70% 48% at 22% 12%, rgba(191, 202, 208, 0.18), transparent 62%),
+    radial-gradient(ellipse 40% 30% at 88% 78%, rgba(176, 141, 79, 0.16), transparent 70%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.035) 0 1px,
+      transparent 1px 3px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.06) 0 1px,
+      transparent 1px 4px
+    ),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.07 0 0 0 0 0.09 0 0 0 0.45 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(165deg, #3a444c 0%, #1a2228 48%, #0c1014 100%);
+  background-blend-mode: normal, normal, normal, normal, normal, soft-light, overlay, multiply, multiply, normal;
+  box-shadow:
+    inset 0 1px 0 rgba(191, 202, 208, 0.34),
+    inset 0 -16px 26px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(176, 141, 79, 0.28),
+    0 22px 48px rgba(0, 0, 0, 0.72),
+    0 0 0 1px rgba(176, 141, 79, 0.55),
+    0 0 0 5px rgba(8, 12, 16, 0.7);
+}
+
+.radio-flow[data-open='yes'] .radio-popup-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: none;
+  min-height: 44px;
+  padding: 0.15rem 0.15rem 0.35rem;
+  border-bottom: 1px solid rgba(176, 141, 79, 0.28);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+}
+
+.radio-flow[data-open='yes'] .radio-popup-title {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: #b08d4f;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65);
 }
 
 .radio-flow[data-open='yes'] .radio-popup-close {
-  align-self: flex-end;
+  margin-left: auto;
   flex: none;
   min-height: 44px;
   padding: 0.35rem 0.75rem;
@@ -211,6 +300,7 @@ button {
   box-shadow:
     inset 0 1px 0 rgba(220, 230, 235, 0.25),
     inset 0 -3px 0 rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(176, 141, 79, 0.35),
     0 2px 4px rgba(0, 0, 0, 0.35);
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65);
 }
@@ -225,9 +315,56 @@ button {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.45rem;
-  padding-right: 0.15rem;
+  gap: 0.55rem;
+  padding: 0.45rem 0.2rem 0.25rem 0.05rem;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Nested sheets inside dense chassis — keep paper/machine feel, drop outer float. */
+.radio-flow[data-open='yes'] .radio-popup-scroll > .radio-sheet {
+  max-width: 100%;
+  width: 100%;
+}
+
+.radio-flow[data-open='yes'] .radio-popup-scroll > .radio-sheet:has(.cuesheet) {
+  --ink: #2c2822;
+  max-width: 100%;
+  padding: 0.7rem 0.85rem 0.85rem;
+  border: 1px solid #5a4330;
+  border-radius: 1px 3px 2px 1px;
+  color: var(--ink);
+  background-color: #e6d8bc;
+  background-image:
+    radial-gradient(ellipse 48% 34% at 88% 10%, rgba(107, 78, 58, 0.28), transparent 68%),
+    radial-gradient(ellipse 30% 22% at 14% 82%, rgba(90, 60, 40, 0.2), transparent 70%),
+    radial-gradient(ellipse 18% 12% at 62% 48%, rgba(120, 80, 40, 0.12), transparent 75%),
+    linear-gradient(118deg, rgba(255, 248, 230, 0.42), transparent 38%, rgba(70, 52, 30, 0.14) 100%),
+    repeating-linear-gradient(
+      0deg,
+      rgba(60, 48, 30, 0.055) 0 1px,
+      transparent 1px 3px
+    ),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.14 0 0 0 0 0.07 0 0 0 0.38 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-blend-mode: multiply, multiply, multiply, soft, multiply, multiply;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 230, 0.5),
+    inset 0 -14px 22px rgba(70, 50, 30, 0.18),
+    inset 0 0 0 1px rgba(90, 70, 40, 0.18),
+    0 8px 18px rgba(8, 12, 16, 0.35),
+    0 1px 0 rgba(176, 141, 79, 0.3);
+}
+
+.radio-flow[data-open='yes'] .radio-popup-scroll > .radio-sheet:has(.cuesheet) > p {
+  color: var(--ink);
+  text-shadow: none;
+  max-width: none;
+}
+
+.radio-flow[data-open='yes'] .radio-popup-scroll > .radio-sheet:has(.cuesheet) .cuesheet {
+  width: min(100%, 440px);
+  box-shadow:
+    1px 2px 0 rgba(90, 70, 40, 0.18),
+    0 6px 14px rgba(18, 25, 31, 0.28);
 }
 
 /* Room nav above scene hits (26) so cart/door targets cannot cover 작가석 etc. */

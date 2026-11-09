@@ -98,3 +98,6 @@ assert.equal(css.includes(".radio-flow[data-open='yes']"), true);
 assert.equal(css.includes('radio-popup-scroll'), true);
 assert.equal(css.includes('radio-popup-scrim'), true);
 assert.equal(css.includes('radio-popup-panel'), true);
+// Taller open popup: HUD/caption clearance only (not full 22% narration band) + slot height.
+assert.equal(css.includes('calc(4.5rem + var(--safe-bottom))'), true);
+assert.match(css, /\.radio-flow\[data-open='yes'\] \.radio-popup\s*\{[^}]*height:\s*100%/);

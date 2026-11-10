@@ -61,18 +61,24 @@ export function formatCartClock(sec: number): string {
   return `${m}:${String(s % 60).padStart(2, '0')}`;
 }
 
-export function judgeP3(
-  queue: readonly (string | null)[],
-): 'ok' | 'short' | 'long' | 'rule' | 'close' {
+export type P3Judge =
+  | 'ok'
+  | 'short'
+  | 'long'
+  | 'close'
+  | 'rule-call'
+  | 'rule-ad'
+  | 'rule-weather'
+  | 'rule';
+
+export function judgeP3(queue: readonly (string | null)[]): P3Judge {
   const ids = queue.filter((id): id is string => !!id);
   if (ids.length === 0) return 'short';
   const secs = cartQueueSecs(ids);
+  if (ids[0] !== 'call') return 'rule-call';
   const second = ids[1];
-  const rule =
-    ids[0] !== 'call' ||
-    ids[ids.length - 1] !== 'weather' ||
-    (second != null && !!cartById.get(second as CartId)?.ad);
-  if (rule) return 'rule';
+  if (second != null && !!cartById.get(second as CartId)?.ad) return 'rule-ad';
+  if (ids[ids.length - 1] !== 'weather') return 'rule-weather';
   if (ids.join() === P3_ANSWER.join() && secs === P3_TARGET_SEC) return 'ok';
   if (secs !== P3_TARGET_SEC && Math.abs(secs - P3_TARGET_SEC) <= P3_CLOSE_SEC) return 'close';
   if (secs < P3_TARGET_SEC) return 'short';
@@ -259,7 +265,9 @@ export function assertRadioAnswers(): void {
   if (judgeP3(P3_ANSWER) !== 'ok') throw new Error('P3 ok');
   if (judgeP3(['call', 'weather']) !== 'short') throw new Error('P3 short');
   if (judgeP3(['call', 'archive', 'campaign', 'fish', 'weather']) !== 'long') throw new Error('P3 long');
-  if (judgeP3(['call', 'fish', 'archive', 'weather']) !== 'rule') throw new Error('P3 rule');
+  if (judgeP3(['fish', 'call', 'archive', 'weather']) !== 'rule-call') throw new Error('P3 rule-call');
+  if (judgeP3(['call', 'fish', 'archive', 'weather']) !== 'rule-ad') throw new Error('P3 rule-ad');
+  if (judgeP3(['call', 'archive', 'weather', 'fish']) !== 'rule-weather') throw new Error('P3 rule-weather');
   if (judgeP3(['call', 'archive', 'jingle', 'weather']) !== 'close') throw new Error('P3 close');
   if (judgeP3(['call', 'archive', 'campaign', 'weather']) !== 'close') throw new Error('P3 close long');
   if (formatCartClock(150) !== '2:30') throw new Error('P3 clock');

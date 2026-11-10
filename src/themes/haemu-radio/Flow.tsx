@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ComponentProps, type MutableRefObject, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import type { SayFn } from '@/engine/ui/caption';
 import { Howl } from 'howler';
-import { DISTANCE, RadioBed } from '@/engine/audio/RadioBed';
+import { DISTANCE, RadioBed, type DistancePreset } from '@/engine/audio/RadioBed';
 import { playHtml5Clip } from '@/engine/audio/html5Clip';
 import { isAudioUnlocked } from '@/engine/audio/SoundManager';
 import { useAppStore } from '@/engine/save/appStore';
@@ -67,12 +67,13 @@ const ROOM: Record<string, string> = {
   roof: '옥상',
 };
 
-const DISTANCE_BY: Record<string, (typeof DISTANCE)[keyof typeof DISTANCE]> = {
-  booth: DISTANCE.clear,
-  control: DISTANCE.near,
-  desk: DISTANCE.near,
-  archive: DISTANCE.far,
-  roof: DISTANCE.buried,
+/** Room distance vs booth speakers. Softened near/far so richer beds do not blast. */
+const DISTANCE_BY: Record<string, DistancePreset> = {
+  booth: { cutoffHz: 14000, volume: 0.85 },
+  control: { cutoffHz: 4200, volume: 0.62 },
+  desk: { cutoffHz: 3800, volume: 0.58 },
+  archive: { cutoffHz: 1000, volume: 0.32 },
+  roof: { cutoffHz: 380, volume: 0.12 },
 };
 
 const P2_STATIONS: TuningStation[] = [{ freq: P2_HZ, width: 0.2, soundId: 'aircheck' }];
@@ -110,12 +111,22 @@ function Prop({
 
 const sfxHowls = new Map<string, Howl>();
 
-function radioSfx(url: string) {
+/** Per-clip gain. Reject beeps stay quieter than success clicks. */
+const SFX_VOL: Record<string, number> = {
+  [SFX_SRC.beep]: 0.28,
+  [SFX_SRC.cart]: 0.4,
+  [SFX_SRC.lock]: 0.34,
+  [SFX_SRC.tape]: 0.36,
+};
+
+function radioSfx(url: string, volume = SFX_VOL[url] ?? 0.32) {
   if (!isAudioUnlocked()) return;
   let howl = sfxHowls.get(url);
   if (!howl) {
-    howl = new Howl({ src: [url], volume: 0.35 });
+    howl = new Howl({ src: [url], volume });
     sfxHowls.set(url, howl);
+  } else {
+    howl.volume(volume);
   }
   howl.play();
 }
@@ -173,7 +184,11 @@ export function RadioFlow({
         s.setFlag('silence');
         say(spoken('p3.alarm'));
       }
-      const distance = s.scene === 'roof' && s.extra.txLocked ? DISTANCE.clear : (DISTANCE_BY[s.scene] ?? DISTANCE.near);
+      // TX lock: booth-clear, not DISTANCE.clear (vol 1) — beds sit quieter after polish.
+      const distance =
+        s.scene === 'roof' && s.extra.txLocked
+          ? DISTANCE_BY.booth
+          : (DISTANCE_BY[s.scene] ?? DISTANCE.near);
       const key = `${distance.cutoffHz}`;
       if (key !== prevDistance) {
         prevDistance = key;
@@ -204,7 +219,6 @@ export function RadioFlow({
   const next = ORDER.find((id) => !solved[id]) ?? '끝';
   const go = (to: string) => {
     const s = useRadioStore.getState();
-    if (to === 'booth' && !s.solved.P1) return say(spoken('need.booth'));
     if (to === 'desk' && !s.solved.P3) return say(spoken('need.desk'));
     if (to === 'archive' && !s.solved.P5) return say(spoken('p5.locked'));
     if (to === 'roof' && !s.solved.P7) return say(spoken('p7.door'));
@@ -240,7 +254,8 @@ export function RadioFlow({
   const archiveHits = scene === 'archive';
   const roofHits = scene === 'roof';
   const showRoofKey = controlHits && !solved.P7 && items.includes(KEYRING_ID);
-  const showRoofHint = controlHits && !items.includes(KEYRING_ID) && !!solved.P6;
+  const showRoofHint =
+    controlHits && !solved.P7 && !items.includes(KEYRING_ID) && !!solved.P6;
   const showLetterPlace = deskHits && items.includes('팔칠구의 편지') && !extra.letterPlaced;
   const showArchiveTape = archiveHits && !solved.P6;
   const showArchiveWalkie = archiveHits && !!solved.P6 && !solved.P7;
@@ -269,15 +284,16 @@ export function RadioFlow({
       <div className="radio-hits-layer">
         <div className="radio-frame">
           <div className="radio-hits">
-            {!solved.P1 && (
-              <button
-                type="button"
-                className="radio-hit"
-                data-hit="door"
-                aria-label="부스 문"
-                onClick={() => setMode('p1')}
-              />
-            )}
+            <button
+              type="button"
+              className="radio-hit"
+              data-hit="door"
+              aria-label="부스 문"
+              onClick={() => {
+                if (!solved.P1) return setMode('p1');
+                useRadioStore.getState().setScene('booth');
+              }}
+            />
             <button
               type="button"
               className="radio-hit"
@@ -390,164 +406,305 @@ export function RadioFlow({
         </div>
       </div>
     )}
-    {/* Above .radio-hits-layer (26): booth cart / other scene hits must not steal room nav taps. */}
+    {/* Above .radio-hits-layer (26): exits share .radio-frame % so they sit on painted doors. */}
     <div className="radio-nav-layer" data-scene={scene} data-next={next}>
       <p className="radio-room">
         {ROOM[scene] ?? scene} · {next}
       </p>
-      <div className="radio-row">
-        {scene !== 'control' && <Prop nav onClick={() => go('control')}>부조정실</Prop>}
-        {scene !== 'booth' && <Prop nav onClick={() => go('booth')}>부스</Prop>}
-        {scene !== 'desk' && <Prop nav onClick={() => go('desk')}>작가석</Prop>}
-        {solved.P5 && scene !== 'archive' && <Prop nav onClick={() => go('archive')}>아카이브실</Prop>}
-        {solved.P4 && !solved.P5 && <Prop nav icon="door" onClick={() => setMode('lock')}>아카이브 문</Prop>}
-        {solved.P7 && scene !== 'roof' && <Prop nav onClick={() => go('roof')}>옥상</Prop>}
+      <div className="radio-frame radio-exits">
+        {controlHits && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="left"
+            aria-label="작가방 가기"
+            onClick={() => go('desk')}
+          >
+            <span aria-hidden>‹</span>
+            작가방
+          </button>
+        )}
+        {boothHits && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="left"
+            aria-label="부조정실 가기"
+            onClick={() => go('control')}
+          >
+            <span aria-hidden>‹</span>
+            부조정실
+          </button>
+        )}
+        {boothHits && solved.P4 && !solved.P5 && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="right"
+            data-exit="archive"
+            aria-label="아카이브 문"
+            onClick={() => setMode('lock')}
+          >
+            <span className="radio-exit-badge">
+              아카이브 문
+              <span aria-hidden>›</span>
+            </span>
+          </button>
+        )}
+        {boothHits && solved.P5 && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="right"
+            data-exit="archive"
+            aria-label="아카이브실 가기"
+            onClick={() => go('archive')}
+          >
+            <span className="radio-exit-badge">
+              아카이브
+              <span aria-hidden>›</span>
+            </span>
+          </button>
+        )}
+        {deskHits && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="right"
+            data-exit="control"
+            aria-label="부조정실 가기"
+            onClick={() => go('control')}
+          >
+            부조정실
+            <span aria-hidden>›</span>
+          </button>
+        )}
+        {archiveHits && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="left"
+            aria-label="부스 가기"
+            onClick={() => go('booth')}
+          >
+            <span aria-hidden>‹</span>
+            부스
+          </button>
+        )}
+        {roofHits && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="left"
+            data-exit="stair"
+            aria-label="부조정실 가기"
+            onClick={() => go('control')}
+          >
+            <span aria-hidden>‹</span>
+            부조정실
+          </button>
+        )}
+        {controlHits && solved.P7 && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="up"
+            aria-label="옥상 가기"
+            onClick={() => go('roof')}
+          >
+            <span aria-hidden>∧</span>
+            옥상
+          </button>
+        )}
+        {showRoofKey && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="up"
+            data-use-target={ROOF_LOCK_ID}
+            aria-label="옥상 문"
+            onClick={() => {
+              // Keyring already in bag → arm tags immediately (no bag-select dance).
+              setArmed(true);
+              setMode('keys');
+            }}
+          >
+            <span aria-hidden>∧</span>
+            옥상 문
+          </button>
+        )}
+        {showRoofHint && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="up"
+            aria-label="옥상 문"
+            onClick={() => say(spoken('p7.door'))}
+          >
+            <span aria-hidden>∧</span>
+            옥상 문
+          </button>
+        )}
       </div>
-      {(showRoofKey || showRoofHint) && (
-        <div className="radio-row">
-          {showRoofKey && (
-            <Prop icon="door" data-use-target={ROOF_LOCK_ID} onClick={() => setMode('keys')}>
-              옥상 문
-            </Prop>
-          )}
-          {showRoofHint && (
-            <Prop icon="door" onClick={() => say(spoken('p7.door'))}>옥상 문</Prop>
-          )}
-        </div>
-      )}
     </div>
-    <div className="radio-flow" data-scene={scene} data-next={next}>
-      {mode === 'p1' && <P1 say={say} />}
-      {mode === 'p2' && (
-        <TunePanel
-          start={87}
-          perTurn={1}
-          stations={P2_STATIONS}
-          holdMs={P2_HOLD_MS}
-          match={(freq) => (inBand(freq, P2_HZ, P2_TOL) ? 'air' : null)}
-          onFreq={(freq, sig) => {
-            signal.current = sig;
-            tuning.current = true;
-            if (!tease.current && isP2Tease(freq)) {
-              tease.current = true;
-              const url = clips.current.tease;
-              if (url) playHtml5Clip(url);
-              say(spoken('p2.tease'));
-            }
-          }}
-          onStop={() => {
-            tuning.current = false;
-          }}
-          onHold={() => {
-            const s = useRadioStore.getState();
-            if (s.solved.P2) return;
-            s.markSolved('P2');
-            radioSfx(SFX_SRC.beep);
-            say(spoken('p2.solved'));
-            setMode(null);
-          }}
-          note={line('p2.guide')}
-        />
-      )}
-      {mode === 'p3' && <P3 say={say} queue={extra.cartQueue} onClose={() => setMode(null)} />}
-      {mode === 'p4' && <P4 say={say} board={extra.scriptBoard} onClose={() => setMode(null)} />}
-      {mode === 'p5' && (
-        <TunePanel
-          start={87.9}
-          perTurn={1}
-          stations={P5_KNOB}
-          holdMs={P5_HOLD_MS}
-          match={(freq) => {
-            const hit = stationAt(freq, p5Tol(useAppStore.getState().settings.hearingAssist));
-            if (!hit) return null;
-            if (useRadioStore.getState().extra.heardFragments.includes(hit.id)) return null;
-            return hit.id;
-          }}
-          onFreq={(_freq, sig) => {
-            signal.current = sig;
-            tuning.current = true;
-          }}
-          onStop={() => {
-            tuning.current = false;
-          }}
-          onHold={(id) => {
-            const s = useRadioStore.getState();
-            if (s.extra.heardFragments.includes(id)) return;
-            const station = P5_STATIONS.find((st) => st.id === id);
-            if (!station) return;
-            const heard = [...s.extra.heardFragments, id];
-            s.patchExtra({ heardFragments: heard });
-            const url = clips.current[id];
-            if (url) playHtml5Clip(url);
-            say(station.caption);
-            if (heard.length === 1) say(spoken('p5.first'));
-            if (heard.length === P5_STATIONS.length) say(spoken('p5.all'));
-          }}
-          note={line('p5.memo')}
-        />
-      )}
-      {mode === 'p5' && extra.heardFragments.length > 0 && (
-        <ul className="radio-notes" data-sheet="board">
-          {extra.heardFragments.map((id) => {
-            const station = P5_STATIONS.find((s) => s.id === id);
-            return <li key={id}>{station?.caption}</li>;
-          })}
-        </ul>
-      )}
-      {mode === 'lock' && <Lock say={say} onClose={() => setMode(null)} />}
-      {mode === 'p6' && (
-        <P6
-          say={say}
-          counter={scrub ?? extra.tapeCounter}
-          stopped={extra.deckStopped}
-          onScrub={setScrub}
-          rewind={rewind}
-          onCall={() => setCall(P6_CALL)}
-          onClose={() => setMode(null)}
-        />
-      )}
-      {mode === 'keys' && (
-        <Keys
-          say={say}
-          postit={extra.trapPostit}
-          armed={armed}
-          selectedItem={selectedItem}
-          onUse={(itemId) => onUseRef.current(itemId, ROOF_LOCK_ID)}
-        />
-      )}
-      {mode === 'tx' && (
-        <TunePanel
-          start={88.4}
-          perTurn={P8_PER_TURN}
-          stations={P8_STATIONS}
-          holdMs={P8_HOLD_MS}
-          match={(freq) => (inBand(freq, P8_HZ, P8_TOL) ? 'tx' : null)}
-          onFreq={(freq, sig) => {
-            signal.current = sig;
-            tuning.current = true;
-            if (!other.current && freq >= 88.5) {
-              other.current = true;
-              say(spoken('p8.other'));
-            }
-          }}
-          onStop={() => {
-            tuning.current = false;
-          }}
-          onHold={() => {
-            const s = useRadioStore.getState();
-            if (s.extra.txLocked) return;
-            s.patchExtra({ txLocked: true });
-            say(spoken('p8.locked'));
-            setMode(null);
-          }}
-          note={line('p8.guide')}
-        />
-      )}
-      {mode === 'fader' && <Fader say={say} />}
+    <div
+      className="radio-flow"
+      data-scene={scene}
+      data-next={next}
+      data-open={mode ? 'yes' : undefined}
+    >
       {mode && (
-        <Prop nav onClick={() => setMode(null)}>
-          닫기
-        </Prop>
+        <>
+          <button
+            type="button"
+            className="radio-popup-scrim"
+            aria-label="닫기"
+            onClick={() => setMode(null)}
+          />
+          <div className="radio-popup" role="dialog" aria-modal="true" aria-label="퍼즐">
+            <div className="radio-popup-panel">
+              <header className="radio-popup-head">
+                <span className="radio-popup-title">조작반</span>
+                <button
+                  type="button"
+                  className="radio-popup-close"
+                  onClick={() => setMode(null)}
+                >
+                  닫기
+                </button>
+              </header>
+              <div className="radio-popup-scroll">
+                {mode === 'p1' && <P1 say={say} />}
+                {mode === 'p2' && (
+                  <TunePanel
+                    start={87}
+                    perTurn={1}
+                    stations={P2_STATIONS}
+                    holdMs={P2_HOLD_MS}
+                    match={(freq) => (inBand(freq, P2_HZ, P2_TOL) ? 'air' : null)}
+                    onFreq={(freq, sig) => {
+                      signal.current = sig;
+                      tuning.current = true;
+                      if (!tease.current && isP2Tease(freq)) {
+                        tease.current = true;
+                        const url = clips.current.tease;
+                        if (url) playHtml5Clip(url);
+                        say(spoken('p2.tease'));
+                      }
+                    }}
+                    onStop={() => {
+                      tuning.current = false;
+                    }}
+                    onHold={() => {
+                      const s = useRadioStore.getState();
+                      if (s.solved.P2) return;
+                      s.markSolved('P2');
+                      radioSfx(SFX_SRC.beep);
+                      say(spoken('p2.solved'));
+                      setMode(null);
+                    }}
+                    note={line('p2.guide')}
+                  />
+                )}
+                {mode === 'p3' && <P3 say={say} queue={extra.cartQueue} onClose={() => setMode(null)} />}
+                {mode === 'p4' && <P4 say={say} board={extra.scriptBoard} onClose={() => setMode(null)} />}
+                {mode === 'p5' && (
+                  <TunePanel
+                    start={87.9}
+                    perTurn={1}
+                    stations={P5_KNOB}
+                    holdMs={P5_HOLD_MS}
+                    match={(freq) => {
+                      const hit = stationAt(freq, p5Tol(useAppStore.getState().settings.hearingAssist));
+                      if (!hit) return null;
+                      if (useRadioStore.getState().extra.heardFragments.includes(hit.id)) return null;
+                      return hit.id;
+                    }}
+                    onFreq={(_freq, sig) => {
+                      signal.current = sig;
+                      tuning.current = true;
+                    }}
+                    onStop={() => {
+                      tuning.current = false;
+                    }}
+                    onHold={(id) => {
+                      const s = useRadioStore.getState();
+                      if (s.extra.heardFragments.includes(id)) return;
+                      const station = P5_STATIONS.find((st) => st.id === id);
+                      if (!station) return;
+                      const heard = [...s.extra.heardFragments, id];
+                      s.patchExtra({ heardFragments: heard });
+                      const url = clips.current[id];
+                      if (url) playHtml5Clip(url);
+                      say(station.caption);
+                      if (heard.length === 1) say(spoken('p5.first'));
+                      if (heard.length === P5_STATIONS.length) say(spoken('p5.all'));
+                    }}
+                    note={line('p5.memo')}
+                  />
+                )}
+                {mode === 'p5' && extra.heardFragments.length > 0 && (
+                  <ul className="radio-notes" data-sheet="board">
+                    {extra.heardFragments.map((id) => {
+                      const station = P5_STATIONS.find((s) => s.id === id);
+                      return <li key={id}>{station?.caption}</li>;
+                    })}
+                  </ul>
+                )}
+                {mode === 'lock' && <Lock say={say} onClose={() => setMode(null)} />}
+                {mode === 'p6' && (
+                  <P6
+                    say={say}
+                    counter={scrub ?? extra.tapeCounter}
+                    stopped={extra.deckStopped}
+                    onScrub={setScrub}
+                    rewind={rewind}
+                    onCall={() => setCall(P6_CALL)}
+                    onClose={() => setMode(null)}
+                  />
+                )}
+                {mode === 'keys' && (
+                  <Keys
+                    say={say}
+                    postit={extra.trapPostit}
+                    armed={armed}
+                    selectedItem={selectedItem}
+                    onUse={(itemId) => onUseRef.current(itemId, ROOF_LOCK_ID)}
+                  />
+                )}
+                {mode === 'tx' && (
+                  <TunePanel
+                    start={88.4}
+                    perTurn={P8_PER_TURN}
+                    stations={P8_STATIONS}
+                    holdMs={P8_HOLD_MS}
+                    match={(freq) => (inBand(freq, P8_HZ, P8_TOL) ? 'tx' : null)}
+                    onFreq={(freq, sig) => {
+                      signal.current = sig;
+                      tuning.current = true;
+                      if (!other.current && freq >= 88.5) {
+                        other.current = true;
+                        say(spoken('p8.other'));
+                      }
+                    }}
+                    onStop={() => {
+                      tuning.current = false;
+                    }}
+                    onHold={() => {
+                      const s = useRadioStore.getState();
+                      if (s.extra.txLocked) return;
+                      s.patchExtra({ txLocked: true });
+                      say(spoken('p8.locked'));
+                      setMode(null);
+                    }}
+                    note={line('p8.guide')}
+                  />
+                )}
+                {mode === 'fader' && <Fader say={say} />}
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
       {call && (
@@ -716,6 +873,16 @@ function TunePanel({
   );
 }
 
+const P3_FAIL = {
+  close: 'p3.close',
+  short: 'p3.short',
+  long: 'p3.long',
+  'rule-call': 'p3.ruleCall',
+  'rule-ad': 'p3.ruleAd',
+  'rule-weather': 'p3.ruleWeather',
+  rule: 'p3.rule',
+} as const;
+
 function P3({
   say,
   queue,
@@ -774,25 +941,16 @@ function P3({
         type="button"
         data-ready={ready ? 'yes' : 'no'}
         onClick={() => {
-          radioSfx(SFX_SRC.cart);
           const result = judgeP3(queue);
           if (result === 'ok') {
+            radioSfx(SFX_SRC.cart);
             useRadioStore.getState().markSolved('P3');
             say(spoken('p3.solved'));
             onClose();
             return;
           }
-          say(
-            spoken(
-              result === 'close'
-                ? 'p3.close'
-                : result === 'short'
-                  ? 'p3.short'
-                  : result === 'long'
-                    ? 'p3.long'
-                    : 'p3.rule',
-            ),
-          );
+          radioSfx(SFX_SRC.beep, 0.18);
+          say(spoken(P3_FAIL[result]));
         }}
       >
         {ready ? '송출 · 2:30' : '송출'}
@@ -1083,12 +1241,14 @@ function Keys({
   onUse: (itemId: string | null) => void;
 }) {
   const held = useRadioStore((s) => s.items.includes(KEYRING_ID));
+  // Prefer explicit selection; else keyring if already held — bare tap no longer only plays need.
+  const useId = selectedItem ?? (held ? KEYRING_ID : null);
   return (
     <section className="radio-lock radio-sheet" data-sheet="tower" data-use-target={ROOF_LOCK_ID}>
       <p>{line('p7.need')}</p>
       {!armed && (
-        <button type="button" onClick={() => onUse(selectedItem)}>
-          {selectedItem ? `${selectedItem} 사용` : '가방에서 사용'}
+        <button type="button" onClick={() => onUse(useId)}>
+          {useId ? `${useId} 사용` : '가방에서 열쇠 꾸러미를 고른 뒤 사용'}
         </button>
       )}
       {armed && held && (

@@ -1,4 +1,4 @@
-/** Scene art and placeholder audio. Paths are public URLs. */
+/** Scene art + synth audio (see public/.../CREDITS.md). Paths are public URLs. */
 
 const root = '/themes/haemu-radio';
 

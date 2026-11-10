@@ -29,6 +29,13 @@ body {
   -webkit-touch-callout: none;
 }
 
+/* Play shell fills the viewport — no document scrollbar beside the stage. */
+html:has(.theme-play),
+body:has(.theme-play) {
+  height: 100%;
+  overflow: hidden;
+}
+
 a {
   color: var(--accent);
   text-decoration: none;
@@ -152,42 +159,377 @@ button {
   align-items: flex-start;
   /* Scene hit targets sit under the flow; empty flow area must not swallow taps. */
   pointer-events: none;
-  /* Clear .radio-nav-layer (room label + one nav row) now that nav is a sibling. */
-  padding-top: 5.25rem;
+  /* Never scroll the stage — sheets scroll inside .radio-popup-scroll. */
+  overflow: hidden;
+  /* Clear room label only — exits sit on scene edges. */
+  padding-top: 3.25rem;
 }
 
 .radio-flow > * {
   pointer-events: auto;
 }
 
-/* Room nav above scene hits (26) so cart/door targets cannot cover 작가석 etc. */
-.radio-nav-layer {
+/* Contained puzzle popup: full-stage scrim + dense machine panel (hint-like).
+   Open padding clears HUD / caption chrome only — not the full 22% narration band —
+   so P1 cue + keypad can fit on a 1920×1080 stage with little/no inner scroll. */
+.radio-flow[data-open='yes'] {
+  inset: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 36;
+  padding: calc(48px + var(--safe-top)) calc(88px + var(--safe-right))
+    calc(4.5rem + var(--safe-bottom)) calc(12px + var(--safe-left));
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  pointer-events: auto;
+  overflow: hidden;
+}
+
+.radio-flow[data-open='yes'] .radio-popup-scrim {
   position: absolute;
-  z-index: 28;
-  left: 64px;
-  right: 108px;
-  top: 64px;
+  inset: 0;
+  z-index: 0;
+  margin: 0;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 0;
+  min-width: 0;
+  min-height: 0;
+  width: auto;
+  height: auto;
+  cursor: pointer;
+  pointer-events: auto;
+  background:
+    radial-gradient(ellipse 62% 48% at 50% 40%, rgba(24, 32, 40, 0.35), transparent 70%),
+    rgba(2, 4, 6, 0.88) !important;
+  box-shadow: none !important;
+  text-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.radio-flow[data-open='yes'] .radio-popup {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  /* Fill the padded slot so panel max-height % resolves against full available height. */
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  pointer-events: none;
+}
+
+.radio-flow[data-open='yes'] .radio-popup-panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.45rem;
+  width: min(100%, 46rem);
+  /* Grow with content up to the full open-flow slot (was visually capped by 22% pad). */
+  max-height: 100%;
+  min-height: 0;
+  padding: 0.55rem 0.65rem 0.7rem;
+  pointer-events: auto;
+  color: #e8e2d6;
+  text-shadow: none;
+  border: 2px solid #0c1014;
+  border-radius: 3px;
+  background-color: #1a2228;
+  background-image:
+    radial-gradient(circle at 10px 10px, #5a646a 0 2px, transparent 2.5px),
+    radial-gradient(circle at calc(100% - 10px) 10px, #5a646a 0 2px, transparent 2.5px),
+    radial-gradient(circle at 10px calc(100% - 10px), #5a646a 0 2px, transparent 2.5px),
+    radial-gradient(circle at calc(100% - 10px) calc(100% - 10px), #5a646a 0 2px, transparent 2.5px),
+    radial-gradient(ellipse 70% 48% at 22% 12%, rgba(191, 202, 208, 0.18), transparent 62%),
+    radial-gradient(ellipse 40% 30% at 88% 78%, rgba(176, 141, 79, 0.16), transparent 70%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.035) 0 1px,
+      transparent 1px 3px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.06) 0 1px,
+      transparent 1px 4px
+    ),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.07 0 0 0 0 0.09 0 0 0 0.45 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(165deg, #3a444c 0%, #1a2228 48%, #0c1014 100%);
+  background-blend-mode: normal, normal, normal, normal, normal, soft-light, overlay, multiply, multiply, normal;
+  box-shadow:
+    inset 0 1px 0 rgba(191, 202, 208, 0.34),
+    inset 0 -16px 26px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(176, 141, 79, 0.28),
+    0 22px 48px rgba(0, 0, 0, 0.72),
+    0 0 0 1px rgba(176, 141, 79, 0.55),
+    0 0 0 5px rgba(8, 12, 16, 0.7);
+}
+
+.radio-flow[data-open='yes'] .radio-popup-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: none;
+  min-height: 44px;
+  padding: 0.15rem 0.15rem 0.35rem;
+  border-bottom: 1px solid rgba(176, 141, 79, 0.28);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+}
+
+.radio-flow[data-open='yes'] .radio-popup-title {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: #b08d4f;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65);
+}
+
+.radio-flow[data-open='yes'] .radio-popup-close {
+  margin-left: auto;
+  flex: none;
+  min-height: 44px;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #6a7378;
+  border-radius: 4px;
+  color: #f0ebe3;
+  background:
+    radial-gradient(circle at 40% 28%, rgba(255, 255, 255, 0.1), transparent 55%),
+    linear-gradient(180deg, #4a555c 0%, #2a333a 48%, #151c22 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(220, 230, 235, 0.25),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(176, 141, 79, 0.35),
+    0 2px 4px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65);
+}
+
+.radio-flow[data-open='yes'] .radio-popup-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.45rem;
+  gap: 0.55rem;
+  padding: 0.45rem 0.2rem 0.25rem 0.05rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Nested sheets inside dense chassis — keep paper/machine feel, drop outer float. */
+.radio-flow[data-open='yes'] .radio-popup-scroll > .radio-sheet {
+  max-width: 100%;
+  width: 100%;
+}
+
+.radio-flow[data-open='yes'] .radio-popup-scroll > .radio-sheet:has(.cuesheet) {
+  --ink: #2c2822;
+  max-width: 100%;
+  padding: 0.7rem 0.85rem 0.85rem;
+  border: 1px solid #5a4330;
+  border-radius: 1px 3px 2px 1px;
+  color: var(--ink);
+  background-color: #e6d8bc;
+  background-image:
+    radial-gradient(ellipse 48% 34% at 88% 10%, rgba(107, 78, 58, 0.28), transparent 68%),
+    radial-gradient(ellipse 30% 22% at 14% 82%, rgba(90, 60, 40, 0.2), transparent 70%),
+    radial-gradient(ellipse 18% 12% at 62% 48%, rgba(120, 80, 40, 0.12), transparent 75%),
+    linear-gradient(118deg, rgba(255, 248, 230, 0.42), transparent 38%, rgba(70, 52, 30, 0.14) 100%),
+    repeating-linear-gradient(
+      0deg,
+      rgba(60, 48, 30, 0.055) 0 1px,
+      transparent 1px 3px
+    ),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.14 0 0 0 0 0.07 0 0 0 0.38 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-blend-mode: multiply, multiply, multiply, soft, multiply, multiply;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 230, 0.5),
+    inset 0 -14px 22px rgba(70, 50, 30, 0.18),
+    inset 0 0 0 1px rgba(90, 70, 40, 0.18),
+    0 8px 18px rgba(8, 12, 16, 0.35),
+    0 1px 0 rgba(176, 141, 79, 0.3);
+}
+
+.radio-flow[data-open='yes'] .radio-popup-scroll > .radio-sheet:has(.cuesheet) > p {
+  color: var(--ink);
+  text-shadow: none;
+  max-width: none;
+}
+
+.radio-flow[data-open='yes'] .radio-popup-scroll > .radio-sheet:has(.cuesheet) .cuesheet {
+  width: min(100%, 440px);
+  box-shadow:
+    1px 2px 0 rgba(90, 70, 40, 0.18),
+    0 6px 14px rgba(18, 25, 31, 0.28);
+}
+
+/* Room label + edge exits above scene hits (26). */
+.radio-nav-layer {
+  position: absolute;
+  z-index: 28;
+  inset: 0;
+  display: grid;
+  place-items: center;
   pointer-events: none;
   color: #f2efe8;
   text-shadow: 0 1px 2px #000;
 }
 
-.radio-nav-layer > * {
+.radio-nav-layer .radio-room {
+  position: absolute;
+  left: 64px;
+  top: 64px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Exit chrome lives in the 16:9 frame so % lines up with painted doors. */
+.radio-exits {
+  pointer-events: none;
+}
+
+.radio-exits > .radio-exit {
   pointer-events: auto;
 }
 
-/* Extra roof-door row under the main nav. */
-.radio-nav-layer:has(> .radio-row:nth-child(3)) + .radio-flow {
-  padding-top: 8rem;
+/* Spatial exit arrows — edge defaults; scene doors override below. */
+.radio-exit {
+  position: absolute;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid #6a7378;
+  border-radius: 4px;
+  color: #f0ebe3;
+  background:
+    radial-gradient(circle at 40% 28%, rgba(255, 255, 255, 0.1), transparent 55%),
+    linear-gradient(180deg, #4a555c 0%, #2a333a 48%, #151c22 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(220, 230, 235, 0.25),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.radio-exit > span {
+  font-size: 1.15rem;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+.radio-exit[data-dir='left'] {
+  left: 1.2%;
+  top: 42%;
+}
+
+.radio-exit[data-dir='right'] {
+  right: 2%;
+  top: 42%;
+}
+
+.radio-exit[data-dir='up'] {
+  left: 50%;
+  top: 6%;
+  transform: translateX(-50%);
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.radio-exit[data-dir='back'] {
+  left: 50%;
+  bottom: 10%;
+  transform: translateX(-50%);
+  flex-direction: column-reverse;
+  gap: 0.15rem;
+}
+
+/* Booth → archive glass door (leaf ~62–80% / 8–72%; stop above radio prop @58%). */
+.radio-nav-layer[data-scene='booth'] .radio-exit[data-exit='archive'] {
+  left: 68%;
+  right: auto;
+  top: 10%;
+  width: 17%;
+  height: 48%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  text-shadow: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.radio-nav-layer[data-scene='booth'] .radio-exit[data-exit='archive'] .radio-exit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid #6a7378;
+  border-radius: 4px;
+  color: #f0ebe3;
+  background:
+    radial-gradient(circle at 40% 28%, rgba(255, 255, 255, 0.1), transparent 55%),
+    linear-gradient(180deg, #4a555c 0%, #2a333a 48%, #151c22 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(220, 230, 235, 0.25),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65);
+  pointer-events: none;
+}
+
+html[data-radio-hits='show'] .radio-nav-layer[data-scene='booth'] .radio-exit[data-exit='archive'] {
+  outline: 2px dashed rgba(176, 141, 79, 0.9);
+  background: rgba(176, 141, 79, 0.16);
+}
+
+/* Desk → control painted door (right leaf). */
+.radio-nav-layer[data-scene='desk'] .radio-exit[data-exit='control'] {
+  left: 84%;
+  right: auto;
+  top: 28%;
+}
+
+/* Roof → stairwell open door (left). */
+.radio-nav-layer[data-scene='roof'] .radio-exit[data-exit='stair'] {
+  left: 8%;
+  right: auto;
+  top: 38%;
+}
+
+/* Archive return — left aisle, clear of shelf prop hit. */
+.radio-nav-layer[data-scene='archive'] .radio-exit[data-dir='left'] {
+  left: 1.5%;
+  top: 48%;
+}
+
+/* Puzzle popup owns the stage — hide edge exits while open. */
+.radio-nav-layer:has(+ .radio-flow[data-open='yes']) .radio-exit {
+  display: none;
 }
 
 .radio-flow button,
 .radio-flow input[type='range'],
-.radio-nav-layer button,
+.radio-nav-layer button:not(.radio-exit),
 .lighthouse-flow button,
 .lighthouse-flow input[type='range'],
 .tailor-flow button,
@@ -360,84 +702,85 @@ html[data-radio-hits='show'] .radio-hit {
 }
 
 .radio-hit[data-hit='coffee'] {
-  left: 18%;
-  top: 78%;
-  width: 10%;
+  left: 20%;
+  top: 72%;
+  width: 9%;
   height: 16%;
 }
 
 .radio-hit[data-hit='envelope'] {
-  left: 28%;
-  top: 80%;
-  width: 13%;
-  height: 14%;
+  left: 34%;
+  top: 78%;
+  width: 12%;
+  height: 12%;
 }
 
+/* Booth door (glass shows recording booth) — leaf ~71–86% / 14–86%. */
 .radio-hit[data-hit='door'] {
-  left: 70%;
-  top: 10%;
-  width: 16%;
-  height: 68%;
+  left: 72%;
+  top: 14%;
+  width: 14%;
+  height: 70%;
 }
 
 /* Booth (rooms/booth.png) */
 .radio-hit[data-hit='radio'] {
-  left: 72%;
-  top: 55%;
-  width: 18%;
-  height: 30%;
+  left: 74%;
+  top: 58%;
+  width: 16%;
+  height: 28%;
 }
 
 .radio-hit[data-hit='cart'] {
   left: 2%;
-  top: 16%;
-  width: 14%;
-  height: 42%;
+  top: 18%;
+  width: 16%;
+  height: 40%;
 }
 
 .radio-hit[data-hit='fader'] {
-  left: 34%;
+  left: 36%;
   top: 48%;
-  width: 26%;
+  width: 28%;
   height: 22%;
 }
 
-/* Writer's desk (rooms/desk.png) */
+/* Writer's desk (rooms/desk.png) — 4-panel cue board + letter slot 2 */
 .radio-hit[data-hit='board'] {
-  left: 34%;
-  top: 40%;
-  width: 34%;
-  height: 34%;
+  left: 36%;
+  top: 42%;
+  width: 30%;
+  height: 32%;
 }
 
 .radio-hit[data-hit='letter'] {
   left: 42%;
-  top: 46%;
-  width: 12%;
-  height: 28%;
-}
-
-/* Archive (rooms/archive.png) — left shelves + desk walkie */
-.radio-hit[data-hit='tape'] {
-  left: 6%;
-  top: 16%;
-  width: 34%;
-  height: 54%;
-}
-
-.radio-hit[data-hit='walkie'] {
-  left: 72%;
-  top: 54%;
+  top: 48%;
   width: 12%;
   height: 26%;
 }
 
-/* Roof (rooms/roof.png) — center TX cabinet */
+/* Archive (rooms/archive.png) — left shelves + desk walkie */
+.radio-hit[data-hit='tape'] {
+  left: 4%;
+  top: 14%;
+  width: 36%;
+  height: 56%;
+}
+
+.radio-hit[data-hit='walkie'] {
+  left: 70%;
+  top: 52%;
+  width: 12%;
+  height: 28%;
+}
+
+/* Roof (rooms/roof.png) — center-right TX cabinet */
 .radio-hit[data-hit='tower'] {
-  left: 40%;
-  top: 42%;
-  width: 26%;
-  height: 32%;
+  left: 44%;
+  top: 38%;
+  width: 30%;
+  height: 34%;
 }
 
 .radio-flow > * {
@@ -446,9 +789,7 @@ html[data-radio-hits='show'] .radio-hit {
 }
 
 .radio-flow .radio-nav,
-.radio-flow .radio-prop,
-.radio-nav-layer .radio-nav,
-.radio-nav-layer .radio-prop {
+.radio-flow .radio-prop {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -456,8 +797,7 @@ html[data-radio-hits='show'] .radio-hit {
   color: #e9e2d2;
 }
 
-.radio-flow .radio-nav,
-.radio-nav-layer .radio-nav {
+.radio-flow .radio-nav {
   border-color: #6a7378;
   border-radius: 4px;
   color: #f0ebe3;
@@ -471,16 +811,13 @@ html[data-radio-hits='show'] .radio-hit {
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.65);
 }
 
-.radio-flow .radio-prop,
-.radio-nav-layer .radio-prop {
+.radio-flow .radio-prop {
   background: rgba(18, 25, 31, 0.82);
   border-color: #b08d4f;
 }
 
 .radio-flow .radio-nav img,
-.radio-flow .radio-prop img,
-.radio-nav-layer .radio-nav img,
-.radio-nav-layer .radio-prop img {
+.radio-flow .radio-prop img {
   width: 36px;
   height: 36px;
   flex: none;
@@ -1194,10 +1531,12 @@ html[data-radio-hits='show'] .radio-hit {
   flex-direction: column;
   gap: 0.35rem;
   width: min(52rem, 100%);
-  padding: 0.65rem 0.9rem 0.75rem 0.85rem;
+  /* Extra start pad: italic slant / keep-all wrap can clip the first syllable. */
+  padding: 0.65rem 0.9rem 0.75rem 1.25rem;
   border-left: 3px solid transparent;
   background: rgba(8, 7, 6, 0.72);
   box-shadow: 0 0 0 1px rgba(242, 239, 232, 0.08);
+  overflow: visible;
 }
 
 .narration-kind {
@@ -1209,11 +1548,16 @@ html[data-radio-hits='show'] .radio-hit {
 }
 
 .narration-text {
+  display: block;
   font-size: clamp(1rem, 1.55vw, 1.2rem);
-  line-height: 1.45;
-  letter-spacing: -0.01em;
+  line-height: 1.5;
+  letter-spacing: 0;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
   word-break: keep-all;
+  overflow: visible;
+  padding-inline-start: 0.12em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 .narration[data-kind='narration'] .narration-panel {
@@ -1228,6 +1572,8 @@ html[data-radio-hits='show'] .radio-hit {
   font-style: italic;
   font-weight: 400;
   color: rgba(242, 239, 232, 0.92);
+  /* Synthetic italic overhangs left of the ink box. */
+  padding-inline-start: 0.45em;
 }
 
 .narration[data-kind='dialogue'] .narration-panel {
@@ -1344,7 +1690,9 @@ html[data-radio-hits='show'] .radio-hit {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
 }
 
+/* Above open puzzle popup (z 36) so 송출 fail captions stay readable. Below modal/hint (40). */
 .theme-play[data-theme='haemu-radio'] .narration {
+  z-index: 38;
   background: linear-gradient(transparent, rgba(8, 12, 16, 0.78) 55%, rgba(8, 12, 16, 0.9));
 }
 
@@ -1363,6 +1711,149 @@ html[data-radio-hits='show'] .radio-hit {
 .theme-play[data-theme='haemu-radio'] .narration[data-kind='dialogue'] .narration-panel {
   border-left-color: #b08d4f;
   background: rgba(14, 18, 22, 0.74);
+}
+
+/* Short / phone landscape: keep 16:9 contain, tighten chrome so popups + hits stay usable. */
+.theme-play[data-theme='haemu-radio'] .narration-text {
+  font-size: clamp(0.9rem, 2.6vh, 1.2rem);
+}
+
+.theme-play[data-theme='haemu-radio'] .hud-slot {
+  width: 48px;
+  height: 48px;
+}
+
+.theme-play[data-theme='haemu-radio'] .hud-slot-label {
+  font-size: 0.62rem;
+  line-height: 1.15;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+/* Puzzle open: bag stays usable above scrim; top HUD stays under scrim so 닫기 is free. */
+.theme-play[data-theme='haemu-radio']:has(.radio-flow[data-open='yes']) .hud-inventory {
+  position: fixed;
+  z-index: 37;
+}
+
+/* Right-edge exits clear the bag tray (~48px slots + chrome). */
+.theme-play[data-theme='haemu-radio'] .radio-exit[data-dir='right'] {
+  right: max(2%, calc(4px + 56px + var(--safe-right)));
+}
+
+.theme-play[data-theme='haemu-radio'] .radio-nav-layer[data-scene='desk'] .radio-exit[data-exit='control'] {
+  left: min(84%, calc(100% - 72px - var(--safe-right)));
+}
+
+@media (max-height: 480px) {
+  .radio-flow[data-open='yes'] {
+    /* Top clears HUD row; right clears bag tray; bottom tight for cue+keypad. */
+    padding: calc(52px + var(--safe-top)) calc(56px + var(--safe-right))
+      calc(8px + var(--safe-bottom)) calc(8px + var(--safe-left));
+  }
+
+  .radio-flow[data-open='yes'] .radio-popup-panel {
+    width: min(100%, 42rem);
+    padding: 0.35rem 0.45rem 0.45rem;
+    gap: 0.3rem;
+  }
+
+  .radio-flow[data-open='yes'] .radio-popup-head {
+    min-height: 40px;
+    padding: 0.05rem 0.1rem 0.2rem;
+  }
+
+  .radio-flow[data-open='yes'] .radio-popup-scroll {
+    gap: 0.35rem;
+    padding: 0.25rem 0.1rem 0.15rem 0;
+  }
+
+  .radio-flow[data-open='yes'] .radio-popup-scroll > .radio-sheet:has(.cuesheet) {
+    padding: 0.45rem 0.55rem 0.55rem;
+  }
+
+  .radio-flow[data-open='yes'] .radio-popup-scroll > .radio-sheet:has(.cuesheet) .cuesheet {
+    width: min(100%, 340px);
+  }
+
+  .radio-flow .radio-sheet .keypad {
+    margin-top: 0.35rem;
+    padding: 0.4rem 0.45rem 0.5rem;
+  }
+
+  .radio-flow .radio-sheet .keypad-keys {
+    gap: 0.25rem;
+  }
+
+  .theme-play[data-theme='haemu-radio'] .narration {
+    height: min(28%, 6.25rem);
+    padding: 0.45rem calc(12px + var(--safe-right)) calc(8px + var(--safe-bottom))
+      calc(12px + var(--safe-left));
+  }
+
+  .theme-play[data-theme='haemu-radio'] .narration-panel {
+    padding: 0.45rem 0.7rem 0.5rem 1rem;
+    gap: 0.2rem;
+  }
+
+  .theme-play[data-theme='haemu-radio'] .hud {
+    padding: calc(4px + var(--safe-top)) calc(6px + var(--safe-right))
+      calc(4px + var(--safe-bottom)) calc(6px + var(--safe-left));
+  }
+
+  .theme-play[data-theme='haemu-radio'] .hud-left,
+  .theme-play[data-theme='haemu-radio'] .hud-right {
+    top: calc(4px + var(--safe-top));
+    gap: 0.3rem;
+  }
+
+  .theme-play[data-theme='haemu-radio'] .hud-btn {
+    min-height: 40px;
+    min-width: 40px;
+    padding: 0 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .theme-play[data-theme='haemu-radio'] .hud-inventory {
+    right: calc(4px + var(--safe-right));
+    padding: 0.3rem 0.25rem 0.35rem;
+    gap: 0.25rem;
+  }
+
+  .theme-play[data-theme='haemu-radio'] .hud-inventory-slots {
+    gap: 0.25rem;
+    max-height: 55vh;
+  }
+
+  .theme-play[data-theme='haemu-radio'] .hud-slot {
+    width: 44px;
+    height: 44px;
+  }
+
+  .radio-nav-layer .radio-room {
+    left: 12px;
+    top: calc(48px + var(--safe-top));
+  }
+
+  .radio-exit {
+    padding: 0.35rem 0.55rem;
+  }
+}
+
+@media (max-height: 480px) and (max-width: 900px) {
+  /* Phone landscape: letterbox often holds the bag; keep a slim right gutter anyway. */
+  .radio-flow[data-open='yes'] {
+    padding: calc(52px + var(--safe-top)) calc(12px + var(--safe-right))
+      calc(4px + var(--safe-bottom)) calc(4px + var(--safe-left));
+  }
+
+  .radio-flow[data-open='yes'] .radio-popup-panel {
+    width: min(100%, 36rem);
+  }
+
+  .radio-flow[data-open='yes'] .radio-popup-scroll > .radio-sheet:has(.cuesheet) .cuesheet {
+    width: min(100%, 300px);
+  }
 }
 
 .theme-play[data-theme='haemu-radio'] .banner {
@@ -1385,6 +1876,17 @@ html[data-radio-hits='show'] .radio-hit {
     inset 0 1px 0 rgba(191, 202, 208, 0.16),
     0 0 0 1px rgba(176, 141, 79, 0.28),
     0 16px 36px rgba(0, 0, 0, 0.5);
+}
+
+.theme-play[data-theme='haemu-radio'] .hint-memo-next {
+  border-color: rgba(176, 141, 79, 0.65);
+  color: #f0ebe3;
+  background:
+    radial-gradient(circle at 40% 28%, rgba(255, 255, 255, 0.1), transparent 55%),
+    linear-gradient(180deg, #4a555c 0%, #2a333a 48%, #151c22 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(220, 230, 235, 0.2),
+    0 0 0 1px rgba(176, 141, 79, 0.35);
 }
 
 .banner {
@@ -1436,6 +1938,20 @@ html[data-radio-hits='show'] .radio-hit {
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 0.75rem;
+}
+
+.hint-memo-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.hint-memo-next {
+  min-height: 44px;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid rgba(196, 165, 116, 0.55);
+  background: rgba(196, 165, 116, 0.18);
 }
 
 .hint-memo-step {

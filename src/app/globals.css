@@ -1608,7 +1608,9 @@ html[data-radio-hits='show'] .radio-hit {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
 }
 
+/* Above open puzzle popup (z 36) so 송출 fail captions stay readable. Below modal/hint (40). */
 .theme-play[data-theme='haemu-radio'] .narration {
+  z-index: 38;
   background: linear-gradient(transparent, rgba(8, 12, 16, 0.78) 55%, rgba(8, 12, 16, 0.9));
 }
 

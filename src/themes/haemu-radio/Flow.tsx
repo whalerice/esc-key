@@ -843,6 +843,16 @@ function TunePanel({
   );
 }
 
+const P3_FAIL = {
+  close: 'p3.close',
+  short: 'p3.short',
+  long: 'p3.long',
+  'rule-call': 'p3.ruleCall',
+  'rule-ad': 'p3.ruleAd',
+  'rule-weather': 'p3.ruleWeather',
+  rule: 'p3.rule',
+} as const;
+
 function P3({
   say,
   queue,
@@ -901,25 +911,16 @@ function P3({
         type="button"
         data-ready={ready ? 'yes' : 'no'}
         onClick={() => {
-          radioSfx(SFX_SRC.cart);
           const result = judgeP3(queue);
           if (result === 'ok') {
+            radioSfx(SFX_SRC.cart);
             useRadioStore.getState().markSolved('P3');
             say(spoken('p3.solved'));
             onClose();
             return;
           }
-          say(
-            spoken(
-              result === 'close'
-                ? 'p3.close'
-                : result === 'short'
-                  ? 'p3.short'
-                  : result === 'long'
-                    ? 'p3.long'
-                    : 'p3.rule',
-            ),
-          );
+          radioSfx(SFX_SRC.beep);
+          say(spoken(P3_FAIL[result]));
         }}
       >
         {ready ? '송출 · 2:30' : '송출'}

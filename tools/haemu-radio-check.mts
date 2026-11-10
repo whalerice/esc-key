@@ -69,6 +69,7 @@ assert.equal(
   false,
 );
 assert.ok(themeHaemuRadio.radioBed?.cues.some((c) => c.soundId === 'fog-stop'));
+assert.ok(existsSync(new URL('../tools/haemu-radio-synth-audio.py', import.meta.url)));
 
 // Resume captions: ThemePlay must persist/restore captionQueue (not always re-seed openings).
 const themePlay = readFileSync(new URL('../src/engine/ui/ThemePlay.tsx', import.meta.url), 'utf8');
@@ -77,6 +78,7 @@ assert.equal(themePlay.includes('captionQueue'), true);
 
 // P3 ease: 2:30 cue in sheet + softer close band + clearer hints.
 const flow = readFileSync(new URL('../src/themes/haemu-radio/Flow.tsx', import.meta.url), 'utf8');
+assert.equal(flow.includes('radioSfx(SFX_SRC.beep, 0.18)'), true, 'P3 reject beep quieter');
 assert.equal(flow.includes('2:30'), true);
 assert.equal(flow.includes('formatCartClock'), true);
 assert.equal(themeSrc.includes('2분 30초(150초)'), true);

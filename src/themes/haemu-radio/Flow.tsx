@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ComponentProps, type MutableRefObject, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import type { SayFn } from '@/engine/ui/caption';
 import { Howl } from 'howler';
-import { DISTANCE, RadioBed } from '@/engine/audio/RadioBed';
+import { DISTANCE, RadioBed, type DistancePreset } from '@/engine/audio/RadioBed';
 import { playHtml5Clip } from '@/engine/audio/html5Clip';
 import { isAudioUnlocked } from '@/engine/audio/SoundManager';
 import { useAppStore } from '@/engine/save/appStore';
@@ -67,12 +67,13 @@ const ROOM: Record<string, string> = {
   roof: '옥상',
 };
 
-const DISTANCE_BY: Record<string, (typeof DISTANCE)[keyof typeof DISTANCE]> = {
-  booth: DISTANCE.clear,
-  control: DISTANCE.near,
-  desk: DISTANCE.near,
-  archive: DISTANCE.far,
-  roof: DISTANCE.buried,
+/** Room distance vs booth speakers. Softened near/far so richer beds do not blast. */
+const DISTANCE_BY: Record<string, DistancePreset> = {
+  booth: { cutoffHz: 14000, volume: 0.85 },
+  control: { cutoffHz: 4200, volume: 0.62 },
+  desk: { cutoffHz: 3800, volume: 0.58 },
+  archive: { cutoffHz: 1000, volume: 0.32 },
+  roof: { cutoffHz: 380, volume: 0.12 },
 };
 
 const P2_STATIONS: TuningStation[] = [{ freq: P2_HZ, width: 0.2, soundId: 'aircheck' }];
@@ -110,12 +111,22 @@ function Prop({
 
 const sfxHowls = new Map<string, Howl>();
 
-function radioSfx(url: string) {
+/** Per-clip gain. Reject beeps stay quieter than success clicks. */
+const SFX_VOL: Record<string, number> = {
+  [SFX_SRC.beep]: 0.28,
+  [SFX_SRC.cart]: 0.4,
+  [SFX_SRC.lock]: 0.34,
+  [SFX_SRC.tape]: 0.36,
+};
+
+function radioSfx(url: string, volume = SFX_VOL[url] ?? 0.32) {
   if (!isAudioUnlocked()) return;
   let howl = sfxHowls.get(url);
   if (!howl) {
-    howl = new Howl({ src: [url], volume: 0.35 });
+    howl = new Howl({ src: [url], volume });
     sfxHowls.set(url, howl);
+  } else {
+    howl.volume(volume);
   }
   howl.play();
 }
@@ -173,7 +184,11 @@ export function RadioFlow({
         s.setFlag('silence');
         say(spoken('p3.alarm'));
       }
-      const distance = s.scene === 'roof' && s.extra.txLocked ? DISTANCE.clear : (DISTANCE_BY[s.scene] ?? DISTANCE.near);
+      // TX lock: booth-clear, not DISTANCE.clear (vol 1) — beds sit quieter after polish.
+      const distance =
+        s.scene === 'roof' && s.extra.txLocked
+          ? DISTANCE_BY.booth
+          : (DISTANCE_BY[s.scene] ?? DISTANCE.near);
       const key = `${distance.cutoffHz}`;
       if (key !== prevDistance) {
         prevDistance = key;
@@ -930,7 +945,7 @@ function P3({
             onClose();
             return;
           }
-          radioSfx(SFX_SRC.beep);
+          radioSfx(SFX_SRC.beep, 0.18);
           say(spoken(P3_FAIL[result]));
         }}
       >

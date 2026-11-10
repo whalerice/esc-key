@@ -211,9 +211,15 @@ export function ThemePlay({
     const offFs = onFullscreenChange(() => {
       setMaxBlink(!isFullscreen());
     });
+    /** iOS Safari pinch-zoom guard (viewport user-scalable=no is not enough alone). */
+    const blockGesture = (e: Event) => e.preventDefault();
+    document.addEventListener('gesturestart', blockGesture, { passive: false });
+    document.addEventListener('gesturechange', blockGesture, { passive: false });
     return () => {
       offOrient();
       offFs();
+      document.removeEventListener('gesturestart', blockGesture);
+      document.removeEventListener('gesturechange', blockGesture);
       sound.dispose();
       unmountRef.current?.();
       unmountRef.current = null;

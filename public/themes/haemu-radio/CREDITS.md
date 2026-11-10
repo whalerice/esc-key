@@ -31,21 +31,21 @@
 
 ## 소리
 
-성우 녹음과 작곡 의뢰 음원은 없다. 아래 WAV는 흐름이 끊기지 않게 넣어 둔 **자리표시**다. 프로젝트 원작(합성). 그대로 출시하지 말 것.
+성우 녹음과 작곡 의뢰 음원은 없다. 아래 WAV는 프로젝트 원작 **합성**(22.05 kHz mono PCM). 라이선스 팩 스크랩 없음. 흐름용으로 쓸 만하게 다듬었지만, 작곡·VO 교체 전 자리표시로 본다. 재생성: `python3 tools/haemu-radio-synth-audio.py`.
 
-단서(옛 방송·티즈)는 HTML5 `playHtml5Clip`. 곡 베드와 효과음은 Howler(RadioBed / 짧은 Howl). iOS 무음 스위치용으로 단서를 Web Audio에 넣지 않는다.
+단서(옛 방송·티즈)는 HTML5 `playHtml5Clip`. 곡 베드와 효과음은 Howler(RadioBed / 짧은 Howl). iOS 무음 스위치용으로 단서를 Web Audio에 넣지 않는다. 사람 말소리·합성 음성 없음 — 대사는 자막만.
 
 | 파일 | 지금 | 나중에 바꿀 것 |
 |---|---|---|
-| `audio/opening.wav` | 합성 루프 | R-MU 오프닝 시그널. H-MU-01 짧은 버전 |
-| `audio/fog-stop.wav` | 합성 루프 | R-MU-01 「안개 정류장」 |
-| `audio/3am-coffee.wav` | 합성 루프 | R-MU-02 「새벽 세 시의 커피」 |
-| `audio/far-sea.wav` | 합성 루프 | R-MU-03 「먼 바다」 |
-| `audio/wind.wav` | 합성 루프 | R-MU-04 「바람이 지나간 자리」 |
-| `audio/breakwater.wav` | 합성 루프 | R-MU-05 「방파제」 |
-| `audio/tease.wav` | 두 음 톤 | P2 티즈. 도윤 방송 한 토막 |
-| `audio/d100.wav` `d50.wav` `d30.wav` `d7.wav` | 두 음 톤 | P5 옛 방송 VO (D-100, D-50, D-30, D-7) |
-| `audio/sfx-beep.wav` | 짧은 비프 | 부스 비프·에어체크 |
-| `audio/sfx-cart.wav` | 짧은 클릭 | 카트리지 |
-| `audio/sfx-lock.wav` | 짧은 클릭 | 자물쇠 |
-| `audio/sfx-tape.wav` | 짧은 클릭 | 테이프 데크 |
+| `audio/opening.wav` | 합성 루프(저음 허밍). **RadioBed 큐 없음**(입장 붐 방지) | R-MU 오프닝 시그널. H-MU-01 짧은 버전 |
+| `audio/fog-stop.wav` | 안개 패드 + 히스 루프 | R-MU-01 「안개 정류장」 |
+| `audio/3am-coffee.wav` | 따뜻한 미드 드론 루프 | R-MU-02 「새벽 세 시의 커피」 |
+| `audio/far-sea.wav` | 저음 스웰 + 필터 서프 | R-MU-03 「먼 바다」 |
+| `audio/wind.wav` | 하이패스 바람 노이즈 | R-MU-04 「바람이 지나간 자리」 |
+| `audio/breakwater.wav` | 저펄스 + 그릿 루프 | R-MU-05 「방파제」 |
+| `audio/tease.wav` | AM 필터 두 음(C→G). 말 없음 | P2 티즈. 도윤 방송 한 토막 |
+| `audio/d100.wav` `d50.wav` `d30.wav` `d7.wav` | AM 필터 두 음(구간별 음정). 말 없음 | P5 옛 방송 VO (D-100, D-50, D-30, D-7) |
+| `audio/sfx-beep.wav` | 소프트 880 Hz 사인(짧은 ADSR) | 부스 비프·에어체크 |
+| `audio/sfx-cart.wav` | 카트리지 클릭+바디 | 카트리지 실녹음 |
+| `audio/sfx-lock.wav` | 자물쇠 틱+메탈 | 자물쇠 실녹음 |
+| `audio/sfx-tape.wav` | 데크 훨+클랙 | 테이프 데크 실녹음 |

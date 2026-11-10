@@ -239,7 +239,8 @@ export function RadioFlow({
   const archiveHits = scene === 'archive';
   const roofHits = scene === 'roof';
   const showRoofKey = controlHits && !solved.P7 && items.includes(KEYRING_ID);
-  const showRoofHint = controlHits && !items.includes(KEYRING_ID) && !!solved.P6;
+  const showRoofHint =
+    controlHits && !solved.P7 && !items.includes(KEYRING_ID) && !!solved.P6;
   const showLetterPlace = deskHits && items.includes('팔칠구의 편지') && !extra.letterPlaced;
   const showArchiveTape = archiveHits && !solved.P6;
   const showArchiveWalkie = archiveHits && !!solved.P6 && !solved.P7;
@@ -390,132 +391,142 @@ export function RadioFlow({
         </div>
       </div>
     )}
-    {/* Above .radio-hits-layer (26): edge exits must not sit under scene hits. */}
+    {/* Above .radio-hits-layer (26): exits share .radio-frame % so they sit on painted doors. */}
     <div className="radio-nav-layer" data-scene={scene} data-next={next}>
       <p className="radio-room">
         {ROOM[scene] ?? scene} · {next}
       </p>
-      {controlHits && (
-        <button
-          type="button"
-          className="radio-exit"
-          data-dir="left"
-          aria-label="작가방 가기"
-          onClick={() => go('desk')}
-        >
-          <span aria-hidden>‹</span>
-          작가방
-        </button>
-      )}
-      {boothHits && (
-        <button
-          type="button"
-          className="radio-exit"
-          data-dir="left"
-          aria-label="부조정실 가기"
-          onClick={() => go('control')}
-        >
-          <span aria-hidden>‹</span>
-          부조정실
-        </button>
-      )}
-      {boothHits && solved.P4 && !solved.P5 && (
-        <button
-          type="button"
-          className="radio-exit"
-          data-dir="right"
-          aria-label="아카이브 문"
-          onClick={() => setMode('lock')}
-        >
-          아카이브 문
-          <span aria-hidden>›</span>
-        </button>
-      )}
-      {boothHits && solved.P5 && (
-        <button
-          type="button"
-          className="radio-exit"
-          data-dir="right"
-          aria-label="아카이브실 가기"
-          onClick={() => go('archive')}
-        >
-          아카이브
-          <span aria-hidden>›</span>
-        </button>
-      )}
-      {deskHits && (
-        <button
-          type="button"
-          className="radio-exit"
-          data-dir="right"
-          aria-label="부조정실 가기"
-          onClick={() => go('control')}
-        >
-          부조정실
-          <span aria-hidden>›</span>
-        </button>
-      )}
-      {archiveHits && (
-        <button
-          type="button"
-          className="radio-exit"
-          data-dir="left"
-          aria-label="부스 가기"
-          onClick={() => go('booth')}
-        >
-          <span aria-hidden>‹</span>
-          부스
-        </button>
-      )}
-      {roofHits && (
-        <button
-          type="button"
-          className="radio-exit"
-          data-dir="back"
-          aria-label="부조정실 가기"
-          onClick={() => go('control')}
-        >
-          <span aria-hidden>∨</span>
-          부조정실
-        </button>
-      )}
-      {controlHits && solved.P7 && (
-        <button
-          type="button"
-          className="radio-exit"
-          data-dir="up"
-          aria-label="옥상 가기"
-          onClick={() => go('roof')}
-        >
-          <span aria-hidden>∧</span>
-          옥상
-        </button>
-      )}
-      {showRoofKey && (
-        <button
-          type="button"
-          className="radio-exit"
-          data-dir="up"
-          data-use-target={ROOF_LOCK_ID}
-          aria-label="옥상 문"
-          onClick={() => setMode('keys')}
-        >
-          <span aria-hidden>∧</span>
-          옥상 문
-        </button>
-      )}
-      {showRoofHint && (
-        <button
-          type="button"
-          className="radio-exit"
-          data-dir="up"
-          aria-label="옥상 문"
-          onClick={() => say(spoken('p7.door'))}
-        >
-          <span aria-hidden>∧</span>
-          옥상 문
-        </button>
-      )}
+      <div className="radio-frame radio-exits">
+        {controlHits && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="left"
+            aria-label="작가방 가기"
+            onClick={() => go('desk')}
+          >
+            <span aria-hidden>‹</span>
+            작가방
+          </button>
+        )}
+        {boothHits && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="left"
+            aria-label="부조정실 가기"
+            onClick={() => go('control')}
+          >
+            <span aria-hidden>‹</span>
+            부조정실
+          </button>
+        )}
+        {boothHits && solved.P4 && !solved.P5 && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="right"
+            data-exit="archive"
+            aria-label="아카이브 문"
+            onClick={() => setMode('lock')}
+          >
+            <span className="radio-exit-badge">
+              아카이브 문
+              <span aria-hidden>›</span>
+            </span>
+          </button>
+        )}
+        {boothHits && solved.P5 && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="right"
+            data-exit="archive"
+            aria-label="아카이브실 가기"
+            onClick={() => go('archive')}
+          >
+            <span className="radio-exit-badge">
+              아카이브
+              <span aria-hidden>›</span>
+            </span>
+          </button>
+        )}
+        {deskHits && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="right"
+            data-exit="control"
+            aria-label="부조정실 가기"
+            onClick={() => go('control')}
+          >
+            부조정실
+            <span aria-hidden>›</span>
+          </button>
+        )}
+        {archiveHits && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="left"
+            aria-label="부스 가기"
+            onClick={() => go('booth')}
+          >
+            <span aria-hidden>‹</span>
+            부스
+          </button>
+        )}
+        {roofHits && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="left"
+            data-exit="stair"
+            aria-label="부조정실 가기"
+            onClick={() => go('control')}
+          >
+            <span aria-hidden>‹</span>
+            부조정실
+          </button>
+        )}
+        {controlHits && solved.P7 && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="up"
+            aria-label="옥상 가기"
+            onClick={() => go('roof')}
+          >
+            <span aria-hidden>∧</span>
+            옥상
+          </button>
+        )}
+        {showRoofKey && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="up"
+            data-use-target={ROOF_LOCK_ID}
+            aria-label="옥상 문"
+            onClick={() => setMode('keys')}
+          >
+            <span aria-hidden>∧</span>
+            옥상 문
+          </button>
+        )}
+        {showRoofHint && (
+          <button
+            type="button"
+            className="radio-exit"
+            data-dir="up"
+            aria-label="옥상 문"
+            onClick={() => say(spoken('p7.door'))}
+          >
+            <span aria-hidden>∧</span>
+            옥상 문
+          </button>
+        )}
+      </div>
     </div>
     <div
       className="radio-flow"

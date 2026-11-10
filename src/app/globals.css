@@ -1531,10 +1531,12 @@ html[data-radio-hits='show'] .radio-hit {
   flex-direction: column;
   gap: 0.35rem;
   width: min(52rem, 100%);
-  padding: 0.65rem 0.9rem 0.75rem 0.85rem;
+  /* Extra start pad: italic slant / keep-all wrap can clip the first syllable. */
+  padding: 0.65rem 0.9rem 0.75rem 1.1rem;
   border-left: 3px solid transparent;
   background: rgba(8, 7, 6, 0.72);
   box-shadow: 0 0 0 1px rgba(242, 239, 232, 0.08);
+  overflow: visible;
 }
 
 .narration-kind {
@@ -1546,11 +1548,16 @@ html[data-radio-hits='show'] .radio-hit {
 }
 
 .narration-text {
+  display: block;
   font-size: clamp(1rem, 1.55vw, 1.2rem);
-  line-height: 1.45;
-  letter-spacing: -0.01em;
+  line-height: 1.5;
+  letter-spacing: 0;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
   word-break: keep-all;
+  overflow: visible;
+  padding-inline-start: 0.12em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 .narration[data-kind='narration'] .narration-panel {
@@ -1565,6 +1572,8 @@ html[data-radio-hits='show'] .radio-hit {
   font-style: italic;
   font-weight: 400;
   color: rgba(242, 239, 232, 0.92);
+  /* Synthetic italic overhangs left of the ink box. */
+  padding-inline-start: 0.35em;
 }
 
 .narration[data-kind='dialogue'] .narration-panel {

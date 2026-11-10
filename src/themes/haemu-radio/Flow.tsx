@@ -523,7 +523,11 @@ export function RadioFlow({
             data-dir="up"
             data-use-target={ROOF_LOCK_ID}
             aria-label="옥상 문"
-            onClick={() => setMode('keys')}
+            onClick={() => {
+              // Keyring already in bag → arm tags immediately (no bag-select dance).
+              setArmed(true);
+              setMode('keys');
+            }}
           >
             <span aria-hidden>∧</span>
             옥상 문
@@ -1237,12 +1241,14 @@ function Keys({
   onUse: (itemId: string | null) => void;
 }) {
   const held = useRadioStore((s) => s.items.includes(KEYRING_ID));
+  // Prefer explicit selection; else keyring if already held — bare tap no longer only plays need.
+  const useId = selectedItem ?? (held ? KEYRING_ID : null);
   return (
     <section className="radio-lock radio-sheet" data-sheet="tower" data-use-target={ROOF_LOCK_ID}>
       <p>{line('p7.need')}</p>
       {!armed && (
-        <button type="button" onClick={() => onUse(selectedItem)}>
-          {selectedItem ? `${selectedItem} 사용` : '가방에서 사용'}
+        <button type="button" onClick={() => onUse(useId)}>
+          {useId ? `${useId} 사용` : '가방에서 열쇠 꾸러미를 고른 뒤 사용'}
         </button>
       )}
       {armed && held && (

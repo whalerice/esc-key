@@ -148,6 +148,8 @@ export function ThemePlay({
   const onReplayRef = useRef(onReplay);
   const endedRef = useRef(false);
   const captionsSeededRef = useRef(false);
+  const queueRef = useRef(queue);
+  queueRef.current = queue;
   portraitRef.current = portrait;
   pauseRef.current = pauseWhen;
   onClockRef.current = onClock;
@@ -311,11 +313,12 @@ export function ThemePlay({
 
   const say = useCallback(
     (input: CaptionInput) => {
-      setQueue((q) => {
-        const next = [...q, asCaption(input)];
-        useStore.getState().setCaptionQueue(next);
-        return next;
-      });
+      // Persist outside the setState updater — Zustand set during an updater
+      // triggers "Cannot update ThemePlay while rendering ThemePlay".
+      const next = [...queueRef.current, asCaption(input)];
+      queueRef.current = next;
+      setQueue(next);
+      useStore.getState().setCaptionQueue(next);
     },
     [useStore],
   );
@@ -424,13 +427,12 @@ export function ThemePlay({
       {booted && (
         <Narration
           line={line}
-          onAdvance={() =>
-            setQueue((q) => {
-              const next = q.slice(1);
-              useStore.getState().setCaptionQueue(next);
-              return next;
-            })
-          }
+          onAdvance={() => {
+            const next = queueRef.current.slice(1);
+            queueRef.current = next;
+            setQueue(next);
+            useStore.getState().setCaptionQueue(next);
+          }}
         />
       )}
 

@@ -1532,7 +1532,7 @@ html[data-radio-hits='show'] .radio-hit {
   gap: 0.35rem;
   width: min(52rem, 100%);
   /* Extra start pad: italic slant / keep-all wrap can clip the first syllable. */
-  padding: 0.65rem 0.9rem 0.75rem 1.1rem;
+  padding: 0.65rem 0.9rem 0.75rem 1.25rem;
   border-left: 3px solid transparent;
   background: rgba(8, 7, 6, 0.72);
   box-shadow: 0 0 0 1px rgba(242, 239, 232, 0.08);
@@ -1573,7 +1573,7 @@ html[data-radio-hits='show'] .radio-hit {
   font-weight: 400;
   color: rgba(242, 239, 232, 0.92);
   /* Synthetic italic overhangs left of the ink box. */
-  padding-inline-start: 0.35em;
+  padding-inline-start: 0.45em;
 }
 
 .narration[data-kind='dialogue'] .narration-panel {

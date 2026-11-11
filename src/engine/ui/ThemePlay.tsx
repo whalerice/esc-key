@@ -17,7 +17,11 @@ import {
 import { useRouter } from 'next/navigation';
 import type { Application } from 'pixi.js';
 import type { PuzzleId, ThemeDefinition } from '@/engine/types';
-import type { ThemeStoreApi } from '@/engine/save/createThemeStore';
+import {
+  hasThemeProgress,
+  isThemeWiping,
+  type ThemeStoreApi,
+} from '@/engine/save/createThemeStore';
 import type { SceneMount } from '@/engine/ui/SceneMount';
 
 /** Zustand hook + getState — persist mutators vary; keep structural. */
@@ -87,6 +91,12 @@ export type ThemePlayProps = {
   pauseWhen?: boolean;
   /** Wipe the save when the clock hits zero. Pair with the 처음부터 button. */
   onReplay?: () => void;
+  /**
+   * Full run wipe (memory + localStorage + reload).
+   * Gate shows 「처음부터」 when save has progress; HUD shows 「초기화」 after start.
+   * Both ask confirm first.
+   */
+  onWipe?: () => void;
   /** Clear ending (P8). Timer-zero still uses `onZero`. */
   clearedEnding?: string | null;
   renderResult?: (result: {
@@ -118,6 +128,7 @@ export function ThemePlay({
   onClock,
   pauseWhen = false,
   onReplay,
+  onWipe,
   clearedEnding = null,
   renderResult,
   onUseItem,
@@ -138,6 +149,7 @@ export function ThemePlay({
   const [snap, setSnap] = useState<TimerState>(() => useStore.getState().timer);
   const [endingId, setEndingId] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [canWipe, setCanWipe] = useState(false);
   const talkRef = useRef<Partial<Record<string, number>>>({});
   const sound = useMemo(() => new SoundManager(), []);
   const unmountRef = useRef<(() => void) | null>(null);
@@ -164,6 +176,29 @@ export function ThemePlay({
     if (selectedItem && !items.includes(selectedItem)) setSelectedItem(null);
   }, [items, selectedItem]);
 
+  /** Gate: show 「처음부터」 once hydrate says the save is past a fresh start. */
+  useEffect(() => {
+    if (!onWipe || booted) return;
+    const store = useStore as ThemePlayStore & {
+      persist?: {
+        hasHydrated?: () => boolean;
+        onFinishHydration?: (cb: () => void) => () => void;
+      };
+    };
+    const check = () => {
+      const startScene = theme.scenes[0]?.id;
+      setCanWipe(hasThemeProgress(useStore.getState(), startScene));
+    };
+    if (store.persist?.hasHydrated?.()) {
+      check();
+      return;
+    }
+    if (store.persist?.onFinishHydration) {
+      return store.persist.onFinishHydration(check);
+    }
+    check();
+  }, [onWipe, booted, theme.scenes, useStore]);
+
   /** After persist hydrate + gate: restore caption queue, or skip openings on resume. */
   useEffect(() => {
     if (!booted || captionsSeededRef.current) return;
@@ -183,11 +218,7 @@ export function ThemePlay({
         return;
       }
       const startScene = theme.scenes[0]?.id;
-      const resumed =
-        s.timer.elapsedMs > 0 ||
-        s.items.length > 0 ||
-        Object.values(s.solved).some(Boolean) ||
-        (!!startScene && s.scene !== startScene);
+      const resumed = hasThemeProgress(s, startScene);
       const next = resumed ? [] : openingLines.map(asCaption);
       setQueue(next);
       s.setCaptionQueue(next);
@@ -201,6 +232,12 @@ export function ThemePlay({
     }
     seed();
   }, [booted, openingLines, theme.scenes, useStore]);
+
+  const requestWipe = useCallback(() => {
+    if (!onWipe) return;
+    if (!window.confirm('저장을 지우고 처음부터 시작할까요?')) return;
+    onWipe();
+  }, [onWipe]);
 
   useEffect(() => {
     applySafeAreaVars();
@@ -274,7 +311,9 @@ export function ThemePlay({
     const onVis = () => {
       if (document.hidden) {
         ctrl.pause();
-        if (!endedRef.current) useStore.getState().patchTimer({ elapsedMs: ctrl.elapsed() });
+        if (!endedRef.current && !isThemeWiping()) {
+          useStore.getState().patchTimer({ elapsedMs: ctrl.elapsed() });
+        }
       } else if (!portraitRef.current && !pauseRef.current && ctrl.remaining() !== 0) {
         ctrl.resume();
       }
@@ -283,7 +322,9 @@ export function ThemePlay({
     return () => {
       window.clearInterval(id);
       document.removeEventListener('visibilitychange', onVis);
-      if (!endedRef.current) useStore.getState().patchTimer({ elapsedMs: ctrl.elapsed() });
+      if (!endedRef.current && !isThemeWiping()) {
+        useStore.getState().patchTimer({ elapsedMs: ctrl.elapsed() });
+      }
       ctrlRef.current = null;
       if (timerRef) timerRef.current = null;
     };
@@ -479,6 +520,7 @@ export function ThemePlay({
             void requestFullscreen();
             setMaxBlink(false);
           }}
+          onWipe={onWipe ? requestWipe : undefined}
         />
       )}
 
@@ -529,6 +571,7 @@ export function ThemePlay({
           needs={theme.gate.needs}
           note={gateNote}
           onStart={onStart}
+          onWipe={onWipe && canWipe ? requestWipe : undefined}
         />
       )}
     </div>

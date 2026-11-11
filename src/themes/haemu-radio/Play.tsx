@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import { wipeAndReload } from '@/engine/save/createThemeStore';
 import { ResultCard } from '@/engine/ui/ResultCard';
 import { ThemePlay } from '@/engine/ui/ThemePlay';
 import type { ThemePlayStore } from '@/engine/ui/ThemePlay';
@@ -18,6 +19,10 @@ type FrozenStats = {
   trapPostit: boolean;
   trapRedKey: boolean;
 };
+
+function wipeRadioRun() {
+  wipeAndReload(useRadioStore, initialSave());
+}
 
 /** Gate → on-air clock → illustrated rooms. Frequencies never enter the store. */
 export function HaemuRadioPlay() {
@@ -38,6 +43,7 @@ export function HaemuRadioPlay() {
       clearedEnding={pause ? 'A' : null}
       onClock={(ms) => clockRef.current(ms)}
       onUseItem={(itemId, targetId) => onUseRef.current(itemId, targetId)}
+      onWipe={wipeRadioRun}
       onReplay={() => {
         if (!frozen.current) {
           const s = useRadioStore.getState();
@@ -80,7 +86,7 @@ export function HaemuRadioPlay() {
               trapPostit: stats.trapPostit,
               trapRedKey: stats.trapRedKey,
             })}
-            onReplay={result.id === 'B' ? () => window.location.reload() : undefined}
+            onReplay={wipeRadioRun}
           />
         );
       }}

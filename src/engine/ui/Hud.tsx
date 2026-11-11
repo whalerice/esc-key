@@ -23,6 +23,8 @@ export type HudProps = {
   onMute?: () => void;
   onMaxMode?: () => void;
   onNotebook?: () => void;
+  /** Confirm + wipe theme save (optional). */
+  onWipe?: () => void;
   /**
    * Sewing scenes. Hides hint and inventory; timer stays.
    * Spec §19-11. Other chrome stays so back / mute / max still work.
@@ -48,6 +50,7 @@ export function Hud({
   onMute,
   onMaxMode,
   onNotebook,
+  onWipe,
   collapsed = false,
   selectedItem = null,
   onSelectItem,
@@ -93,6 +96,11 @@ export function Hud({
         >
           최대
         </button>
+        {onWipe && (
+          <button type="button" className="hud-btn" onClick={onWipe} aria-label="처음부터">
+            초기화
+          </button>
+        )}
       </div>
       {!collapsed && (
         <aside className="hud-inventory" aria-label={inventoryName}>

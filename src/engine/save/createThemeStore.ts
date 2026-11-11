@@ -109,3 +109,74 @@ export function readThemeSave<TExtra = unknown>(
     return null;
   }
 }
+
+type WipeStore<TExtra> = {
+  getState: () => { reset: (initial: ThemeSave<TExtra>) => void };
+  persist?: {
+    clearStorage?: () => void | Promise<void>;
+    getOptions?: () => { name?: string };
+  };
+};
+
+/** Set while wiping so ThemePlay unmount cannot re-persist the old timer. */
+let wipingTheme = false;
+
+export function isThemeWiping(): boolean {
+  return wipingTheme;
+}
+
+/** Memory + localStorage wipe, then hard reload so gate/timer/captions boot clean. */
+export function wipeAndReload<TExtra>(
+  store: WipeStore<TExtra>,
+  initial: ThemeSave<TExtra>,
+): void {
+  wipingTheme = true;
+  store.getState().reset(initial);
+  const name = store.persist?.getOptions?.()?.name;
+  const nuke = () => {
+    try {
+      if (name && typeof localStorage !== 'undefined') localStorage.removeItem(name);
+      void store.persist?.clearStorage?.();
+    } catch {
+      /* ignore storage errors; reload still boots from missing key */
+    }
+  };
+  nuke();
+  window.addEventListener('pagehide', nuke);
+  window.addEventListener('beforeunload', nuke);
+  window.location.reload();
+}
+
+/** True when a hydrated save is past a fresh start (resume, not first boot). */
+export function hasThemeProgress(
+  save: Pick<ThemeSave, 'scene' | 'solved' | 'items' | 'timer' | 'flags' | 'hintsUsed'>,
+  startScene?: SceneId,
+): boolean {
+  if (save.timer.elapsedMs > 0) return true;
+  if (save.items.length > 0) return true;
+  if (Object.values(save.solved).some(Boolean)) return true;
+  if (Object.values(save.flags).some(Boolean)) return true;
+  if (Object.values(save.hintsUsed).some((step) => (step ?? 0) > 0)) return true;
+  if (startScene && save.scene !== startScene) return true;
+  return false;
+}
+
+export function assertHasThemeProgress(): void {
+  const blank = {
+    scene: 'control' as SceneId,
+    solved: {},
+    items: [] as string[],
+    timer: { elapsedMs: 0, bonusPausedMs: 0, penaltyMs: 0 },
+    flags: {},
+    hintsUsed: {},
+  };
+  if (hasThemeProgress(blank, 'control')) throw new Error('fresh');
+  if (!hasThemeProgress({ ...blank, timer: { ...blank.timer, elapsedMs: 1 } }, 'control')) {
+    throw new Error('timer');
+  }
+  if (!hasThemeProgress({ ...blank, scene: 'booth' }, 'control')) throw new Error('scene');
+  if (!hasThemeProgress({ ...blank, solved: { P1: true } }, 'control')) throw new Error('solved');
+  if (!hasThemeProgress({ ...blank, items: ['key'] }, 'control')) throw new Error('items');
+  if (!hasThemeProgress({ ...blank, flags: { endingA: true } }, 'control')) throw new Error('flags');
+  if (!hasThemeProgress({ ...blank, hintsUsed: { P1: 1 } }, 'control')) throw new Error('hints');
+}

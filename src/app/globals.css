@@ -1385,6 +1385,14 @@ html[data-radio-hits='show'] .radio-hit {
   letter-spacing: 0.04em;
 }
 
+.gate-btn--wipe {
+  border-color: rgba(242, 239, 232, 0.35);
+  opacity: 0.85;
+  font-size: 0.9rem;
+  min-height: 44px;
+  padding: 0.65rem 1.2rem;
+}
+
 .gate-loading {
   width: min(280px, 70vw);
   text-align: center;

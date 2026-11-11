@@ -20,6 +20,8 @@ export type GateProps = {
   progress?: number;
   note?: string;
   onStart: () => void;
+  /** Secondary wipe when a save already has progress. */
+  onWipe?: () => void;
 };
 
 export function Gate({
@@ -29,6 +31,7 @@ export function Gate({
   progress = 0,
   note,
   onStart,
+  onWipe,
 }: GateProps) {
   const [started, setStarted] = useState(false);
   const [platform, setPlatform] = useState<PlatformKind | null>(null);
@@ -93,6 +96,11 @@ export function Gate({
           <button type="button" className="gate-btn" onClick={() => begin(false)}>
             {label}
           </button>
+          {onWipe && (
+            <button type="button" className="gate-btn gate-btn--wipe" onClick={onWipe}>
+              처음부터
+            </button>
+          )}
           {note && <p className="gate-note">{note}</p>}
         </div>
       ) : (
@@ -100,6 +108,11 @@ export function Gate({
           <button type="button" className="gate-btn" onClick={() => begin(false)}>
             {label}
           </button>
+          {onWipe && (
+            <button type="button" className="gate-btn gate-btn--wipe" onClick={onWipe}>
+              처음부터
+            </button>
+          )}
           {note && <p className="gate-note">{note}</p>}
         </div>
       )}
